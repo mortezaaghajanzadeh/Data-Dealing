@@ -97,7 +97,7 @@ def getStockTrade(date, stock_id, result, i):
         stock_id, date
     )
     try:
-        r = r = requests.get(url, timeout=15)
+        r = requests.get(url, timeout=15)
         global sessions
         sessions += 1
         r = json.loads(r.text)
