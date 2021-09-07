@@ -9,7 +9,7 @@ import pandas as pd
 from bs4 import BeautifulSoup
 import math
 
-#%%
+
 def convert_ar_characters(input_str):
 
     mapping = {
@@ -112,38 +112,6 @@ def group_id():
 
 
 groupnameid = group_id()
-#%%
-def Overall_index():
-    url = r"https://tse.ir/archive/Indices/Main/Indices_IRX6XTPI0006.xls"
-    r = requests.get(
-            url
-        )  # This URL contains all sector groups.
-    soup = BeautifulSoup(r.text, "html.parser")
-    header = soup.find_all("table")[0].find("tr")
-    list_header = []
-    for items in header:
-        try:
-            list_header.append(items.get_text())
-        except:
-            continue
-
-    # for getting the data
-    HTML_data = soup.find_all("table")[0].find_all("tr")[1:]
-    data = []
-    for element in HTML_data:
-        sub_data = []
-        for sub_element in element:
-            try:
-                sub_data.append(sub_element.get_text())
-            except:
-                continue
-        data.append(sub_data)
-    df = pd.DataFrame(data=data, columns=list_header)
-    df['Date'] = df.Date.apply(removeSlash2)
-    return df
-
-overal_index = Overall_index()
-
 # %%
 pdf = pd.read_parquet(path + "Stocks_Prices_1400-04-27.parquet")
 
