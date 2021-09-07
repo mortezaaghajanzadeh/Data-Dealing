@@ -137,7 +137,7 @@ object = pd.read_pickle(r"ids.p")
 Data = pd.DataFrame()
 counter = 0
 errore = []
-for stock_id in object[1870:]:
+for stock_id in object:
     try:
         counter += 1
         print(counter, len(object), "stock_id")
