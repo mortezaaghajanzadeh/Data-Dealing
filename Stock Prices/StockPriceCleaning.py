@@ -142,7 +142,7 @@ def Overall_index():
     df['Date'] = df.Date.apply(removeSlash2)
     return df
 
-overal_index = Overall_index()
+# overal_index = Overall_index()
 
 # %%
 pdf = pd.read_parquet(path + "Stock_Prices_1400_06_16.parquet")
@@ -150,9 +150,6 @@ pdf = pd.read_parquet(path + "Stock_Prices_1400_06_16.parquet")
 
 mapdict = dict(zip(groupnameid.group_name, groupnameid.group_id))
 pdf["group_id"] = pdf.group_name.map(mapdict)
-#%%
-pdf['volume'] = pdf.volume.astype(float)
-
 
 
 #%%
@@ -215,6 +212,8 @@ i = "close_price"
 pdf[i] = pdf[i].astype(float)
 i = "quantity"
 pdf[i] = pdf[i].astype(float)
+i = "close_price_Adjusted"
+pdf[i] = pdf[i].astype(float)
 
 
 gg = pdf.groupby(["name"])
@@ -240,11 +239,11 @@ for i in ["last_price", "open_price", "value", "quantity", "volume"]:
 pList = [1.0, 1000.0, 100.0, 10.0]
 pdf = pdf[~((pdf.close_price.isin(pList)) & (pdf.volume == 0))]
 
-pdf["close"] = pdf.close_price / pdf.AdjustFactor
+# pdf["close"] = pdf.close_price / pdf.AdjustFactor
 gg = pdf.groupby(["name"])
-pdf["return"] = gg.close.pct_change() * 100
+pdf["return"] = gg.close_price_Adjusted.pct_change() * 100
 pdf["MarketCap"] = pdf.close_price * pdf.shrout
-pdf["yclose"] = gg.close.shift()
+pdf["yclose"] = gg.close_price_Adjusted.shift()
 
 
 i = "return"
