@@ -136,8 +136,12 @@ df
 object = pd.read_pickle(r"ids.p")
 Data = pd.DataFrame()
 counter = 0
+errore = []
 for stock_id in object[1870:]:
-    counter += 1
-    print(counter, len(object), "stock_id")
-    Data = Data.append(crawl_prices(stock_id))
+    try:
+        counter += 1
+        print(counter, len(object), "stock_id")
+        Data = Data.append(crawl_prices(stock_id))
+    except:
+        errore.append(stock_id)
 #%%
