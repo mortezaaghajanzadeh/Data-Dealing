@@ -4,14 +4,14 @@ import pandas as pd
 import pandas as pd
 
 path = r"G:\Economics\Finance(Prof.Heidari-Aghajanzadeh)\Data\\"
-pdf = pd.read_parquet(path + "Cleaned_Stocks_Prices_1400-04-27.parquet")
+pdf = pd.read_parquet(path + "Cleaned_Stock_Prices_1400_06_16.parquet")
 
 #%%
 gg = pdf.groupby(["date", "group_id"])
 pdf = pdf.set_index(["date", "group_id"])
 pdf["Weight"] = gg.MarketCap.sum()
 pdf["Weight"] = pdf.MarketCap / pdf.Weight
-pdf["industry_return"] = gg["return"] * pdf.Weight
+pdf["industry_return"] = pdf["return"] * pdf.Weight
 pdf = pdf.reset_index()
 gg = pdf.groupby(["date", "group_id"])
 pdf = pdf.set_index(["date", "group_id"])
@@ -41,6 +41,6 @@ first = (
 #%%
 first["industry_index"] = first.industry_return / 100 + 1
 first["industry_index"] = first.groupby("group_id").industry_index.cumprod()
-first.to_csv(path + "IndustryIndexes_1400-04-27.csv", index=False)
+first.to_csv(path + "IndustryIndexes_1400-06-16.csv", index=False)
 first
 # %%

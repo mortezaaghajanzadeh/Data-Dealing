@@ -302,6 +302,11 @@ for i in [
     "value",
     "volume",
     "quantity",
+    'max_price_Adjusted',
+    'min_price_Adjusted',
+    'open_price_Adjusted',
+    'last_price_Adjusted',
+    'close_price_Adjusted',
 ]:
     pdf[i] = pdf[i].astype(float)
 
