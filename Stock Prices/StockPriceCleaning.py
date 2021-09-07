@@ -79,7 +79,7 @@ def removeDash(row):
     return int(X[0] + X[1] + X[2])
 
 
-path = r"G:\Economics\Finance(Prof.Heidari-Aghajanzadeh)\Data\Capital Rise\\"
+path = r"G:\Economics\Finance(Prof.Heidari-Aghajanzadeh)\Data\\"
 #%%
 def group_id():
     r = requests.get(
@@ -145,13 +145,17 @@ def Overall_index():
 overal_index = Overall_index()
 
 # %%
-pdf = pd.read_parquet(path + "Stocks_Prices_1400-04-27.parquet")
+pdf = pd.read_parquet(path + "Stock_Prices_1400_06_16.parquet")
 
 
 mapdict = dict(zip(groupnameid.group_name, groupnameid.group_id))
 pdf["group_id"] = pdf.group_name.map(mapdict)
+#%%
+pdf['volume'] = pdf.volume.astype(float)
 
 
+
+#%%
 pdf.loc[pdf.name.str[-1] == " ", "name"] = pdf.loc[pdf.name.str[-1] == " "].name.str[
     :-1
 ]
@@ -178,48 +182,6 @@ symbolGroup.to_excel(path2 + "SymbolGroup.xlsx", index=False)
 
 #%%
 
-## get Adjusted factor for adjusted Price
-
-adData = pd.read_csv(path + "DataAdjustedEvent.csv")
-adData = (
-    adData.rename(
-        columns={"قبل از تعدیل": "Before", "تعدیل شده": "After", "تاریخ": "jalaliDate"}
-    )
-    .sort_values(by=["stock_id", "jalaliDate"])
-    .drop_duplicates(subset=["stock_id", "jalaliDate"], keep="last")
-)
-gg = adData.groupby("stock_id")
-
-
-def clean(g):
-    g.loc[g.After == 1, "After"] = np.nan
-    g.loc[g.Before == 1, "Before"] = np.nan
-    g["After"] = g["After"].fillna(method="bfill")
-    g["Before"] = g["Before"].fillna(method="ffill")
-    return g
-
-
-adData = gg.apply(clean)
-adData["AdjustFactor"] = adData.After / adData.Before
-gg = adData.groupby("stock_id")
-adData["AdjustFactor"] = gg.AdjustFactor.cumprod()
-
-i = "stock_id"
-pdf[i] = pdf[i].astype(str)
-adData[i] = adData[i].astype(str)
-i = "jalaliDate"
-pdf[i] = pdf[i].astype(int)
-adData[i] = adData[i].astype(int)
-
-pdf = pdf.merge(
-    adData[["jalaliDate", "stock_id", "AdjustFactor"]],
-    on=["jalaliDate", "stock_id"],
-    how="outer",
-)
-gg = pdf.groupby("name")
-pdf["AdjustFactor"] = gg["AdjustFactor"].fillna(method="ffill")
-pdf = pdf[~pdf.date.isnull()]
-pdf["AdjustFactor"] = pdf.AdjustFactor.fillna(1)
 
 #%%
 ## Add issued shares to data
@@ -330,7 +292,7 @@ pdf = pdf.drop(
         "yclose",
     ]
 )
-pdf = pdf.rename(columns={"close": "AdjustedPrice"})
+
 # %%
 for i in [
     "max_price",
@@ -346,5 +308,15 @@ for i in [
 
 #%%
 
-pdf.to_parquet(path2 + "Cleaned_Stocks_Prices_1400-04-27" + ".parquet")
+gg = pdf.groupby(['name'])
+for i in ['max_price_Adjusted',
+ 'min_price_Adjusted',
+ 'open_price_Adjusted',
+ 'last_price_Adjusted',
+ 'close_price_Adjusted',]:
+    print(i)
+    pdf[i] = gg[i].fillna(method = 'bfill')
+
+#%%
+pdf.to_parquet(path2 + "Cleaned_Stock_Prices_1400_06_16" + ".parquet")
 # %%
