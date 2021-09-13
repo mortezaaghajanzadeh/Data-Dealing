@@ -8,4 +8,4 @@ ids = list(dfname.stock_id.unique())
 #%%
 path2 = r"D:\{}\{}.parquet"
 for stock_id in [2400322364771558, 46348559193224090]:
-    gen_LOB_Trade(stock_id, dates[str(stock_id)][:10], 100, path2)
+    gen_LOB_Trade(stock_id, dates[str(stock_id)], 100, path2)
