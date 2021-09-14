@@ -114,9 +114,6 @@ def get_daily_data(date, stock_id):
     return results
 
 
-get_daily_data(date, stock_id)
-
-
 def get_request(date, stock_id, LOBs, Trades):
     result = get_daily_data(date, stock_id)
     LOBs[date] = result[0]
@@ -139,31 +136,8 @@ def get_stock_LOB_and_Trade_history(stock_id, dates):
     return LOBs, Trades
 
 
-def date_of_stocks(df, y):
-    t = int(y) + 621
-    t = int(str(t) + "0325")
-    df["date"] = df.date.astype(int)
-    gg = df[(df["date"] < t + 10000) & (df["date"] > t)][["date", "stock_id"]].groupby(
-        "stock_id"
-    )
-
-    def function(g):
-        return g.date.to_list()
-
-    date = gg.apply(function).to_dict()
-    print("date be done")
-    dfname = df[(df["date"] < t + 10000) & (df["date"] > t)][
-        [
-            "jalaliDate",
-            "date",
-            "name",
-            "stock_id",
-            "group_name",
-            "close_price",
-            # "group_id",
-        ]
-    ]
-    return date, dfname
+def function(g):
+    return g.date.to_list()
 
 
 def sessionLimit(number):
@@ -196,8 +170,8 @@ def get_stock_all_LOB_and_Trade(stock_id, dates, number):
     all_LOB = dict.fromkeys(dates, 0)
     all_Trade = dict.fromkeys(dates, 0)
     while i < len(dates) + 1 or i != len(dates) + 1:
-        j = min(number / 5 + i, len(dates) + 1)
-        # print(i,j)
+        j = min(int(number / 5) + i, len(dates) + 1)
+        # print(i, j)
         OpenConnectWait()
         LOB, Trade = get_stock_LOB_and_Trade_history(stock_id, dates[i:j])
         all_LOB.update(LOB)
@@ -254,7 +228,8 @@ def OpenConnectWait():
 def clean_LOB_on_Stock(all_LOB):
     df = pd.DataFrame()
     for i in all_LOB:
-        t = all_LOB[i]
+        t = pd.DataFrame.from_dict(all_LOB[i])
+        t["date"] = i
         df = df.append(t)
     df.columns = [
         "hour",
@@ -267,6 +242,7 @@ def clean_LOB_on_Stock(all_LOB):
         "ask_volume",
         "ask_quent",
         "ask_price",
+        "date",
     ]
     return df
 
@@ -274,9 +250,19 @@ def clean_LOB_on_Stock(all_LOB):
 def clean_Trade_on_Stock(all_Trade):
     df = pd.DataFrame()
     for i in all_Trade:
-        t = all_Trade[i]
+        t = pd.DataFrame.from_dict(all_Trade[i])
+        t["date"] = i
         df = df.append(t)
-    df.columns = ["hour", "minute", "second", "position", "quant", "price", "canceled"]
+    df.columns = [
+        "hour",
+        "minute",
+        "second",
+        "position",
+        "quant",
+        "price",
+        "canceled",
+        "date",
+    ]
     return df
 
 
@@ -287,16 +273,5 @@ def gen_LOB_Trade(stock_id, dates, number, path):
         path.format("Trade", "Trade" + str(stock_id))
     )
 
-
-#%%
-path = r"E:\RA_Aghajanzadeh\Data\\"
-df = pd.read_parquet(path + "Stock_Prices_1400_06_16.parquet")
-y = "1399"
-dates, dfname = date_of_stocks(df, y)
-ids = list(dfname.stock_id.unique())
-#%%
-path2 = r"D:\{}\{}.parquet"
-for stock_id in [2400322364771558, 46348559193224090]:
-    gen_LOB_Trade(stock_id, dates[str(stock_id)][:10], 100, path2)
 
 #%%

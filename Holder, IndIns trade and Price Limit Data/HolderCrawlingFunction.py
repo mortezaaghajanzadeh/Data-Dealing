@@ -727,7 +727,7 @@ def mainCrawl(counter, stock_id, dates, Excepted_stock, number):
         len(dates[stock_id]),
         end="\n",
         flush=True,
-    )  # printing number of stocks parsed
+    )  # `print`ing number of stocks parsed
     excepted_again = []
     holder, excepted_again = get_stock_all_history(stock_id, dates[stock_id], number)
     if excepted_again != []:
