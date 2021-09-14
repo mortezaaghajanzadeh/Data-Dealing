@@ -3,7 +3,7 @@ import warnings
 
 warnings.filterwarnings("ignore")
 import re
-
+import pickle
 import requests
 import json
 from threading import Thread
@@ -140,22 +140,23 @@ def function(g):
     return g.date.to_list()
 
 
-def sessionLimit(number):
-    global sessions, start, totalSessions
-    # print((datetime.datetime.now() - start).seconds, sessions)
-    if ((datetime.datetime.now() - start).seconds < 60) and (sessions >= number):
-        sleeptime = 60 - (datetime.datetime.now() - start).seconds
-        print("sleep {}".format(sleeptime))
-        time.sleep(sleeptime)
-        start = datetime.datetime.now()
-        totalSessions += sessions
-        # print(totalSessions)
-        sessions = 0
-    elif (datetime.datetime.now() - start).seconds >= 60:
-        start = datetime.datetime.now()
-        totalSessions += sessions
-        # print(totalSessions)
-        sessions = 0
+def sessionLimit(number, stat):
+    if stat:
+        global sessions, start, totalSessions
+        # print((datetime.datetime.now() - start).seconds, sessions)
+        if ((datetime.datetime.now() - start).seconds < 60) and (sessions >= number):
+            sleeptime = 60 - (datetime.datetime.now() - start).seconds
+            print("sleep {}".format(sleeptime), sessions)
+            time.sleep(sleeptime)
+            start = datetime.datetime.now()
+            totalSessions += sessions
+            # print(totalSessions)
+            sessions = 0
+        elif (datetime.datetime.now() - start).seconds >= 60:
+            start = datetime.datetime.now()
+            totalSessions += sessions
+            # print(totalSessions)
+            sessions = 0
 
 
 def aggregateSessions():
@@ -163,15 +164,15 @@ def aggregateSessions():
     return totalSessions + sessions
 
 
-def get_stock_all_LOB_and_Trade(stock_id, dates, number):
+def get_stock_all_LOB_and_Trade(stock_id, dates, number, stat):
     i = 0
     Except = []
     # Excepted_id = 0
     all_LOB = dict.fromkeys(dates, 0)
     all_Trade = dict.fromkeys(dates, 0)
     while i < len(dates) + 1 or i != len(dates) + 1:
-        j = min(int(number / 5) + i, len(dates) + 1)
-        # print(i, j)
+        j = min(int(number / 2) + i, len(dates) + 1)
+        print(i, j)
         OpenConnectWait()
         LOB, Trade = get_stock_LOB_and_Trade_history(stock_id, dates[i:j])
         all_LOB.update(LOB)
@@ -179,7 +180,7 @@ def get_stock_all_LOB_and_Trade(stock_id, dates, number):
         i = j
         if j >= len(dates):
             continue
-        sessionLimit(number)
+        sessionLimit(number, stat)
 
     return all_LOB, all_Trade
 
@@ -266,12 +267,10 @@ def clean_Trade_on_Stock(all_Trade):
     return df
 
 
-def gen_LOB_Trade(stock_id, dates, number, path):
-    LOB, Trade = get_stock_all_LOB_and_Trade(stock_id, dates, number)
-    clean_LOB_on_Stock(LOB).to_parquet(path.format("LOB", "LOB_" + str(stock_id)))
-    clean_Trade_on_Stock(Trade).to_parquet(
-        path.format("Trade", "Trade" + str(stock_id))
-    )
+def gen_LOB_Trade(stock_id, dates, number, path, stat):
+    LOB, Trade = get_stock_all_LOB_and_Trade(stock_id, dates, number, stat)
+    pickle.dump(LOB, open(path.format("LOB", "LOB_" + str(stock_id)), "wb"))
+    pickle.dump(Trade, open(path.format("Trade", "Trade" + str(stock_id)), "wb"))
 
 
 #%%

@@ -1,3 +1,4 @@
+#%%
 from LOBandTradeCrawlingFunction import *
 
 path = r"E:\RA_Aghajanzadeh\Data\\"
@@ -38,18 +39,24 @@ dates = gg.apply(function).to_dict()
 
 ids = list(df.stock_id.unique())
 
-path2 = r"D:\{}\{}.parquet"
+path2 = r"D:\{}\{}.p"
 counter = 0
-for stock_id in ids[:5]:
+del df
+del gg 
+
+
+for stock_id in ids:
     counter += 1
     print(
         "Parsed stock count",
         counter,
         stock_id,
+        len(dates[str(stock_id)]),
         end="\n",
         flush=True,
     )
     try:
-        gen_LOB_Trade(stock_id, dates[str(stock_id)], 100, path2)
+        gen_LOB_Trade(stock_id, dates[str(stock_id)], 500, path2, False)
     except:
         error.append(stock_id)
+
