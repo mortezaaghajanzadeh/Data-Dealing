@@ -164,14 +164,14 @@ def aggregateSessions():
     return totalSessions + sessions
 
 
-def get_stock_all_LOB_and_Trade(stock_id, dates, number, stat):
+def get_stock_all_LOB_and_Trade(stock_id, dates, number, stat,number_days):
     i = 0
     Except = []
     # Excepted_id = 0
     all_LOB = dict.fromkeys(dates, 0)
     all_Trade = dict.fromkeys(dates, 0)
     while i < len(dates) + 1 or i != len(dates) + 1:
-        j = min(int(number / 2) + i, len(dates) + 1)
+        j = min(number_days + i, len(dates) + 1)
         print(i, j)
         OpenConnectWait()
         LOB, Trade = get_stock_LOB_and_Trade_history(stock_id, dates[i:j])
@@ -267,8 +267,8 @@ def clean_Trade_on_Stock(all_Trade):
     return df
 
 
-def gen_LOB_Trade(stock_id, dates, number, path, stat):
-    LOB, Trade = get_stock_all_LOB_and_Trade(stock_id, dates, number, stat)
+def gen_LOB_Trade(stock_id, dates, number, path, stat,number_days):
+    LOB, Trade = get_stock_all_LOB_and_Trade(stock_id, dates, number, stat,number_days)
     pickle.dump(LOB, open(path.format("LOB", "LOB_" + str(stock_id)), "wb"))
     pickle.dump(Trade, open(path.format("Trade", "Trade" + str(stock_id)), "wb"))
 
