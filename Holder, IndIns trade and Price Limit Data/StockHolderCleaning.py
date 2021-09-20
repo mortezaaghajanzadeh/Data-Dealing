@@ -8,9 +8,11 @@ from persiantools.jdatetime import JalaliDate
 import pandas as pd
 from persiantools.jdatetime import JalaliDate
 
-path = r"G:\Economics\Finance(Prof.Heidari-Aghajanzadeh)\Data\Stocks_Holders\New Type\\"
+
+path2 = r"E:\RA_Aghajanzadeh\Data\\"
 import os
 
+path = r"E:\RA_Aghajanzadeh\Data\Stock_holder_new\\"
 arr = os.listdir(path)
 print(arr)
 
@@ -79,7 +81,7 @@ mlist = [
 #     df = pd.read_csv(path + i)
 #     data = data.append(df)
 #     del df
-    
+
 # print("Read files")
 # data = (
 #     data.drop(columns=["Unnamed: 0"]).drop_duplicates().sort_values(by=["name", "date"])
@@ -103,8 +105,8 @@ mlist = [
 # data.to_csv(path + "mergerdallData_cleaned" + ".csv")
 
 #%%
-path2 = r"G:\Economics\Finance(Prof.Heidari-Aghajanzadeh)\Data\\"
-pdf = pd.read_csv(path2 + "Stocks_Prices_1400-02-07.csv")
+# path2 = r"G:\Economics\Finance(Prof.Heidari-Aghajanzadeh)\Data\\"
+pdf = pd.read_parquet(path2 + "Cleaned_Stock_Prices_1400_06_16.parquet")
 print("read Price")
 pdf = pdf.drop(
     columns=[
@@ -124,26 +126,25 @@ pdf = pdf.drop(
 df1 = pd.read_csv(path + "mergerdallData_cleaned" + ".csv")
 print("read Mereged Data")
 df1 = df1.drop(df1[df1["name"] == "کرد"].index)
-
 mlist = [
-    'jalaliDate',
-    'date',
-    'Holder',
-    'Holder_id',
-    'Number',
-    'Percent',
-    'Change',
-    'ChangeAmount',
-    'Firm',
-    'name',
-    'shrout',
-    'stock_id',
-    'close_price',
+    "jalaliDate",
+    "date",
+    "Holder",
+    "Holder_id",
+    "Number",
+    "Percent",
+    "Change",
+    "ChangeAmount",
+    "Firm",
+    "name",
+    "shrout",
+    "stock_id",
+    "close_price",
 ]
-
-df1['Number'] = df1.Number.astype(float)
-df1['Percent'] = df1.Percent.astype(float)
-df1['Change'] = df1.Change.astype(float)
+df1 =  df1[df1.Holder != '-']
+df1["Number"] = df1.Number.astype(float)
+df1["Percent"] = df1.Percent.astype(float)
+df1["Change"] = df1.Change.astype(float)
 df1 = df1[mlist]
 print("Rename")
 
@@ -164,9 +165,12 @@ print(len(df1))
 a = sumPercent(df1)
 a[a > 100]
 # %%
-gdata = df1[["group_id", "group_name"]].drop_duplicates().dropna()
-mapingdict = dict(zip(gdata.group_name, gdata.group_id))
-df1["group_id"] = df1["group_name"].map(mapingdict)
+gdata = pdf[["group_id", "name"]].drop_duplicates().dropna()
+mapingdict = dict(zip(gdata.name, gdata.group_id))
+df1["group_id"] = df1["name"].map(mapingdict)
+gdata = pdf[["group_name", "name"]].drop_duplicates().dropna()
+mapingdict = dict(zip(gdata.name, gdata.group_name))
+df1["group_name"] = df1["name"].map(mapingdict)
 df1.loc[df1.group_name == "زراعت و خدمات وابسته", "group_id"] = 1
 
 

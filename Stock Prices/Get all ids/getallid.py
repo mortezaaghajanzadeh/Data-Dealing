@@ -76,8 +76,7 @@ df = pd.read_csv(r"D:\Dropbox\Python Codes\Scrapy\3_clean.csv")
 #%%
 import pickle
 
-path = r"D:\Dropbox\Python Codes\Soltan\Data generating\\"
-pickle.dump(ids, open(path + "ids.p", "wb"))
+pickle.dump(ids, open("ids.p", "wb"))
 # %%
 url1 = r"https://tse.ir/json/Listing/ListingByName1.json"
 r = requests.get(url1)
