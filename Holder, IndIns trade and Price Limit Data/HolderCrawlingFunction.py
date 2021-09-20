@@ -23,31 +23,32 @@ sessions = 0
 start = datetime.datetime.now()
 totalSessions = 0
 #%%
+def function(g):
+    return g.date.to_list()
+
+
 def date_of_stocks(df, y):
     t = int(y) + 621
     t = int(str(t) + "0325")
     df["date"] = df.date.astype(int)
-    gg = df[(df["date"] < t + 10000) & (df["date"] > t)][["date", "stock_id"]].groupby(
-        "stock_id"
-    )
-
-    def function(g):
-        return g.date.to_list()
-
+    # gg = df[(df["date"] < t + 10000) & (df["date"] > t)][["date", "stock_id"]].groupby(
+    #     "stock_id"
+    # )
+    gg = df.groupby("stock_id")
     date = gg.apply(function).to_dict()
     print("date be done")
-    dfname = df[(df["date"] < t + 10000) & (df["date"] > t)][
-        [
-            "jalaliDate",
-            "date",
-            "name",
-            "stock_id",
-            "group_name",
-            "close_price",
-            # "group_id",
-        ]
-    ]
-    return date, dfname
+    # dfname = df[(df["date"] < t + 10000) & (df["date"] > t)][
+    #     [
+    #         "jalaliDate",
+    #         "date",
+    #         "name",
+    #         "stock_id",
+    #         "group_name",
+    #         "close_price",
+    #         # "group_id",
+    #     ]
+    # ]
+    return date
 
 
 def text_num_split(item):
@@ -348,37 +349,14 @@ def get_stock_holder_history(stock_id, dates):
     return history, Excepted
 
 
-def sessionLimit(number):
-    global sessions, start, totalSessions
-    # print((datetime.datetime.now() - start).seconds, sessions)
-    if ((datetime.datetime.now() - start).seconds < 60) and (sessions >= number):
-        sleeptime = 60 - (datetime.datetime.now() - start).seconds
-        print("sleep {}".format(sleeptime))
-        time.sleep(sleeptime)
-        start = datetime.datetime.now()
-        totalSessions += sessions
-        # print(totalSessions)
-        sessions = 0
-    elif (datetime.datetime.now() - start).seconds >= 60:
-        start = datetime.datetime.now()
-        totalSessions += sessions
-        # print(totalSessions)
-        sessions = 0
-
-
-def aggregateSessions():
-    global sessions, totalSessions
-    return totalSessions + sessions
-
-
-def get_stock_all_history(stock_id, dates, number):
+def get_stock_all_history(stock_id, dates, number, stat, number_days):
     i = 0
     Except = []
     # Excepted_id = 0
     all_history = dict.fromkeys(dates, 0)
     while i < len(dates) + 1 or i != len(dates) + 1:
-        j = min(number / 5 + i, len(dates) + 1)
-        # print(i,j)
+        j = min(number_days + i, len(dates) + 1)
+        print(i, j)
         OpenConnectWait()
         holder_history, Excepted = get_stock_holder_history(stock_id, dates[i:j])
         Except.append(Excepted)
@@ -386,7 +364,7 @@ def get_stock_all_history(stock_id, dates, number):
         i = j
         if j >= len(dates):
             continue
-        sessionLimit(number)
+        sessionLimit(number, stat)
 
     # step = 0
     # while excepted_again != [] and step < 2:
@@ -703,19 +681,43 @@ def ColseCheck():
 def OpenConnectWait():
     connectSleep()
     t = datetime.datetime.now()
-    # while not ColseCheck():
-    #     t = datetime.datetime.now()
-    #     print("Open Market", t)
-    #     if t.hour < 12:
-    #         dt = datetime.datetime(t.year, t.month, t.day, 12, 0, 0, 0)
-    #         time.sleep((dt - t).total_seconds())
-    #     elif t.hour < 12 and t.minute >= 20:
-    #         time.sleep(60)
-    #     else:
-    #         time.sleep(600)
+    while not ColseCheck():
+        t = datetime.datetime.now()
+        print("Open Market", t)
+        if t.hour < 12:
+            dt = datetime.datetime(t.year, t.month, t.day, 12, 0, 0, 0)
+            time.sleep((dt - t).total_seconds())
+        elif t.hour < 12 and t.minute >= 20:
+            time.sleep(60)
+        else:
+            time.sleep(600)
 
 
-def mainCrawl(counter, stock_id, dates, Excepted_stock, number):
+def sessionLimit(number, stat):
+    if stat:
+        global sessions, start, totalSessions
+        # print((datetime.datetime.now() - start).seconds, sessions)
+        if ((datetime.datetime.now() - start).seconds < 30) and (sessions >= number):
+            sleeptime = 30 - (datetime.datetime.now() - start).seconds
+            print("sleep {}".format(sleeptime), sessions)
+            time.sleep(sleeptime)
+            start = datetime.datetime.now()
+            totalSessions += sessions
+            # print(totalSessions)
+            sessions = 0
+        elif (datetime.datetime.now() - start).seconds >= 30:
+            start = datetime.datetime.now()
+            totalSessions += sessions
+            # print(totalSessions)
+            sessions = 0
+
+
+def aggregateSessions():
+    global sessions, totalSessions
+    return totalSessions + sessions
+
+
+def mainCrawl(counter, stock_id, dates, Excepted_stock, number, stat, number_days):
     now = datetime.datetime.now()
     holder = {}
     print(
@@ -729,14 +731,16 @@ def mainCrawl(counter, stock_id, dates, Excepted_stock, number):
         flush=True,
     )  # `print`ing number of stocks parsed
     excepted_again = []
-    holder, excepted_again = get_stock_all_history(stock_id, dates[stock_id], number)
+    holder, excepted_again = get_stock_all_history(
+        stock_id, dates[stock_id], number, stat, number_days
+    )
     if excepted_again != []:
         step = 0
         while excepted_again != [] and step < 5:
             step += 1
-            # print("step is ", step, stock_id, len(excepted_again), end="\r", flush=True)
+            print("step is ", step, stock_id, len(excepted_again), end="\r", flush=True)
             holder2, excepted_again = get_stock_all_history(
-                stock_id, excepted_again, number
+                stock_id, excepted_again, number, stat, number_days / 2
             )
             holder.update(holder2)
             excepted_again = list(set(excepted_again) - set(holder.keys()))
@@ -752,22 +756,26 @@ def mainCrawl(counter, stock_id, dates, Excepted_stock, number):
     return holder, Excepted_stock
 
 
-def Main(counter, stock_id, dates, Excepted_stock, result, number):
+def Main(counter, stock_id, dates, Excepted_stock, result, number, stat, number_days):
     stock = {}
-    holder, Excepted_stock = mainCrawl(counter, stock_id, dates, Excepted_stock, number)
+    holder, Excepted_stock = mainCrawl(
+        counter, stock_id, dates, Excepted_stock, number, stat, number_days
+    )
     stock["holder_history"] = sort_stock_holders_history(stock_id, holder)
     result[stock_id] = stock
 
 
-def Main2(counter, stock_id, dates, Excepted_stock, result, number):
+def Main2(counter, stock_id, dates, Excepted_stock, result, number, stat, number_days):
     stock = {}
-    holder, Excepted_stock = mainCrawl(counter, stock_id, dates, Excepted_stock, number)
+    holder, Excepted_stock = mainCrawl(
+        counter, stock_id, dates, Excepted_stock, number, stat, number_days
+    )
     stock["holder_history"] = sort_stock_holders_history(stock_id, holder)
     return stock
 
 
 # %%
-def clean(all_stock_data, dfname):
+def clean(all_stock_data):
     stocks = cleaning(all_stock_data)
     # stocks = pd.merge(
     #     stocks, dfname, left_on=["stock_id", "date"], right_on=["stock_id", "date"]

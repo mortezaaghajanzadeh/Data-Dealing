@@ -145,3 +145,6 @@ for stock_id in object:
     except:
         errore.append(stock_id)
 #%%
+path = r"E:\RA_Aghajanzadeh\Data\\"
+name = "Stock_Prices_1400_06_29"
+Data.to_parquet(path + name + ".parquet")

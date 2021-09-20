@@ -106,7 +106,7 @@ mlist = [
 
 #%%
 # path2 = r"G:\Economics\Finance(Prof.Heidari-Aghajanzadeh)\Data\\"
-pdf = pd.read_parquet(path2 + "Cleaned_Stock_Prices_1400_06_16.parquet")
+pdf = pd.read_parquet(path2 + "Cleaned_Stock_Prices_1400_06_29.parquet")
 print("read Price")
 pdf = pdf.drop(
     columns=[

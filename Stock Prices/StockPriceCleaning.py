@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 import re
 import statsmodels.api as sm
-import finance_byu.rolling as rolling
+# import finance_byu.rolling as rolling
 import requests
 import pandas as pd
 from bs4 import BeautifulSoup
@@ -79,7 +79,7 @@ def removeDash(row):
     return int(X[0] + X[1] + X[2])
 
 
-path = r"G:\Economics\Finance(Prof.Heidari-Aghajanzadeh)\Data\\"
+path = r"E:\RA_Aghajanzadeh\Data\\"
 #%%
 def group_id():
     r = requests.get(
@@ -145,7 +145,7 @@ def Overall_index():
 # overal_index = Overall_index()
 
 # %%
-pdf = pd.read_parquet(path + "Stock_Prices_1400_06_16.parquet")
+pdf = pd.read_parquet(path + "Stock_Prices_1400_06_29.parquet")
 
 
 mapdict = dict(zip(groupnameid.group_name, groupnameid.group_id))
@@ -164,7 +164,7 @@ pdf = pdf[
     ~((pdf.title.str.startswith("ح")) & (pdf.name.str.endswith("ح")))
 ]  # delete right offers
 pdf = pdf[~(pdf.name.str.endswith("پذيره"))]  # delete subscribed symbols
-pdf = pdf[~(pdf.group_name == "صندوق سرمايه گذاري قابل معامله")]  # delete ETFs
+# pdf = pdf[~(pdf.group_name == "صندوق سرمايه گذاري قابل معامله")]  # delete ETFs
 
 col = "name"
 pdf[col] = pdf[col].apply(lambda x: convert_ar_characters(x))
@@ -173,8 +173,8 @@ pdf[col] = pdf[col].apply(lambda x: convert_ar_characters(x))
 symbolGroup = pdf[["name", "group_name", "group_id"]].drop_duplicates(
     subset=["name", "group_name", "group_id"]
 )
-path2 = r"G:\Economics\Finance(Prof.Heidari-Aghajanzadeh)\Data\\"
-symbolGroup.to_excel(path2 + "SymbolGroup.xlsx", index=False)
+
+symbolGroup.to_excel(path + "SymbolGroup.xlsx", index=False)
 
 
 #%%
@@ -182,7 +182,7 @@ symbolGroup.to_excel(path2 + "SymbolGroup.xlsx", index=False)
 
 #%%
 ## Add issued shares to data
-shrout = pd.read_csv(path + "shrout.csv")
+shrout = pd.read_csv(path + "Stock_holder_new\\shrout.csv")
 mapdict = dict(zip(shrout.set_index(["name", "date"]).index, shrout.shrout))
 i = "date"
 pdf[i] = pdf[i].astype(int)
@@ -322,5 +322,5 @@ for i in ['max_price_Adjusted',
     pdf[i] = gg[i].fillna(method = 'bfill')
 
 #%%
-pdf.to_parquet(path2 + "Cleaned_Stock_Prices_1400_06_16" + ".parquet")
+pdf.to_parquet(path + "Cleaned_Stock_Prices_1400_06_29" + ".parquet")
 # %%

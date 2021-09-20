@@ -144,15 +144,15 @@ def sessionLimit(number, stat):
     if stat:
         global sessions, start, totalSessions
         # print((datetime.datetime.now() - start).seconds, sessions)
-        if ((datetime.datetime.now() - start).seconds < 60) and (sessions >= number):
-            sleeptime = 60 - (datetime.datetime.now() - start).seconds
+        if ((datetime.datetime.now() - start).seconds < 30) and (sessions >= number):
+            sleeptime = 30 - (datetime.datetime.now() - start).seconds
             print("sleep {}".format(sleeptime), sessions)
             time.sleep(sleeptime)
             start = datetime.datetime.now()
             totalSessions += sessions
             # print(totalSessions)
             sessions = 0
-        elif (datetime.datetime.now() - start).seconds >= 60:
+        elif (datetime.datetime.now() - start).seconds >= 30:
             start = datetime.datetime.now()
             totalSessions += sessions
             # print(totalSessions)
