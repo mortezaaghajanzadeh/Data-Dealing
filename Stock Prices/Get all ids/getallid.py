@@ -68,8 +68,14 @@ print(len(ids))
 
 #%%
 
-import pandas as pd
-df = pd.read_text("3_clean.csv")
+# import pandas as pd
+# df = pd.read_csv("3_clean.csv")
+# nids = df.c.to_list()
+# print(len(ids))
+# ids = set(ids)
+# ids.update(nids)
+# ids = list(ids)
+# print(len(ids))
 #%%
 import pickle
 

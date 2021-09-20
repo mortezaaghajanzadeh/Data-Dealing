@@ -128,12 +128,12 @@ def crawl_prices(id):
     return df
 
 
-object = pd.read_pickle(r"ids.p")
+object = pd.read_pickle(r"Get all ids\ids.p")
 id = object[1870]
 df = crawl_prices(id)
 df
 #%%
-object = pd.read_pickle(r"ids.p")
+# object = pd.read_pickle(r"ids.p")
 Data = pd.DataFrame()
 counter = 0
 errore = []
