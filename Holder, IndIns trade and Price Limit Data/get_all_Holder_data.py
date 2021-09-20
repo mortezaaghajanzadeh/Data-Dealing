@@ -39,7 +39,7 @@ for counter,stock_id in enumerate(dates.keys()):
     print("###################################")
     print(counter,len(dates.keys()))
     t = Main2(
-    0, stock_id, dates, Excepted_stock, {}, 4000, True, 300
+    counter, stock_id, dates, Excepted_stock, {}, 4000, True, 300
     )
     pickle.dump(t, open(path2 + "Holders_{}.p".format(stock_id), "wb"))
     print("###################################")
