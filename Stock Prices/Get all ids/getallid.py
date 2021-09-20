@@ -20,8 +20,6 @@ driver.find_element_by_id("mwp").click()
 driver.find_element_by_id("id1").click()
 # %%
 
-
-#%%
 elements = driver.find_elements_by_class_name("\{c\}")
 ids = []
 for element in elements:
@@ -71,8 +69,7 @@ print(len(ids))
 #%%
 
 import pandas as pd
-
-df = pd.read_csv(r"D:\Dropbox\Python Codes\Scrapy\3_clean.csv")
+df = pd.read_text("3_clean.csv")
 #%%
 import pickle
 
