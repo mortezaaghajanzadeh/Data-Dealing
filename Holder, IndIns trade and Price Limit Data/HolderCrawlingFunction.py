@@ -736,11 +736,11 @@ def mainCrawl(counter, stock_id, dates, Excepted_stock, number, stat, number_day
     )
     if excepted_again != []:
         step = 0
-        while excepted_again != [] and step < 5:
+        while excepted_again != [] and step < 15:
             step += 1
-            print("step is ", step, stock_id, len(excepted_again), end="\r", flush=True)
+            print("step is ", step, stock_id, len(excepted_again))
             holder2, excepted_again = get_stock_all_history(
-                stock_id, excepted_again, number, stat, number_days / 2
+                stock_id, excepted_again, number, stat, int(number_days / step)
             )
             holder.update(holder2)
             excepted_again = list(set(excepted_again) - set(holder.keys()))

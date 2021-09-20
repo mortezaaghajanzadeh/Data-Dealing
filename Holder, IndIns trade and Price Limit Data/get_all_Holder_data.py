@@ -18,10 +18,6 @@ df['volume'] = df.volume.astype(str)
 df = df.dropna()
 print(len(df.name.unique()))
 
-mlist = [str(i) for i in range(1380, 1400)]
-mlist.sort(reverse=True)
-print(mlist)
-counter = 0
 all_stock_data = []
 Excepted_stock = []
 error = []
@@ -30,17 +26,21 @@ def excepthook(args):
     3 == 1+2
 
 threading.excepthook = excepthook
-# %%
+
 stock_id = "46348559193224090"
 dates = date_of_stocks(df, "1")
 del df, gg
 
-#%%
+path2 = r"D:\Holders\\"
 
-t = Main2(
-    counter, stock_id, dates, Excepted_stock, {}, 5000, True, 200
-    )
 # %%
-all_stock_data.append(t)
-clean(all_stock_data)
+
+for counter,stock_id in enumerate(dates.keys()):
+    print("###################################")
+    print(counter,len(dates.keys()))
+    t = Main2(
+    0, stock_id, dates, Excepted_stock, {}, 4000, True, 300
+    )
+    pickle.dump(t, open(path2 + "Holders_{}.p".format(stock_id), "wb"))
+    print("###################################")
 #%%

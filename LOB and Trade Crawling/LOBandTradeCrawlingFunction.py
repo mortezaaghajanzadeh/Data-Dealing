@@ -270,7 +270,7 @@ def clean_Trade_on_Stock(all_Trade):
 def gen_LOB_Trade(stock_id, dates, number, path, stat,number_days):
     LOB, Trade = get_stock_all_LOB_and_Trade(stock_id, dates, number, stat,number_days)
     pickle.dump(LOB, open(path.format("LOB", "LOB_" + str(stock_id)), "wb"))
-    pickle.dump(Trade, open(path.format("Trade", "Trade" + str(stock_id)), "wb"))
+    pickle.dump(Trade, open(path.format("Trade", "Trade_" + str(stock_id)), "wb"))
 
 
 #%%
