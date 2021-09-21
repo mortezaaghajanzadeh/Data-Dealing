@@ -68,7 +68,7 @@ def removecomma(m):
 
 def getHolder(date, stock_id, result, j):
     url = "http://cdn.tsetmc.com/api/Shareholder/{}/{}".format(stock_id, date)
-    r = requests.get(url, timeout=15)
+    r = requests.get(url, timeout=10)
     global sessions
     sessions += 1
     r = json.loads(r.text)
@@ -84,7 +84,7 @@ def getStockDetail(date, stock_id, result, i):
         stock_id, date
     )
     try:
-        r = requests.get(url, timeout=15)
+        r = requests.get(url, timeout=10)
         global sessions
         sessions += 1
         r = json.loads(r.text)
@@ -98,7 +98,7 @@ def getStockTrade(date, stock_id, result, i):
         stock_id, date
     )
     try:
-        r = requests.get(url, timeout=15)
+        r = requests.get(url, timeout=10)
         global sessions
         sessions += 1
         r = json.loads(r.text)
@@ -112,7 +112,7 @@ def getMaxMin(date, stock_id, result, i):
         stock_id, date
     )
     try:
-        r = requests.get(url, timeout=15)
+        r = requests.get(url, timeout=10)
         global sessions
         sessions += 1
         r = json.loads(r.text)
@@ -129,7 +129,7 @@ def getPrice(date, stock_id, result, i):
         stock_id, date
     )
     try:
-        r = requests.get(url, timeout=15)
+        r = requests.get(url, timeout=10)
         global sessions
         sessions += 1
         r = json.loads(r.text)
@@ -671,10 +671,13 @@ def connectSleep():
 
 def ColseCheck():
     url = "http://tsetmc.com/Loader.aspx?ParTree=15"
-    r = requests.get(url, timeout=15)
+    try:
+        r = requests.get(url, timeout=1)
+    except:
+        return ColseCheck()
     close = True
-    if len(re.findall(r"باز&nbsp", r.text)) > 0:
-        close = False
+    # if len(re.findall(r"باز&nbsp", r.text)) > 0:
+    #     close = False
     return close
 
 
@@ -734,16 +737,20 @@ def mainCrawl(counter, stock_id, dates, Excepted_stock, number, stat, number_day
     holder, excepted_again = get_stock_all_history(
         stock_id, dates[stock_id], number, stat, number_days
     )
+    previous_lengths = len(excepted_again)
     if excepted_again != []:
         step = 0
         while excepted_again != [] and step < 15:
             step += 1
             print("step is ", step, stock_id, len(excepted_again))
             holder2, excepted_again = get_stock_all_history(
-                stock_id, excepted_again, number, stat, int(number_days / step)
+                stock_id, excepted_again, number, False, int(number_days / step)
             )
             holder.update(holder2)
             excepted_again = list(set(excepted_again) - set(holder.keys()))
+            if step >= 5 and previous_lengths == len(excepted_again):
+                step += 5
+            previous_lengths = len(excepted_again)
         if excepted_again != []:
             # print(
             #     "Excepted stock with id of %s " % stock_id,

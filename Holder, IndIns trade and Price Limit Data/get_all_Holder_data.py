@@ -27,20 +27,26 @@ def excepthook(args):
 
 threading.excepthook = excepthook
 
-stock_id = "46348559193224090"
+stock_id = "22255783119783047"
 dates = date_of_stocks(df, "1")
 del df, gg
-
+#%%
 path2 = r"D:\Holders\\"
-
+t = Main2(
+    0, stock_id, dates, Excepted_stock, {}, 5000, True, 1000
+    )
 # %%
 
 for counter,stock_id in enumerate(dates.keys()):
-    print("###################################")
-    print(counter,len(dates.keys()))
+    print("#################{}##################".format(len(dates.keys())+1))
     t = Main2(
-    counter, stock_id, dates, Excepted_stock, {}, 3000, True, 300
+    counter, stock_id, dates, Excepted_stock, {}, 5000, True, 500
     )
     pickle.dump(t, open(path2 + "Holders_{}.p".format(stock_id), "wb"))
     print("###################################")
 #%%
+
+import os
+arr = os.listdir(path2)
+print(arr)
+# %%
