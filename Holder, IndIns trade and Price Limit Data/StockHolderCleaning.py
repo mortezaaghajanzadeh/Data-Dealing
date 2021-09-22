@@ -171,8 +171,7 @@ df1["group_id"] = df1["name"].map(mapingdict)
 gdata = pdf[["group_name", "name"]].drop_duplicates().dropna()
 mapingdict = dict(zip(gdata.name, gdata.group_name))
 df1["group_name"] = df1["name"].map(mapingdict)
-df1.loc[df1.group_name == "زراعت و خدمات وابسته", "group_id"] = 1
-
+df1 = df1.dropna()
 
 # %%
 df2 = df1[["Holder_id", "Holder", "date"]]
@@ -189,7 +188,7 @@ except:
         print("No")
 
 # %%
-df3 = pd.read_excel(path + "shareholder_names_cleaned_9901_v4.xlsx")
+df3 = pd.read_excel(path + "shareholder_names_cleaned_9901_v5.xlsx")
 
 df1.loc[df1["Holder_id"] == 53741, "Holder"] = "سرمایه گذاری تدبیر"
 
@@ -271,14 +270,18 @@ ids = df1[df1["Holder"].isnull()]["Holder_id"].tolist()
 Holders[Holders["Holder_id"].isin(ids)]
 #%%
 
-df1[df1.Holder_id == 73526]
+df1[df1.Holder_id == 85]
 # %%
 # df1 = df1.drop_duplicates()
 # df1 = df1.groupby(['stock_id','Total','name','date','close_price','PriceMaxLimit','PriceMinLimit','jalaliDate','group_name','group_id','Holder','type']).agg({'Number':sum , 'Percent':sum }).reset_index()
 # df1 = df1[['date', 'name','stock_id', 'jalaliDate','group_name','group_id','Holder', 'Number','type','Percent','Total','close_price','PriceMaxLimit','PriceMinLimit']]
 # df1.head()
 df1 = df1.drop_duplicates(keep="first")
-df1 = df1.drop_duplicates(keep="first", subset=["name", "date", "Holder", "Number"])
+df1 = df1.drop_duplicates(
+    keep="first", subset=["name", "date", "Holder", "Number"]
+    ).rename(columns = {
+    "shrout": "Total"
+})
 df1 = (
     df1.groupby(
         [
@@ -335,22 +338,7 @@ df1[(df1.name == "وتجارت") & (df1.date == 20190409)]
 df1[(df1.name == "شپدیس") & (df1.date == 20191009)]
 
 # %%
-grouped_data = df1.groupby(["name", "Holder"])  # ,'type'])
-g_keys = list(grouped_data.groups.keys())
 
-ff = pdf
-index = pd.read_excel(path + "IRX6XTPI0009.xls").drop(columns=["<CLOSE>"])
-a = index.drop(columns=["<TICKER>"]).rename(
-    columns={"<DTYYYYMMDD>": "date", "<COL14>": "jalaliDate"}
-)
-
-closedays = [13960923, 13960924, 13970504, 13970505]
-a = a.drop(a.loc[a["jalaliDate"].isin(closedays)].index)
-
-new_row = {"date": 20171106, "jalaliDate": 13960815}
-a = a.append(new_row, ignore_index=True).sort_values(by=["date"])
-data = pd.DataFrame()
-print(len((g_keys)))
 
 
 # %%
@@ -365,21 +353,21 @@ def Cleaning(g, ff, a, g_keys):
 
     gg = (
         pd.merge(left=a, right=g, how="left", left_on="date", right_on="date")
-        .drop(columns=["jalaliDate_y"])
-        .rename(columns={"jalaliDate_x": "jalaliDate"})
+        
     )
 
     if len(gg) == 0:
         return
 
     ## Filling the Gaps
-
-    v1 = gg["stock_id"][~gg["stock_id"].isna()].index[-1]
-    v2 = gg["stock_id"][~gg["stock_id"].isna()].index[0]
-    gg = gg[(gg.index <= v1) & (gg.index >= v2)]
-    gg = gg.reset_index(drop=True)
-    gg["Condition"] = "Orginal"
-    gg = FillGaps(gg)
+    if len(g)> 3:
+        
+        v1 = gg["stock_id"][~gg["stock_id"].isna()].index[-1]
+        v2 = gg["stock_id"][~gg["stock_id"].isna()].index[0]
+        gg = gg[(gg.index <= v1) & (gg.index >= v2)]
+        gg = gg.reset_index(drop=True)
+        gg["Condition"] = "Orginal"
+        gg = FillGaps(gg)
 
     ### Flatting Data
     # gg = FlatFunction(gg)
@@ -459,32 +447,77 @@ def FillGaps(gg):
     return gg
 
 
-i = ("ونیکی", "وتجارت")
-
-g = grouped_data.get_group(i)
 # Cleaning(g,ff,a,g_keys)
 # g = grouped_data.get_group(('شپدیس','پارسان'))
 
 # %%
 df = df1.reset_index(drop=True)
-# df['OrginalNumber'] = df['Number']
-# df['OrginalPercent'] = df['Percent']
-grouped_data = df.groupby(["name", "Holder"])
+import requests
+from bs4 import BeautifulSoup
+def removeSlash2(row):
+    X = row.split("/")
+    if len(X[1]) < 2:
+        X[1] = "0" + X[1]
+    if len(X[0]) < 2:
+        X[0] = "0" + X[0]
+
+    return int(X[2] + X[0] + X[1])
+
+
+def Overall_index():
+    url = r"https://tse.ir/archive/Indices/Main/Indices_IRX6XTPI0006.xls"
+    r = requests.get(
+            url
+        )  # This URL contains all sector groups.
+    soup = BeautifulSoup(r.text, "html.parser")
+    header = soup.find_all("table")[0].find("tr")
+    list_header = []
+    for items in header:
+        try:
+            list_header.append(items.get_text())
+        except:
+            continue
+
+    # for getting the data
+    HTML_data = soup.find_all("table")[0].find_all("tr")[1:]
+    data = []
+    for element in HTML_data:
+        sub_data = []
+        for sub_element in element:
+            try:
+                sub_data.append(sub_element.get_text())
+            except:
+                continue
+        data.append(sub_data)
+    df = pd.DataFrame(data=data, columns=list_header)
+    df['Date'] = df.Date.apply(removeSlash2)
+    return df
+
+overal_index = Overall_index()
+overal_index
+
+grouped_data = df1.groupby(["name", "Holder"])  # ,'type'])
 g_keys = list(grouped_data.groups.keys())
 
 ff = pdf
-index = pd.read_excel(path + "IRX6XTPI0009.xls").drop(columns=["<CLOSE>"])
-a = index.drop(columns=["<TICKER>"]).rename(
-    columns={"<DTYYYYMMDD>": "date", "<COL14>": "jalaliDate"}
+index = overal_index
+a = index.drop(columns=["Index"]).rename(
+    columns={"Date": "date"}
 )
 
-closedays = [13960923, 13960924, 13970504, 13970505]
-a = a.drop(a.loc[a["jalaliDate"].isin(closedays)].index)
+# closedays = [13960923, 13960924, 13970504, 13970505]
+# a = a.drop(a.loc[a["jalaliDate"].isin(closedays)].index)
 
-new_row = {"date": 20171106, "jalaliDate": 13960815}
+new_row = {"date": 20171106}
 a = a.append(new_row, ignore_index=True).sort_values(by=["date"])
 data = pd.DataFrame()
 print(len((g_keys)))
+
+
+#%%
+i = g_keys[3195]
+
+g = grouped_data.get_group(i)
 
 data = grouped_data.apply(Cleaning, ff=ff, a=a, g_keys=g_keys)
 
@@ -627,7 +660,7 @@ GHunder
 
 
 # %%
-df.to_csv(path + "Cleaned_Stocks_Holders_1399-09-12_From94.csv", index=False)
+df.to_csv(path + "Cleaned_Stocks_Holders_1400_06_29.csv", index=False)
 
 
 # %%

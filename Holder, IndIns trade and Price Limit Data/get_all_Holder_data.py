@@ -31,22 +31,32 @@ stock_id = "22255783119783047"
 dates = date_of_stocks(df, "1")
 del df, gg
 #%%
-path2 = r"D:\Holders\\"
-t = Main2(
-    0, stock_id, dates, Excepted_stock, {}, 5000, True, 1000
-    )
+# 
+# t = Main2(
+#     0, stock_id, dates, Excepted_stock, {}, 5000, True, 2000
+#     )
 # %%
-
+path2 = r"D:\Holders\\"
+error = []
 for counter,stock_id in enumerate(dates.keys()):
     print("#################{}##################".format(len(dates.keys())+1))
-    t = Main2(
-    counter, stock_id, dates, Excepted_stock, {}, 5000, True, 500
-    )
-    pickle.dump(t, open(path2 + "Holders_{}.p".format(stock_id), "wb"))
-    print("###################################")
+    try:
+        t = Main2(
+        counter, stock_id, dates, Excepted_stock, {}, 10000, True, 2000
+        )
+        pickle.dump(t, open(path2 + "Holders_{}.p".format(stock_id), "wb"))
+    except:
+        print("Error in stock_id {}".format(stock_id))
+        error.append(stock_id)
+pickle.dump(Excepted_stock, open(path2 + "Excepted_stock.p", "wb"))
+pickle.dump(error, open(path2 + "Error.p", "wb"))
 #%%
 
 import os
 arr = os.listdir(path2)
-print(arr)
-# %%
+done_id = []
+for i in arr:
+    done_id.append(i[8:-2])
+
+
+#%%
