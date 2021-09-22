@@ -15,7 +15,7 @@ gg = df.groupby('name')
 print(len(df.name.unique()))
 
 df['volume'] = df.volume.astype(str)
-df = df.dropna()
+# df = df.dropna()
 print(len(df.name.unique()))
 
 all_stock_data = []
@@ -31,32 +31,63 @@ stock_id = "22255783119783047"
 dates = date_of_stocks(df, "1")
 del df, gg
 #%%
-# 
+
 # t = Main2(
 #     0, stock_id, dates, Excepted_stock, {}, 5000, True, 2000
 #     )
 # %%
 path2 = r"D:\Holders\\"
 error = []
-for counter,stock_id in enumerate(dates.keys()):
-    print("#################{}##################".format(len(dates.keys())+1))
-    try:
-        t = Main2(
-        counter, stock_id, dates, Excepted_stock, {}, 10000, True, 2000
-        )
-        pickle.dump(t, open(path2 + "Holders_{}.p".format(stock_id), "wb"))
-    except:
-        print("Error in stock_id {}".format(stock_id))
-        error.append(stock_id)
-pickle.dump(Excepted_stock, open(path2 + "Excepted_stock.p", "wb"))
-pickle.dump(error, open(path2 + "Error.p", "wb"))
+counter = 0
+# for counter,stock_id in enumerate(dates.keys()):
+#     print("#################{}##################".format(len(dates.keys())+1))
+#     try:
+#         t = Main2(
+#         counter, stock_id, dates, Excepted_stock, {}, 10000, True, 2000
+#         )
+#         pickle.dump(t, open(path2 + "Holders_{}.p".format(stock_id), "wb"))
+#     except:
+#         print("Error in stock_id {}".format(stock_id))
+#         error.append(stock_id)
+# pickle.dump(Excepted_stock, open(path2 + "Excepted_stock.p", "wb"))
+# pickle.dump(error, open(path2 + "Error.p", "wb"))
 #%%
 
-import os
-arr = os.listdir(path2)
-done_id = []
-for i in arr:
-    done_id.append(i[8:-2])
-
+# import os
+# arr = os.listdir(path2)
+# done_id = []
+# for i in arr:
+#     done_id.append(i[8:-2])
+#%%
+counter = 0
+j=0
+ids = list(dates.keys())
+nums = 5
+for i in range(1,(int(len(ids)/nums))+2):
+    k = min(j + nums,len(ids))
+    print(j,k)
+    NoId = ids[j:k]
+    j = k
+    
 
 #%%
+threads = {}
+result = {}
+stock = {}
+for stock_id in NoId:
+    counter = counter + 1
+    # dates[stock_id] = dates[stock_id][::]
+    threads[stock_id] = Thread(
+        target=Main, args= (counter, stock_id, dates, Excepted_stock, result, 10000, True, 1000)
+    )
+    OpenConnectWait()
+    threads[stock_id].start()
+
+time.sleep(1)    
+print("Start All")
+for counter,i in enumerate(threads):
+    threads[i].join()
+    print('Stocks {} finished.'.format(counter +1))
+    pickle.dump(result[i], open(path2 + "Holders_{}.p".format(stock_id), "wb"))
+    # all_stock_data.append(result[i])            
+# %%

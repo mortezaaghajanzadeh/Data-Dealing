@@ -204,7 +204,7 @@ gg = d.groupby("name")
 d["shrout"] = gg["shrout"].fillna(method="bfill")
 #%%
 pdf = pd.DataFrame()
-pdf = pdf.append(d[~d.shrout.isnull()])
+pdf = pdf.append(d)
 
 i = "group_id"
 pdf[i] = pdf[i].astype(float)
@@ -261,8 +261,6 @@ pdf.loc[(pdf["Volume(-4)"] == 0) & (pdf["Volume(2)"] == 0), i] = 0
 pdf.loc[(pdf["Volume(-1)"] == 0) & (pdf["price(-1)"].isin(pList)), i] = 0
 
 
-pdf.describe()
-#%%
 pdf = pdf.drop(
     columns=[
         "Volume(5)",
@@ -291,7 +289,7 @@ pdf = pdf.drop(
         "yclose",
     ]
 )
-
+pdf.describe()
 # %%
 for i in [
     "max_price",

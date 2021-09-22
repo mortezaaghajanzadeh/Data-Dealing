@@ -356,7 +356,7 @@ def get_stock_all_history(stock_id, dates, number, stat, number_days):
     all_history = dict.fromkeys(dates, 0)
     while i < len(dates) + 1 or i != len(dates) + 1:
         j = min(number_days + i, len(dates) + 1)
-        print(i, j)
+        # print(i, j)
         OpenConnectWait()
         holder_history, Excepted = get_stock_holder_history(stock_id, dates[i:j])
         Except.append(Excepted)
@@ -742,7 +742,9 @@ def mainCrawl(counter, stock_id, dates, Excepted_stock, number, stat, number_day
         step = 0
         while excepted_again != [] and step < 15:
             step += 1
-            print("step is ", step, stock_id, len(excepted_again))
+            print(
+                "step is ", step, stock_id, "({})".format(counter), len(excepted_again)
+            )
             holder2, excepted_again = get_stock_all_history(
                 stock_id, excepted_again, number, False, int(number_days / step)
             )
