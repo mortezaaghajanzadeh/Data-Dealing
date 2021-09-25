@@ -45,20 +45,19 @@ error = []
 counter = 0
 j = 0
 ids = list(dates.keys())
-nums = 20
+nums = 10
 tot = (int(len(ids) / nums)) + 2
-import os
-arr = os.listdir(path2)
-arr.remove("Error.p")
-arr.remove("Excepted_stock.p")
-arr.remove("PriceTradeData")
-arr.remove("HolderData")
-done_id = []
-for i in arr:
-    done_id.append(i[8:-2])
-again_id = list(set(ids)-set(done_id))
-ids = again_id
-#%%
+# import os
+# arr = os.listdir(path2)
+# arr.remove("Error.p")
+# arr.remove("Excepted_stock.p")
+# arr.remove("PriceTradeData")
+# arr.remove("HolderData")
+# done_id = []
+# for i in arr:
+#     done_id.append(i[8:-2])
+# again_id = list(set(ids)-set(done_id))
+# ids = again_id
 
 
 for i in range(1, tot ):
@@ -73,7 +72,7 @@ for i in range(1, tot ):
         # dates[stock_id] = dates[stock_id][::]
         threads[stock_id] = Thread(
             target=Main,
-            args=(counter, stock_id, dates, Excepted_stock, result, 10000, True, 4000),
+            args=(counter, stock_id, dates, Excepted_stock, result, 1000, True, 500),
         )
         threads[stock_id].start()
 
