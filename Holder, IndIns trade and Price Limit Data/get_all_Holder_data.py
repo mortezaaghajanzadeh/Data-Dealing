@@ -7,14 +7,14 @@ path = r"E:\RA_Aghajanzadeh\Data\\"
 # path = r"G:\Economics\Finance(Prof.Heidari-Aghajanzadeh)\Data\\"
 
 df = pd.read_parquet(path + "Cleaned_Stock_Prices_1400_06_29.parquet")
-df = df[~df.title.str.startswith('ح .')]
+df = df[~df.title.str.startswith("ح .")]
 df = df.drop(df[(df["name"] == "وقوام") & (df["close_price"] == 1000)].index)
 
-df['volume'] = df.volume.astype(float)
-gg = df.groupby('name')
+df["volume"] = df.volume.astype(float)
+gg = df.groupby("name")
 print(len(df.name.unique()))
 
-df['volume'] = df.volume.astype(str)
+df["volume"] = df.volume.astype(str)
 # df = df.dropna()
 print(len(df.name.unique()))
 
@@ -22,8 +22,10 @@ all_stock_data = []
 Excepted_stock = []
 error = []
 
+
 def excepthook(args):
-    3 == 1+2
+    3 == 1 + 2
+
 
 threading.excepthook = excepthook
 
@@ -39,6 +41,34 @@ del df, gg
 path2 = r"D:\Holders\\"
 error = []
 counter = 0
+j = 0
+ids = list(dates.keys())
+nums = 10
+tot = (int(len(ids) / nums)) + 2
+for i in range(1, tot ):
+    print("It is set of {} from total {}".format(i,tot))
+    k = min(j + nums, len(ids))
+    print(j, k)
+    NoId = ids[j:k]
+    threads = {}
+    result = {}
+    for stock_id in NoId:
+        counter = counter + 1
+        # dates[stock_id] = dates[stock_id][::]
+        threads[stock_id] = Thread(
+            target=Main,
+            args=(counter, stock_id, dates, Excepted_stock, result, 10000, True, 1000),
+        )
+        threads[stock_id].start()
+
+    time.sleep(1)
+    for counter, i in enumerate(threads):
+        threads[i].join()
+        print("Stocks {} finished.".format(counter + 1))
+        pickle.dump(result[i], open(path2 + "Holders_{}.p".format(stock_id), "wb"))
+    j = k
+
+#%%
 # for counter,stock_id in enumerate(dates.keys()):
 #     print("#################{}##################".format(len(dates.keys())+1))
 #     try:
@@ -58,36 +88,3 @@ counter = 0
 # done_id = []
 # for i in arr:
 #     done_id.append(i[8:-2])
-#%%
-counter = 0
-j=0
-ids = list(dates.keys())
-nums = 5
-for i in range(1,(int(len(ids)/nums))+2):
-    k = min(j + nums,len(ids))
-    print(j,k)
-    NoId = ids[j:k]
-    j = k
-    
-
-#%%
-threads = {}
-result = {}
-stock = {}
-for stock_id in NoId:
-    counter = counter + 1
-    # dates[stock_id] = dates[stock_id][::]
-    threads[stock_id] = Thread(
-        target=Main, args= (counter, stock_id, dates, Excepted_stock, result, 10000, True, 1000)
-    )
-    OpenConnectWait()
-    threads[stock_id].start()
-
-time.sleep(1)    
-print("Start All")
-for counter,i in enumerate(threads):
-    threads[i].join()
-    print('Stocks {} finished.'.format(counter +1))
-    pickle.dump(result[i], open(path2 + "Holders_{}.p".format(stock_id), "wb"))
-    # all_stock_data.append(result[i])            
-# %%
