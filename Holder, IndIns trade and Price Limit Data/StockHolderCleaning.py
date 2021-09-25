@@ -1,6 +1,7 @@
 #%%
 import re
 import os
+import pickle
 import numpy as np
 import pandas as pd
 from persiantools.jdatetime import JalaliDate
@@ -12,20 +13,10 @@ arr = os.listdir(path)
 allstock = []
 arr.remove("Error.p")
 arr.remove("Excepted_stock.p")
+arr.remove("PriceTradeData")
+arr.remove("HolderData")
+
 #%%
-for i in arr[:100]:
-   
-   
-# %%
-
-# %%
-
-# %%
-
-t = pd.read_pickle(path + arr[600])
-t = pd.read_pickle(path + "Holders_44891482026867833.p")
-
-df = cleaning([t])
 HolderDataColumns = [
     "jalaliDate",
     "date",
@@ -76,8 +67,31 @@ PriceTradeDataColumns = [
     "ins_sell_count",
     "ind_sell_count",
 ]
+# t = pd.read_pickle(path + "Holders_{}.p".format(2400322364771558))
+# df = cleaning([t])
+# df[PriceTradeDataColumns].head()
+for counter,i in enumerate(arr):
+    print(counter)
+    t = pd.read_pickle(path + i)
+    df = cleaning([t])
+    pickle.dump(
+        df[HolderDataColumns], open(path + "HolderData\HolderData_{}.p".format(i[8:-2]), "wb")
+    )
+    pickle.dump(
+        df[PriceTradeDataColumns].drop_duplicates(),
+        open(path + "PriceTradeData\PriceTradeData_{}.p".format(i[8:-2]), "wb"),
+    )
 
-df[PriceTradeDataColumns].head()
+
 # %%
-pd.read_pickle(path + "Error.p")
+
+t = pd.read_pickle(path + "HolderData\HolderData_{}.p".format(65883838195688438))
+t
+# %%
+
+# %%
+
+
+# %%
+
 # %%
