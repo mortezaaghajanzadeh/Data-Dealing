@@ -147,6 +147,9 @@ def Overall_index():
 # %%
 pdf = pd.read_parquet(path + "Stock_Prices_1400_06_29.parquet")
 
+col = "group_name"
+pdf[col] = pdf[col].apply(lambda x: convert_ar_characters(x))
+groupnameid[col] = groupnameid[col].apply(lambda x: convert_ar_characters(x))
 
 mapdict = dict(zip(groupnameid.group_name, groupnameid.group_id))
 pdf["group_id"] = pdf.group_name.map(mapdict)
@@ -175,9 +178,6 @@ symbolGroup = pdf[["name", "group_name", "group_id"]].drop_duplicates(
 )
 
 symbolGroup.to_excel(path + "SymbolGroup.xlsx", index=False)
-
-
-#%%
 
 
 #%%
