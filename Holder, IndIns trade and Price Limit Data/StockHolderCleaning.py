@@ -346,61 +346,72 @@ def FillGaps(gg):
 
 df = df1.reset_index(drop=True)
 import requests
-from bs4 import BeautifulSoup
 
 
-def removeSlash2(row):
+def removeSlash(row):
     X = row.split("/")
     if len(X[1]) < 2:
         X[1] = "0" + X[1]
-    if len(X[0]) < 2:
-        X[0] = "0" + X[0]
+    if len(X[2]) < 2:
+        X[2] = "0" + X[2]
 
-    return int(X[2] + X[0] + X[1])
-
+    return X[0] +"-" + X[1] +"-" + X[2]
 
 def Overall_index():
-    url = r"https://tse.ir/archive/Indices/Main/Indices_IRX6XTPI0006.xls"
-    r = requests.get(url)  # This URL contains all sector groups.
-    soup = BeautifulSoup(r.text, "html.parser")
-    header = soup.find_all("table")[0].find("tr")
-    list_header = []
-    for items in header:
-        try:
-            list_header.append(items.get_text())
-        except:
-            continue
-
-    # for getting the data
-    HTML_data = soup.find_all("table")[0].find_all("tr")[1:]
-    data = []
-    for element in HTML_data:
-        sub_data = []
-        for sub_element in element:
-            try:
-                sub_data.append(sub_element.get_text())
-            except:
-                continue
-        data.append(sub_data)
-    df = pd.DataFrame(data=data, columns=list_header)
-    df["Date"] = df.Date.apply(removeSlash2)
+    url = r"http://www.tsetmc.com/tsev2/chart/data/Index.aspx?i=32097828799138957&t=value"
+    r = requests.get(
+                url
+            )
+    jalaliDate = []
+    Value = []
+    for i in r.text.split(";"):
+        x = i.split(',')
+        jalaliDate.append(x[0])
+        Value.append(float(x[1]))
+    df = pd.DataFrame({'jalaliDate' :jalaliDate,
+                'Value' : Value,
+                }, 
+                columns=['jalaliDate','Value'])
+    df["jalaliDate"] = df.jalaliDate.apply(removeSlash)
     return df
 
-
 overal_index = Overall_index()
+mapingdict = dict(
+    zip(
+        df.jalaliDate,df.date
+    )
+)
+overal_index['date'] = overal_index.jalaliDate.map(mapingdict)
+overal_index = overal_index.dropna()
 overal_index
+#%%
+def removeSlash(row):
+    X = row.split("-")
+    if len(X[1]) < 2:
+        X[1] = "0" + X[1]
+    if len(X[2]) < 2:
+        X[2] = "0" + X[2]
 
+    return int(X[0] + X[1] + X[2])
+overal_index["jalaliDate"] = overal_index.jalaliDate.apply(removeSlash)
 grouped_data = df1.groupby(["name", "Holder"])  # ,'type'])
 g_keys = list(grouped_data.groups.keys())
 
 ff = pdf
 index = overal_index
-a = index.drop(columns=["Index"]).rename(columns={"Date": "date"})
-
-# closedays = [13960923, 13960924, 13970504, 13970505]
-# a = a.drop(a.loc[a["jalaliDate"].isin(closedays)].index)
-
+a = index.drop(columns=["Value"]).rename(columns={"Date": "date"})
+print(len(a))
+closedays = [13960923, 13960924, 13970504, 13970505]
+a = a.drop(a.loc[a["jalaliDate"].isin(closedays)].index)
+print(len(a))
 new_row = {"date": 20171106}
 a = a.append(new_row, ignore_index=True).sort_values(by=["date"])
 data = pd.DataFrame()
 print(len((g_keys)))
+#%%
+from pandarallel import pandarallel
+pandarallel.initialize()
+i = g_keys[3195]
+g = grouped_data.get_group(i)
+# data = grouped_data.apply(Cleaning, ff=ff, a=a, g_keys=g_keys)
+data = grouped_data.parallel_apply(Cleaning, ff=ff, a=a, g_keys=g_keys)
