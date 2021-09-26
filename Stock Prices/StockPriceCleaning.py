@@ -114,32 +114,20 @@ def group_id():
 groupnameid = group_id()
 #%%
 def Overall_index():
-    url = r"https://tse.ir/archive/Indices/Main/Indices_IRX6XTPI0006.xls"
+    url = r"http://www.tsetmc.com/tsev2/chart/data/Index.aspx?i=32097828799138957&t=value"
     r = requests.get(
-            url
-        )  # This URL contains all sector groups.
-    soup = BeautifulSoup(r.text, "html.parser")
-    header = soup.find_all("table")[0].find("tr")
-    list_header = []
-    for items in header:
-        try:
-            list_header.append(items.get_text())
-        except:
-            continue
-
-    # for getting the data
-    HTML_data = soup.find_all("table")[0].find_all("tr")[1:]
-    data = []
-    for element in HTML_data:
-        sub_data = []
-        for sub_element in element:
-            try:
-                sub_data.append(sub_element.get_text())
-            except:
-                continue
-        data.append(sub_data)
-    df = pd.DataFrame(data=data, columns=list_header)
-    df['Date'] = df.Date.apply(removeSlash2)
+                url
+            )
+    jalaliDate = []
+    Value = []
+    for i in r.text.split(";"):
+        x = i.split(',')
+        jalaliDate.append(x[0])
+        Value.append(float(x[1]))
+    df = pd.DataFrame({'jalaliDate' :jalaliDate,
+                'Value' : Value,
+                }, 
+                columns=['jalaliDate','Value'])
     return df
 
 # overal_index = Overall_index()
