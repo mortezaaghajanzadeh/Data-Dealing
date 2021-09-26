@@ -137,7 +137,7 @@ df
 Data = pd.DataFrame()
 counter = 0
 errore = []
-for stock_id in object:
+for stock_id in object[1870:]:
     try:
         counter += 1
         print(counter, len(object), "stock_id")
@@ -145,6 +145,12 @@ for stock_id in object:
     except:
         errore.append(stock_id)
 #%%
+<<<<<<< Updated upstream
 path = r"E:\RA_Aghajanzadeh\Data\\"
 name = "Stock_Prices_1400_06_29"
 Data.to_parquet(path + name + ".parquet")
+=======
+errore
+#%%
+Data.to_parquet(r"E:\RA_Aghajanzadeh\Data\Stock_Prices_1400_06_16.parquet")
+>>>>>>> Stashed changes
