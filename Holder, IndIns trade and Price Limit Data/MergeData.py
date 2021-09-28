@@ -70,12 +70,13 @@ PriceTradeDataColumns = [
 # t = pd.read_pickle(path + "Holders_{}.p".format(2400322364771558))
 # df = cleaning([t])
 # df[PriceTradeDataColumns].head()
-for counter,i in enumerate(arr):
+for counter, i in enumerate(arr):
     print(counter)
     t = pd.read_pickle(path + i)
     df = cleaning([t])
     pickle.dump(
-        df[HolderDataColumns], open(path + "HolderData\HolderData_{}.p".format(i[8:-2]), "wb")
+        df[HolderDataColumns],
+        open(path + "HolderData\HolderData_{}.p".format(i[8:-2]), "wb"),
     )
     pickle.dump(
         df[PriceTradeDataColumns].drop_duplicates(),
@@ -86,19 +87,21 @@ for counter,i in enumerate(arr):
 # %%
 arr = os.listdir(path + "HolderData")
 data = pd.DataFrame()
-for counter,i in enumerate(arr):
+for counter, i in enumerate(arr):
     print(counter)
-    data = data.append(pd.read_pickle(path+"HolderData\\{}".format(i)))
+    data = data.append(pd.read_pickle(path + "HolderData\\{}".format(i)))
 path2 = r"E:\RA_Aghajanzadeh\Data\Stock_holder_new\\"
-data[data.Holder != '-'].to_parquet(path2 + "mergerdallData_cleaned.parquet")
-# %%
-path2 = r"E:\RA_Aghajanzadeh\Data\Price_Trade\\"
+data[data.Holder != "-"].to_parquet(path2 + "mergerdallData_cleaned.parquet")
+#%%
 arr = os.listdir(path + "PriceTradeData")
 data = pd.DataFrame()
-for counter,i in enumerate(arr):
+for counter, i in enumerate(arr):
     print(counter)
-    data = data.append(pd.read_pickle(path+"PriceTradeData\\{}".format(i)))
-data.to_parquet(path2 + "mergerdallData_cleaned.parquet")
+    data = data.append(pd.read_pickle(path + "PriceTradeData\\{}".format(i)))
+
 # %%
-data.replace("-",np.nan)
+data = data.replace("-", np.nan)
+data = data.replace("", np.nan)
+path2 = r"E:\RA_Aghajanzadeh\Data\PriceTradeData\\"
+data.to_parquet(path2 + "mergerdallData_cleaned.parquet")
 # %%

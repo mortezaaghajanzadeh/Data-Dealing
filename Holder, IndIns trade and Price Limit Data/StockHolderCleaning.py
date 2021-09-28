@@ -409,9 +409,134 @@ a = a.append(new_row, ignore_index=True).sort_values(by=["date"])
 data = pd.DataFrame()
 print(len((g_keys)))
 #%%
-from pandarallel import pandarallel
-pandarallel.initialize()
+# from pandarallel import pandarallel
+# pandarallel.initialize()
 i = g_keys[3195]
 g = grouped_data.get_group(i)
-# data = grouped_data.apply(Cleaning, ff=ff, a=a, g_keys=g_keys)
-data = grouped_data.parallel_apply(Cleaning, ff=ff, a=a, g_keys=g_keys)
+data = grouped_data.apply(Cleaning, ff=ff, a=a, g_keys=g_keys)
+# data = grouped_data.parallel_apply(Cleaning, ff=ff, a=a, g_keys=g_keys)
+# %%
+# %%
+data = data.reset_index(drop=True).dropna().rename(columns = {
+    'jalaliDate_x':"jalaliDate"
+}).drop(columns = ['jalaliDate_y'])
+
+
+#%%
+
+a = sumPercent(data)
+GHunder = list(a[a > 100].index)
+tmt = data.set_index(["date", "name"])
+tmt = tmt[~((tmt.index.isin(GHunder)) & (tmt.Condition == "Filled"))]
+a = sumPercent(tmt)
+GHunder = a[a > 100].to_frame().reset_index().sort_values(by=["name", "date"])
+tmt = tmt.reset_index()
+DeBalkDate = list(GHunder[GHunder.name == "دبالک"].date)
+tmt = tmt[
+    ~((tmt.name == "دبالک") & (tmt.date.isin(DeBalkDate)) & (tmt.Holder == "شخص حقیقی"))
+]
+a = sumPercent(tmt)
+GHunder = (
+    a[a > 100]
+    .to_frame()
+    .reset_index()
+    .sort_values(by=["name", "date"], ascending=False)
+)
+
+tmt[(tmt.name == "تاپیکو") & (tmt.date == 20180819)]
+multiIndex = GHunder.set_index(["date", "name"]).index
+ChangeList = [
+    "name",
+    "stock_id",
+    "group_name",
+    "group_id",
+    "Holder",
+    "Number",
+    "type",
+    "Percent",
+    "Total",
+    "close_price",
+]
+
+tmt = tmt.sort_values(by=["name", "date", "Percent"])
+
+
+for i in multiIndex:
+    print(i)
+    name, date = i[1], i[0]
+    ndata = tmt[(tmt["name"] == name) & (tmt["date"] > date)].head()
+    nday = ndata.date.iloc[0]
+    ndata = pd.DataFrame()
+    ndata = ndata.append(tmt[(tmt["name"] == name) & (tmt["date"] == nday)])
+    JalaliDate = tmt[tmt.date == date].jalaliDate.iloc[0]
+    ndata["date"] = date
+    ndata["jalaliDate"] = JalaliDate
+    tmt = tmt.drop(tmt[(tmt["name"] == name) & (tmt["date"] == date)].index)
+    tmt = tmt.append(ndata)
+a = sumPercent(tmt)
+GHunder = (
+    a[a > 100]
+    .to_frame()
+    .reset_index()
+    .sort_values(by=["name", "date"], ascending=False)
+)
+
+GHunder
+
+#%%
+fkey = zip(list(pdf.name), list(pdf.date))
+mapingdict = dict(zip(fkey, pdf.close_price))
+tmt["close_price"] = tmt.set_index(["name", "date"]).index.map(mapingdict)
+#%%
+
+df = tmt.sort_values(by=["name", "date", "Percent"])
+df.head()
+
+
+df = df.reset_index(drop=True)
+
+df = df.sort_values(by=["name", "date", "Percent"])
+df = df.rename(columns={"name": "symbol", "Number": "nshares", "Total": "shrout"})
+df.loc[(df.jalaliDate == 13970502) & (df.symbol == "دانا"), "shrout"] = 1.500000e09
+
+df["symbol"] = df["symbol"].replace("دتهران\u200c", "دتهران")
+df["symbol"] = df["symbol"].replace("تفیرو\u200c", "تفیرو")
+df["Holder"] = df["Holder"].replace("دتهران\u200c", "دتهران")
+df["Holder"] = df["Holder"].replace("تفیرو\u200c", "تفیرو")
+df[["date", "jalaliDate"]] = df[["date", "jalaliDate"]].astype(int)
+df.isnull().sum()
+df.loc[df.Number_Change == "0.0", "Percent_Change"] = "0"
+#%%
+def sumPercent2(df):
+    gg = df.groupby(["date", "symbol"])
+    return gg.Percent.sum()
+
+
+a = sumPercent2(df)
+GHunder = (
+    a[a > 100]
+    .to_frame()
+    .reset_index()
+    .sort_values(by=["symbol", "date"], ascending=False)
+)
+
+GHunder
+#%%
+def change(gg):
+    d2 = gg["nshares"].diff()
+    d3 = gg["Percent"].diff()
+    d2.iloc[0] = 0
+    d3.iloc[0] = 0
+    gg["Number_Change"] = d2
+    gg["Percent_Change"] = d3
+    return gg
+
+
+gg = df.groupby(["symbol", "Holder"])
+tmt = gg.apply(change)
+
+#%%
+
+df.to_csv(path + "Cleaned_Stocks_Holders_1400_06_28.csv", index=False)
+
+# %%
