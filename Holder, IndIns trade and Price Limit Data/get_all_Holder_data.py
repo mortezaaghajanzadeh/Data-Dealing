@@ -29,8 +29,8 @@ def excepthook(args):
 
 
 threading.excepthook = excepthook
-
-stock_id = "65883838195688438"
+#%%
+stock_id = "17617474823279712"
 dates = date_of_stocks(df, "1")
 path2 = r"D:\Holders\\"
 del df, gg
@@ -43,10 +43,11 @@ del df, gg
 
 error = []
 counter = 0
-j = 0
-ids = list(dates.keys())
-nums = 10
-tot = (int(len(ids) / nums)) + 2
+# j = 0
+# # dates = {"17617474823279712":dates['17617474823279712']}
+# ids = list(dates.keys())
+# nums = 10
+# tot = (int(len(ids) / nums)) + 2
 # import os
 # arr = os.listdir(path2)
 # arr.remove("Error.p")
@@ -60,41 +61,41 @@ tot = (int(len(ids) / nums)) + 2
 # ids = again_id
 
 
-for i in range(1, tot ):
-    print("It is set of {} from total {}".format(i,tot))
-    k = min(j + nums, len(ids))
-    print(j, k)
-    NoId = ids[j:k]
-    threads = {}
-    result = {}
-    for stock_id in NoId:
-        counter = counter + 1
-        # dates[stock_id] = dates[stock_id][::]
-        threads[stock_id] = Thread(
-            target=Main,
-            args=(counter, stock_id, dates, Excepted_stock, result, 1000, True, 500),
-        )
-        threads[stock_id].start()
+# for i in range(1, tot):
+#     print("It is set of {} from total {}".format(i,tot-1))
+#     k = min(j + nums, len(ids))
+#     print(j, k)
+#     NoId = ids[j:k]
+#     threads = {}
+#     result = {}
+#     for stock_id in NoId:
+#         counter = counter + 1
+#         # dates[stock_id] = dates[stock_id][::]
+#         threads[stock_id] = Thread(
+#             target=Main,
+#             args=(counter, stock_id, dates, Excepted_stock, result, 1000, False, 5000),
+#         )
+#         threads[stock_id].start()
 
-    for i in threads:
-        threads[i].join()
-        pickle.dump(result[i], open(path2 + "Holders_{}.p".format(stock_id), "wb"))
-    j = k
+#     for i in threads:
+#         threads[i].join()
+#         pickle.dump(result[i], open(path2 + "Holders_{}.p".format(stock_id), "wb"))
+#     j = k
+# pickle.dump(Excepted_stock, open(path2 + "Excepted_stock.p", "wb"))
+
+#%%
+for counter,stock_id in enumerate(dates.keys()):
+    print("#################{}##################".format(len(dates.keys())+1))
+    try:
+        t = Main2(
+        counter, stock_id, dates, Excepted_stock, {}, 10000, False, 2000
+        )
+        pickle.dump(t, open(path2 + "Holders_{}.p".format(stock_id), "wb"))
+    except:
+        print("Error in stock_id {}".format(stock_id))
+        error.append(stock_id)
 pickle.dump(Excepted_stock, open(path2 + "Excepted_stock.p", "wb"))
 pickle.dump(error, open(path2 + "Error.p", "wb"))
-#%%
-# for counter,stock_id in enumerate(dates.keys()):
-#     print("#################{}##################".format(len(dates.keys())+1))
-#     try:
-#         t = Main2(
-#         counter, stock_id, dates, Excepted_stock, {}, 10000, True, 2000
-#         )
-#         pickle.dump(t, open(path2 + "Holders_{}.p".format(stock_id), "wb"))
-#     except:
-#         print("Error in stock_id {}".format(stock_id))
-#         error.append(stock_id)
-# pickle.dump(Excepted_stock, open(path2 + "Excepted_stock.p", "wb"))
-# pickle.dump(error, open(path2 + "Error.p", "wb"))
 #%%
 
 # import os

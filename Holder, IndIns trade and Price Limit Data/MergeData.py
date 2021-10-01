@@ -70,10 +70,12 @@ PriceTradeDataColumns = [
 # t = pd.read_pickle(path + "Holders_{}.p".format(2400322364771558))
 # df = cleaning([t])
 # df[PriceTradeDataColumns].head()
+data = pd.DataFrame()
 for counter, i in enumerate(arr):
     print(counter)
     t = pd.read_pickle(path + i)
     df = cleaning([t])
+    # data = data.append(df)
     pickle.dump(
         df[HolderDataColumns],
         open(path + "HolderData\HolderData_{}.p".format(i[8:-2]), "wb"),
