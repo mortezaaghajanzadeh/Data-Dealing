@@ -4,7 +4,8 @@ import pandas as pd
 import pandas as pd
 
 path = r"G:\Economics\Finance(Prof.Heidari-Aghajanzadeh)\Data\\"
-pdf = pd.read_parquet(path + "Cleaned_Stock_Prices_1400_06_16.parquet")
+path = r"E:\RA_Aghajanzadeh\Data\\"
+pdf = pd.read_parquet(path + "Cleaned_Stock_Prices_1400_06_29.parquet")
 
 #%%
 gg = pdf.groupby(["date", "group_id"])
@@ -41,6 +42,15 @@ first = (
 #%%
 first["industry_index"] = first.industry_return / 100 + 1
 first["industry_index"] = first.groupby("group_id").industry_index.cumprod()
+
+
+
+
+#%%
 first.to_csv(path + "IndustryIndexes_1400-06-16.csv", index=False)
 first
+# %%
+first = first[first.industry_size>2]
+#%%
+pdf2[(pdf2.group_id == 13.0)&(pdf2.date == 20070110)]
 # %%

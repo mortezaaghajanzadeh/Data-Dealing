@@ -303,3 +303,4 @@ for i in ['max_price_Adjusted',
 #%%
 pdf.to_parquet(path + "Cleaned_Stock_Prices_1400_06_29" + ".parquet")
 # %%
+pdf[pdf['return']>100][['name','return','date']]

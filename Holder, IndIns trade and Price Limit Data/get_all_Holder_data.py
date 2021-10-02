@@ -43,22 +43,7 @@ del df, gg
 
 error = []
 counter = 0
-# j = 0
-# # dates = {"17617474823279712":dates['17617474823279712']}
-# ids = list(dates.keys())
-# nums = 10
-# tot = (int(len(ids) / nums)) + 2
-# import os
-# arr = os.listdir(path2)
-# arr.remove("Error.p")
-# arr.remove("Excepted_stock.p")
-# arr.remove("PriceTradeData")
-# arr.remove("HolderData")
-# done_id = []
-# for i in arr:
-#     done_id.append(i[8:-2])
-# again_id = list(set(ids)-set(done_id))
-# ids = again_id
+
 
 
 # for i in range(1, tot):
@@ -98,8 +83,11 @@ pickle.dump(Excepted_stock, open(path2 + "Excepted_stock.p", "wb"))
 pickle.dump(error, open(path2 + "Error.p", "wb"))
 #%%
 
-# import os
-# arr = os.listdir(path2)
-# done_id = []
-# for i in arr:
-#     done_id.append(i[8:-2])
+import os
+arr = os.listdir(path2)
+done_id = []
+for i in arr:
+    done_id.append(i[8:-2])
+
+# %%
+set(dates.keys()) - set(done_id)

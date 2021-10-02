@@ -74,36 +74,6 @@ mlist = [
     "ind_sell_count",
 ]
 
-# %%
-# data = pd.DataFrame()
-# for i in arr:
-#     print(i)
-#     df = pd.read_csv(path + i)
-#     data = data.append(df)
-#     del df
-
-# print("Read files")
-# data = (
-#     data.drop(columns=["Unnamed: 0"]).drop_duplicates().sort_values(by=["name", "date"])
-# )
-
-# print("rename columns")
-# data["name"] = data["name"].apply(lambda x: convert_ar_characters(x))
-# data["Firm"] = data["Firm"].apply(lambda x: convert_ar_characters(x))
-# data["Holder"] = data["Holder"].apply(lambda x: convert_ar_characters(x))
-
-
-# print("replace '-'")
-# for i in mlist[-12:]:
-#     print(i)
-#     data[i] = data[i].replace("-", np.nan)
-#     data[i] = data[i].astype(float)
-
-# IndIns = data[mlist].drop_duplicates()
-# path2 = r"G:\Economics\Finance(Prof.Heidari-Aghajanzadeh)\Data\\"
-# IndIns.to_csv(path2 + "Stock_price_trade_1392_1400.csv", index=False)
-# data.to_csv(path + "mergerdallData_cleaned" + ".csv")
-
 #%%
 # path2 = r"G:\Economics\Finance(Prof.Heidari-Aghajanzadeh)\Data\\"
 pdf = pd.read_parquet(path2 + "Cleaned_Stock_Prices_1400_06_29.parquet")
@@ -188,7 +158,7 @@ except:
         print("No")
 
 # %%
-df3 = pd.read_excel(path + "shareholder_names_cleaned_9901_v5.xlsx")
+df3 = pd.read_excel(path + "shareholder_names_cleaned_9901_v6.xlsx")
 
 df1.loc[df1["Holder_id"] == 53741, "Holder"] = "سرمایه گذاری تدبیر"
 
