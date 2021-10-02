@@ -111,7 +111,7 @@ mlist = [
     "stock_id",
     "close_price",
 ]
-df1 =  df1[df1.Holder != '-']
+df1 = df1[df1.Holder != "-"]
 df1["Number"] = df1.Number.astype(float)
 df1["Percent"] = df1.Percent.astype(float)
 df1["Change"] = df1.Change.astype(float)
@@ -238,9 +238,6 @@ df1.isnull().sum()
 # %%
 ids = df1[df1["Holder"].isnull()]["Holder_id"].tolist()
 Holders[Holders["Holder_id"].isin(ids)]
-#%%
-
-df1[df1.Holder_id == 85]
 # %%
 # df1 = df1.drop_duplicates()
 # df1 = df1.groupby(['stock_id','Total','name','date','close_price','PriceMaxLimit','PriceMinLimit','jalaliDate','group_name','group_id','Holder','type']).agg({'Number':sum , 'Percent':sum }).reset_index()
@@ -249,9 +246,7 @@ df1[df1.Holder_id == 85]
 df1 = df1.drop_duplicates(keep="first")
 df1 = df1.drop_duplicates(
     keep="first", subset=["name", "date", "Holder", "Number"]
-    ).rename(columns = {
-    "shrout": "Total"
-})
+).rename(columns={"shrout": "Total"})
 df1 = (
     df1.groupby(
         [
@@ -293,24 +288,6 @@ df1.head()
 len(df1)
 a = sumPercent(df1)
 a[a > 100]
-
-# %%
-df1[(df1.name == "وتجارت") & (df1.date == 20190407)]
-
-
-# %%
-df1[(df1.name == "وتجارت") & (df1.date == 20190408)]
-
-
-# %%
-df1[(df1.name == "وتجارت") & (df1.date == 20190409)]
-#%%
-df1[(df1.name == "شپدیس") & (df1.date == 20191009)]
-
-# %%
-
-
-
 # %%
 def Cleaning(g, ff, a, g_keys):
     i = g.name
@@ -321,17 +298,14 @@ def Cleaning(g, ff, a, g_keys):
     tempt = ff[ff["name"] == i[0]]
     notradedays = tempt.loc[tempt["volume"] == 0]["date"].tolist()
 
-    gg = (
-        pd.merge(left=a, right=g, how="left", left_on="date", right_on="date")
-        
-    )
+    gg = pd.merge(left=a, right=g, how="left", left_on="date", right_on="date")
 
     if len(gg) == 0:
         return
 
     ## Filling the Gaps
-    if len(g)> 3:
-        
+    if len(g) > 3:
+
         v1 = gg["stock_id"][~gg["stock_id"].isna()].index[-1]
         v2 = gg["stock_id"][~gg["stock_id"].isna()].index[0]
         gg = gg[(gg.index <= v1) & (gg.index >= v2)]
@@ -424,6 +398,8 @@ def FillGaps(gg):
 df = df1.reset_index(drop=True)
 import requests
 from bs4 import BeautifulSoup
+
+
 def removeSlash2(row):
     X = row.split("/")
     if len(X[1]) < 2:
@@ -436,9 +412,7 @@ def removeSlash2(row):
 
 def Overall_index():
     url = r"https://tse.ir/archive/Indices/Main/Indices_IRX6XTPI0006.xls"
-    r = requests.get(
-            url
-        )  # This URL contains all sector groups.
+    r = requests.get(url)  # This URL contains all sector groups.
     soup = BeautifulSoup(r.text, "html.parser")
     header = soup.find_all("table")[0].find("tr")
     list_header = []
@@ -460,8 +434,9 @@ def Overall_index():
                 continue
         data.append(sub_data)
     df = pd.DataFrame(data=data, columns=list_header)
-    df['Date'] = df.Date.apply(removeSlash2)
+    df["Date"] = df.Date.apply(removeSlash2)
     return df
+
 
 overal_index = Overall_index()
 overal_index
@@ -471,9 +446,7 @@ g_keys = list(grouped_data.groups.keys())
 
 ff = pdf
 index = overal_index
-a = index.drop(columns=["Index"]).rename(
-    columns={"Date": "date"}
-)
+a = index.drop(columns=["Index"]).rename(columns={"Date": "date"})
 
 # closedays = [13960923, 13960924, 13970504, 13970505]
 # a = a.drop(a.loc[a["jalaliDate"].isin(closedays)].index)
@@ -623,109 +596,5 @@ GHunder = (
 )
 
 GHunder
-
-# %%
-# df.to_csv(path + '\Cleaned_Stocks_Holders_1394.csv',index=False)
-# df.to_csv(path + '\Cleaned_Stocks_Holders_1398.csv',index=False)
-
-
 # %%
 df.to_csv(path + "Cleaned_Stocks_Holders_1400_06_29.csv", index=False)
-
-
-# %%
-# cdf = df.loc[df.Trade == 'Yes']
-# cdf['jalaliDate'] = cdf['jalaliDate'].astype(str)
-# cdf['Year'] = cdf['jalaliDate'].str[0:4]
-# cdf['Month'] = cdf['jalaliDate'].str[4:6]
-# cdf['Day'] = cdf['jalaliDate'].str[6:8]
-
-
-# %%
-
-
-# %%
-# grouped_data = df1.groupby(['name','Holder','type'])
-# ff = pdf
-# index = pd.read_excel(path + 'IRX6XTPI0009.xls').drop(columns = ['<CLOSE>'])
-# a = index.drop(columns = ['<TICKER>']).rename(columns = {'<DTYYYYMMDD>':'date','<COL14>':'jalaliDate'})
-
-# closedays = [13960923,13960924,13970504,13970505]
-# a = a.drop(a.loc[a['jalaliDate'].isin(closedays)].index)
-
-# new_row = {'date':20171106, 'jalaliDate':13960815}
-# a = a.append(new_row, ignore_index=True).sort_values(by=['date'])
-# data = pd.DataFrame()
-# print(len(list(grouped_data.groups.keys())))
-# j=0
-# z = 0
-# for i in grouped_data.groups.keys():
-#     j += 1
-#     print('Group ' + str(j) , end="\r", flush=True)
-#     gg = grouped_data.get_group(i)
-#     tempt = ff[ff['name'] == i[0]]
-
-
-#     notradedays = tempt.loc[tempt['volume']==0]['date'].tolist()
-
-#     opendays = tempt['date'].tolist()
-
-
-#     gg = pd.merge(left=a, right=gg, how='left', left_on='date', right_on='date').drop(columns = ['jalaliDate_y']).rename(columns={'jalaliDate_x':'jalaliDate'})
-#     if len(gg[~gg['name'].isnull()]) == 0:
-#         z += 1
-#         print(z)
-#         continue
-#     v1 = gg['stock_id'][~gg['stock_id'].isna()].index[-1]
-#     v2 = gg['stock_id'][~gg['stock_id'].isna()].index[0]
-#     gg = gg[(gg.index <=v1)&(gg.index >= v2)]
-
-#     gg = gg.fillna(method='ffill')
-
-
-#     index = gg.index
-#     for m,ind in enumerate(index) :
-#         for be in [-3,-2,-1]:
-#             for af in [3,2,1]:
-#                 try:
-#                     after = m + af
-#                     before = m + be
-#                     pvalue = gg[gg.index == index[before]]['Percent'].iloc[0]
-#                     avalue = gg[gg.index == index[after]]['Percent'].iloc[0]
-#                     value = gg[gg.index == ind]['Percent'].iloc[0]
-#                     pvalue2 = gg[gg.index == index[before]]['Number'].iloc[0]
-#                     avalue2 = gg[gg.index == index[after]]['Number'].iloc[0]
-#                     if (pvalue == avalue) & (pvalue != value) & (avalue != value) :
-#                         gg.at[ind, 'Number'] = pvalue2
-#                         gg.at[ind, 'Percent'] = pvalue
-#                     if (abs(pvalue-value)>50)&(abs(avalue-value)>50):
-#                         gg.at[ind, 'Number'] = (pvalue2 + avalue2)/2
-#                         gg.at[ind, 'Percent'] = (pvalue + avalue)/2
-#                     if ((pvalue-value)>5)&((avalue-value)>5):
-#                         gg.at[ind, 'Number'] = (pvalue2 + avalue2)/2
-#                         gg.at[ind, 'Percent'] = (pvalue + avalue)/2
-#                     if ((value-pvalue)>5)&((value-avalue)>5):
-#                         gg.at[ind, 'Number'] = (pvalue2 + avalue2)/2
-#                         gg.at[ind, 'Percent'] = (pvalue + avalue)/2
-#                 except:
-#                     pass
-
-
-#     mapingdict = dict(zip(list(tempt['date']), list(tempt['close_price'])))
-#     gg['close_price'] = gg['date'].map(mapingdict)
-#     gg= gg.fillna(method='ffill')
-
-#     d2 = gg['Number'].diff()
-#     d3 = gg['Percent'].diff()
-#     d2.iloc[0] = '-'
-#     d3.iloc[0] = '-'
-#     gg['Number_Change'] = d2
-#     gg['Percent_Change'] = d3
-
-
-#     gg['Condition'] = 'Open'
-#     gg.loc[~(gg['date'].isin(opendays)),'Condition'] = 'Close'
-
-#     gg['Trade'] = 'Yes'
-#     gg.loc[(gg['date'].isin(notradedays)),'Trade'] = 'No'
-#     data = data.append(gg)
