@@ -121,9 +121,6 @@ HolderData.tail()
 
 
 # %%
-
-
-# %%
 n1 = path + "Cleaned_Stock_Prices_1400_06_29" + ".parquet"
 df = pd.read_parquet(n1)
 df = df.drop_duplicates()
@@ -137,9 +134,6 @@ df.columns
 
 # %%
 df.tail()
-
-
-# %%
 
 
 # %%
@@ -170,16 +164,20 @@ len(set(df2.symbol))
 # %%
 PriceData = df
 PriceData = PriceData.merge(df2, on=["symbol", "Year"], how="left")
+PriceData['shrout'] = np.nan
+PriceData.loc[PriceData.shrout.isnull(),'shrout'] = PriceData.loc[PriceData.shrout.isnull()].shrout_x
+PriceData.loc[PriceData.shrout.isnull(),'shrout'] = PriceData.loc[PriceData.shrout.isnull()].shrout_y
+PriceData = PriceData.drop(columns = ['shrout_x','shrout_y'])
 PriceData[["BookValue", "shrout"]
           ] = PriceData[["BookValue", "shrout"]
                                                ].fillna(
     method="ffill"
 )
-
+PriceData['MarketCap'] = PriceData.close_price * PriceData.shrout
 
 # %%
 PriceData = PriceData[
-    ["jalaliDate", "date", "symbol", "close_price", "shrout", "BookValue"]
+    ["jalaliDate", "date", "symbol", "close_price", "shrout", "BookValue","return"]
 ]
 PriceData["date1"] = PriceData["date"].apply(vv4)
 PriceData["date1"] = pd.to_datetime(PriceData["date1"])
@@ -220,11 +218,7 @@ PriceData.tail()
 # %%
 gg = PriceData.groupby(["symbol"])
 PriceData["yearRet"] = gg["close_price"].pct_change(periods=250) * 100
-PriceData["Ret"] = gg["close_price"].pct_change(periods=1) * 100
-
-
-# %%
-
+PriceData["Ret"] = PriceData['return']
 
 # %%
 PriceData = PriceData.reset_index(drop=True)
@@ -245,15 +239,68 @@ PriceData.loc[~PriceData.shrout2.isnull(), "shrout"] = PriceData.loc[
 PriceData = PriceData.drop(columns=["shrout2"])
 
 
-# %%
-
 
 # %%
-path2 = r"G:\TseClient\Data adjusted"
-index = pd.read_excel(path2 + "\IRX6XTPI0009.xls")[["<COL14>", "<CLOSE>"]].rename(
-    columns={"<COL14>": "jalaliDate", "<CLOSE>": "Index"}
+# path2 = r"G:\TseClient\Data adjusted"
+# index = pd.read_excel(path2 + "\IRX6XTPI0009.xls")[["<COL14>", "<CLOSE>"]].rename(
+#     columns={"<COL14>": "jalaliDate", "<CLOSE>": "Index"}
+# )
+# index["Market_return"] = index["Index"].pct_change(periods=1) * 100
+
+
+import requests
+
+
+def removeSlash(row):
+    X = row.split("/")
+    if len(X[1]) < 2:
+        X[1] = "0" + X[1]
+    if len(X[2]) < 2:
+        X[2] = "0" + X[2]
+
+    return X[0] +"-" + X[1] +"-" + X[2]
+
+def Overall_index():
+    url = r"http://www.tsetmc.com/tsev2/chart/data/Index.aspx?i=32097828799138957&t=value"
+    r = requests.get(
+                url
+            )
+    jalaliDate = []
+    Value = []
+    for i in r.text.split(";"):
+        x = i.split(',')
+        jalaliDate.append(x[0])
+        Value.append(float(x[1]))
+    df = pd.DataFrame({'jalaliDate' :jalaliDate,
+                'Value' : Value,
+                }, 
+                columns=['jalaliDate','Value'])
+    df["jalaliDate"] = df.jalaliDate.apply(removeSlash)
+    return df
+
+def removeDash(row):
+    X = row.split("-")
+    if len(X[1]) < 2:
+        X[1] = "0" + X[1]
+    if len(X[2]) < 2:
+        X[2] = "0" + X[2]
+
+    return int(X[0] + X[1] + X[2])
+
+overal_index = Overall_index()
+mapingdict = dict(
+    zip(
+        df.jalaliDate,df.date
+    )
 )
+
+overal_index['jalaliDate'] = overal_index.jalaliDate.apply(removeDash)
+index = overal_index.dropna().rename(columns = {"Value":"Index"})
+
 index["Market_return"] = index["Index"].pct_change(periods=1) * 100
+index
+#%%
+
 Index = PriceData.merge(index, on="jalaliDate")
 Index = (
     Index[
@@ -320,7 +367,7 @@ Factors.tail()
 
 
 # %%
-Factors.to_excel(path + "\Analyzed Data" + "\Factors-Daily.xlsx", index=False)
+Factors.to_excel(path + "\Factors_Daily_1400_06_28.xlsx", index=False)
 
 
 # %%
