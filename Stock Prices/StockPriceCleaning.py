@@ -170,26 +170,19 @@ symbolGroup.to_excel(path + "SymbolGroup.xlsx", index=False)
 
 #%%
 ## Add issued shares to data
-shrout = pd.read_csv(path + "Stock_holder_new\\shrout.csv")
-mapdict = dict(zip(shrout.set_index(["name", "date"]).index, shrout.shrout))
+shrout = pd.read_csv(path + "SymbolShrout_1400_06_28.csv")
+mapdict = dict(zip(shrout.set_index(["symbol", "date"]).index, shrout.shrout))
 i = "date"
 pdf[i] = pdf[i].astype(int)
 
 pdf["shrout"] = pdf.set_index(["name", "date"]).index.map(mapdict)
-i = "stock_id"
-shrout[i] = shrout[i].astype(str)
-mapdict = dict(zip(shrout.set_index(["stock_id", "date"]).index, shrout.shrout))
-pdf["shrout2"] = pdf.set_index(["stock_id", "date"]).index.map(mapdict)
-pdf.loc[pdf.shrout.isnull(), "shrout"] = pdf.loc[pdf.shrout.isnull()]["shrout2"]
-pdf = pdf.drop(columns=["shrout2"])
-gg = pdf.groupby("name")
-pdf["shrout"] = gg["shrout"].fillna(method="ffill")
 i = "volume"
 pdf[i] = pdf[i].astype(float)
 d = pd.DataFrame()
 d = d.append(pdf)
 gg = d.groupby("name")
 d["shrout"] = gg["shrout"].fillna(method="bfill")
+d["shrout"] = gg["shrout"].fillna(method="ffill")
 #%%
 pdf = pd.DataFrame()
 pdf = pdf.append(d)
