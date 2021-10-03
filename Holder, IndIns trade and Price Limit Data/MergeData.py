@@ -67,9 +67,7 @@ PriceTradeDataColumns = [
     "ind_sell_count",
 ]
 #%%
-# t = pd.read_pickle(path + "Holders_{}.p".format(2400322364771558))
-# df = cleaning([t])
-# df[PriceTradeDataColumns].head()
+
 data = pd.DataFrame()
 for counter, i in enumerate(arr):
     print(counter)

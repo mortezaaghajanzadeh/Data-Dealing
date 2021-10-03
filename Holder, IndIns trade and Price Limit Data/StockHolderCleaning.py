@@ -66,7 +66,6 @@ mlist = [
     "stock_id",
     "close_price",
 ]
-df1 = df1[df1.Holder != "-"]
 df1["Number"] = df1.Number.astype(float)
 df1["Percent"] = df1.Percent.astype(float)
 df1["Change"] = df1.Change.astype(float)
