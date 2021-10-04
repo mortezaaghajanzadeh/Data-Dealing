@@ -191,31 +191,6 @@ PriceData.tail()
 
 
 # %%
-# def weekRet(g):
-#     g['weekRet'] = (g.close_price.iloc[-1] - g.close_price.iloc[0])/g.close_price.iloc[0] * 100
-#     return g
-
-# gg = PriceData.groupby(['symbol', 'year_of_year','week_of_year'])
-# d = gg.apply(weekRet)
-# Don't Delete this cell
-
-
-# %%
-
-
-# %%
-# def yearRet(g):
-#     f = g.groupby(['year_of_year']).last().reset_index()
-#     f['yearRet'] = f['close_price'].pct_change(periods = 1)*100
-#     f = f[['year_of_year','symbol','week_of_year','yearRet']]
-#     g = g.merge(f,on = ['year_of_year','symbol','week_of_year'])
-#     return g
-
-# gg = PriceData.groupby(['symbol', 'week_of_year'])
-# d2 = gg.apply(yearRet)
-
-
-# %%
 gg = PriceData.groupby(["symbol"])
 PriceData["yearRet"] = gg["close_price"].pct_change(periods=250) * 100
 PriceData["Ret"] = PriceData['return']
@@ -223,9 +198,6 @@ PriceData["Ret"] = PriceData['return']
 # %%
 PriceData = PriceData.reset_index(drop=True)
 PriceData = PriceData.sort_values(by=["symbol", "date"])
-
-
-# %%
 
 
 # %%
@@ -241,12 +213,6 @@ PriceData = PriceData.drop(columns=["shrout2"])
 
 
 # %%
-# path2 = r"G:\TseClient\Data adjusted"
-# index = pd.read_excel(path2 + "\IRX6XTPI0009.xls")[["<COL14>", "<CLOSE>"]].rename(
-#     columns={"<COL14>": "jalaliDate", "<CLOSE>": "Index"}
-# )
-# index["Market_return"] = index["Index"].pct_change(periods=1) * 100
-
 
 import requests
 
@@ -310,10 +276,6 @@ Index = (
     .sort_values(by=["date"])
 )
 
-
-# %%
-
-
 # %%
 PriceData = (
     PriceData.merge(index, on=["jalaliDate"])
@@ -324,16 +286,11 @@ PriceData = (
 
 # %%
 
-
-# %%
 PriceData["MarketCap"] = PriceData["close_price"] * PriceData["shrout"] / 1e5
 PriceData["MarketCap"] = PriceData["MarketCap"].astype(int)
 PriceData["BookToMarket"] = PriceData["BookValue"] / PriceData["MarketCap"]
 PriceData = PriceData.reset_index(drop=True)
 PriceData.tail()
-
-
-# %%
 
 
 # %%

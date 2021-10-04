@@ -47,7 +47,7 @@ first["industry_index"] = first.groupby("group_id").industry_index.cumprod()
 
 
 #%%
-first.to_csv(path + "IndustryIndexes_1400-06-16.csv", index=False)
+first.to_csv(path + "IndustryIndexes_1400_06_28.csv", index=False)
 first
 # %%
 first = first[first.industry_size>2]
