@@ -13,6 +13,10 @@ pdf = pdf.set_index(["date", "group_id"])
 pdf["Weight"] = gg.MarketCap.sum()
 pdf["Weight"] = pdf.MarketCap / pdf.Weight
 pdf["industry_return"] = pdf["return"] * pdf.Weight
+pdf.describe()
+
+
+#%%
 pdf = pdf.reset_index()
 gg = pdf.groupby(["date", "group_id"])
 pdf = pdf.set_index(["date", "group_id"])
@@ -52,5 +56,5 @@ first
 # %%
 first = first[first.industry_size>2]
 #%%
-pdf2[(pdf2.group_id == 13.0)&(pdf2.date == 20070110)]
+pdf2[(pdf2.group_id == 32)&(pdf2.date == 20090926)][['name','return','date']]
 # %%

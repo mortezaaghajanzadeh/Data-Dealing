@@ -15,5 +15,5 @@ df = df[
 df["MarketCap"] = df.close_price * df.shrout
 df.to_csv(path + "SymbolShrout_1400_06_28.csv", index=False)
 #%%
-df[df.symbol == 'آ س پ']
+df[df.symbol == 'گکیش']
 # %%

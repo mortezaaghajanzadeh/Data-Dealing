@@ -301,6 +301,9 @@ for i in ['max_price_Adjusted',
     pdf[i] = gg[i].fillna(method = 'bfill')
 
 #%%
-pdf.to_parquet(path + "Cleaned_Stock_Prices_1400_06_29" + ".parquet")
+
 # %%
-pdf[pdf['return']>100][['name','return','date']]
+pdf[pdf.shrout.isnull()][['name','return','date']].name.unique()
+# %%
+pdf[~pdf.shrout.isnull()].to_parquet(path + "Cleaned_Stock_Prices_1400_06_29" + ".parquet")
+# %%
