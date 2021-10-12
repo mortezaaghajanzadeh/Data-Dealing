@@ -250,7 +250,7 @@ df1 = df1[
     ]
 ]
 df1.head()
-df1[(df1.name == "فارس")].head(1)
+df1[(df1.name == 'آ س پ')&(df1.date == 20140511.0)]
 
 # %%
 def sumPercent(df):
@@ -261,6 +261,8 @@ def sumPercent(df):
 a = sumPercent(df1)
 a[a > 100]
 #%%
+# There is a problem
+#%%%
 def Cleaning(g, ff, a, g_keys):
     i = g.name
     for id, value in enumerate(g_keys):
@@ -436,20 +438,22 @@ print(len((g_keys)))
 i = g_keys[3195]
 g = grouped_data.get_group(i)
 data = grouped_data.apply(Cleaning, ff=ff, a=a, g_keys=g_keys)
-data[data.name == "فارس"].head()
+data[(data.name == 'آ س پ')&(data.date == 20140511.0)]
 # data = grouped_data.parallel_apply(Cleaning, ff=ff, a=a, g_keys=g_keys)
 # %%
 # %%
+
 data = (
     data.reset_index(drop=True)
     .dropna()
     .rename(columns={"jalaliDate_x": "jalaliDate"})
     .drop(columns=["jalaliDate_y"])
-).sort_values(by=["date"])
+).sort_values(by=["date"]).reset_index(drop = True)
 
-data[data.name == "فارس"].head()
+data[(data.name == 'آ س پ')&(data.date == 20140511.0)]
 #%%
-
+data.to_csv(path + "cleaned_data.csv")
+#%%
 a = sumPercent(data)
 GHunder = list(a[a > 100].index)
 tmt = data.set_index(["date", "name"])
@@ -481,6 +485,9 @@ ChangeList = [
 
 tmt = tmt.sort_values(by=["name", "date", "Percent"])
 tmt[tmt.name == "فارس"].head()
+
+#%%
+
 #%%
 print(len(multiIndex))
 for counter, i in enumerate(multiIndex):
@@ -500,7 +507,7 @@ for counter, i in enumerate(multiIndex):
     except:
         print("Erorre")
         continue
-tmt[tmt.name == "فارس"].head()
+tmt[(tmt.name == 'آ س پ')&(tmt.date == 20140511.0)]
 #%%
 fkey = zip(list(pdf.name), list(pdf.date))
 mapingdict = dict(zip(fkey, pdf.close_price))
