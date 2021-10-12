@@ -531,7 +531,8 @@ df["Holder"] = df["Holder"].replace("تفیرو\u200c", "تفیرو")
 df[["date", "jalaliDate"]] = df[["date", "jalaliDate"]].astype(int)
 df.isnull().sum()
 df.loc[df.Number_Change == "0.0", "Percent_Change"] = "0"
-df[df.symbol == "فارس"].head()
+df[(df.name == 'آ س پ')&(df.date == 20140511.0)]
+
 #%%
 def sumPercent2(df):
     gg = df.groupby(["date", "symbol"])
@@ -566,3 +567,4 @@ tmt = gg.apply(change)
 df.to_csv(path + "Cleaned_Stocks_Holders_1400_06_28.csv", index=False)
 
 # %%
+a = pd.read_csv(r"E:\RA_Aghajanzadeh\Data\\" +"Cleaned_Stocks_Holders_1400_06_28.csv" )
