@@ -48,7 +48,7 @@ pdf = pdf.drop(
 )
 # pdf = pdf[pdf["date"] >= 20150324]
 
-df1 = pd.read_parquet(path + "mergerdallData_cleaned" + ".parquet")
+df1 = pd.read_parquet(path + "mergerdHolderAllData_cleaned" + ".parquet")
 print("read Mereged Data")
 df1 = df1.drop(df1[df1["name"] == "کرد"].index)
 mlist = [
@@ -206,7 +206,7 @@ Holders[Holders["Holder_id"].isin(ids)].to_excel(path + "NewHolder.xlsx")
 # %%
 df1 = df1.drop_duplicates(keep="first")
 
-df1[(df1.name == "فارس")].head(1)
+df1[(df1.name == "تپکو")].head(1)
 #%%
 df1 = df1.drop_duplicates(
     keep="first", subset=["name", "date", "Holder", "Number"]
@@ -230,7 +230,7 @@ df1 = (
     .reset_index()
 )
 
-df1[(df1.name == "فارس")].head(1)
+df1[(df1.name == "تپکو")].head(1)
 
 #%%
 df1 = df1[
@@ -514,14 +514,14 @@ mapingdict = dict(zip(fkey, pdf.close_price))
 tmt["close_price"] = tmt.set_index(["name", "date"]).index.map(mapingdict)
 #%%
 
-df = tmt.sort_values(by=["name", "date", "Percent"])
+df = tmt.sort_values(by=["symbol", "date", "Percent"])
 df.head()
 
 
 df = df.reset_index(drop=True)
 
-df = df.sort_values(by=["name", "date", "Percent"])
-df = df.rename(columns={"name": "symbol", "Number": "nshares", "Total": "shrout"})
+df = df.sort_values(by=["symbol", "date", "Percent"])
+df = df.rename(columns={"Number": "nshares", "Total": "shrout"})
 df.loc[(df.jalaliDate == 13970502) & (df.symbol == "دانا"), "shrout"] = 1.500000e09
 
 df["symbol"] = df["symbol"].replace("دتهران\u200c", "دتهران")
@@ -531,7 +531,7 @@ df["Holder"] = df["Holder"].replace("تفیرو\u200c", "تفیرو")
 df[["date", "jalaliDate"]] = df[["date", "jalaliDate"]].astype(int)
 df.isnull().sum()
 df.loc[df.Number_Change == "0.0", "Percent_Change"] = "0"
-df[(df.name == 'آ س پ')&(df.date == 20140511.0)]
+df[(df.symbol == 'آ س پ')&(df.date == 20140511.0)]
 
 #%%
 def sumPercent2(df):
