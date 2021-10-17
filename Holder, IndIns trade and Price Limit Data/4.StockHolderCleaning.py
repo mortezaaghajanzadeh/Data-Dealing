@@ -74,9 +74,9 @@ print("Rename")
 
 pdf["name"] = pdf["name"].apply(lambda x: convert_ar_characters(x))
 df1["name"] = df1["name"].apply(lambda x: convert_ar_characters(x))
-df1[(df1.name == "فارس")].head(1)
+df1[(df1.name == 'کماسه')&
+    (df1.date >= 20170325)].sort_values(by='date').head()
 #%%
-
 gdata = pdf[["group_name", "name"]].drop_duplicates().dropna()
 mapingdict = dict(zip(gdata.name, gdata.group_name))
 df1["group_name"] = df1["name"].map(mapingdict)
@@ -84,7 +84,8 @@ gdata = pdf[["group_id", "group_name"]].dropna().drop_duplicates()
 mapingdict = dict(zip(gdata.group_name, gdata.group_id))
 df1["group_id"] = df1["group_name"].map(mapingdict)
 df1 = df1.dropna()
-df1[(df1.name == "فارس")].head(1)
+df1[(df1.name == 'کماسه')&
+    (df1.date >= 20170325)].sort_values(by='date').head()
 #%%
 df2 = df1[["Holder_id", "Holder", "date"]]
 df2 = df2.sort_values(by=["Holder_id"])
@@ -99,7 +100,8 @@ except:
     except:
         print("No")
 
-df1[(df1.name == "فارس")].head(1)
+df1[(df1.name == 'کماسه')&
+    (df1.date >= 20170325)].sort_values(by='date').head()
 # %%
 df3 = pd.read_excel(path + "shareholder_names_cleaned_9901_v6.xlsx")
 for i in ["shareholder_cleaned", "shareholder_raw"]:
@@ -109,7 +111,8 @@ print("Holder")
 df1["Holder"] = df1["Holder"].apply(lambda x: convert_ar_characters(x))
 
 
-df1[(df1.name == "فارس")].head(1)
+df1[(df1.name == 'کماسه')&
+    (df1.date >= 20170325)].sort_values(by='date').head()
 #%%
 df1.loc[df1["Holder_id"] == 53741, "Holder"] = "سرمایه گذاری تدبیر"
 indid = [
@@ -147,7 +150,8 @@ mapingdict = dict(zip(df3["shareholder_raw"], df3["shareholder_cleaned"]))
 df1["Holder"] = df1["Holder"].map(mapingdict)
 
 
-df1[(df1.name == "فارس")].head(1)
+df1[(df1.name == 'کماسه')&
+    (df1.date >= 20170325)].sort_values(by='date').head()
 
 #%%
 
@@ -165,7 +169,8 @@ df1.loc[
 df1.loc[df1["Holder_id"] == 62744, "Holder"] = "پدیده تاپان سرآمد"
 
 
-df1[(df1.name == "فارس")].head(1)
+df1[(df1.name == 'کماسه')&
+    (df1.date >= 20170325)].sort_values(by='date').head()
 
 #%%
 dropholders = [
@@ -196,7 +201,8 @@ for i in dropholders:
     df1 = df1[df1.Holder != i]
 # df1 = df1.drop(df1.loc[df1["Holder"].isin(dropholders)].index)
 
-df1[(df1.name == "فارس")].head(1)
+df1[(df1.name == 'کماسه')&
+    (df1.date >= 20170325)].sort_values(by='date').head()
 
 #%%
 ids = df1[df1["Holder"].isnull()]["Holder_id"].tolist()
@@ -206,7 +212,8 @@ Holders[Holders["Holder_id"].isin(ids)].to_excel(path + "NewHolder.xlsx")
 # %%
 df1 = df1.drop_duplicates(keep="first")
 
-df1[(df1.name == "تپکو")].head(1)
+df1[(df1.name == 'کماسه')&
+    (df1.date >= 20170325)].sort_values(by='date').head()
 #%%
 df1 = df1.drop_duplicates(
     keep="first", subset=["name", "date", "Holder", "Number"]
@@ -230,7 +237,8 @@ df1 = (
     .reset_index()
 )
 
-df1[(df1.name == "تپکو")].head(1)
+df1[(df1.name == 'کماسه')&
+    (df1.date >= 20170325)].sort_values(by='date').head()
 
 #%%
 df1 = df1[
@@ -438,7 +446,8 @@ print(len((g_keys)))
 i = g_keys[3195]
 g = grouped_data.get_group(i)
 data = grouped_data.apply(Cleaning, ff=ff, a=a, g_keys=g_keys)
-data[(data.name == 'آ س پ')&(data.date == 20140511.0)]
+df1[(df1.name == 'کماسه')&
+    (df1.date >= 20170325)].sort_values(by='date').head()
 # data = grouped_data.parallel_apply(Cleaning, ff=ff, a=a, g_keys=g_keys)
 # %%
 # %%
@@ -450,7 +459,8 @@ data = (
     .drop(columns=["jalaliDate_y"])
 ).sort_values(by=["date"]).reset_index(drop = True)
 
-data[(data.name == 'آ س پ')&(data.date == 20140511.0)]
+df1[(df1.name == 'کماسه')&
+    (df1.date >= 20170325)].sort_values(by='date').head()
 #%%
 data.to_csv(path + "cleaned_data.csv")
 #%%
