@@ -16,7 +16,7 @@ links = pd.read_pickle(path + "Codal_reports_14000725.p")
 
 #%%
 # Balance Sheet
-Balance_Links = [i + "0" for i in links]
+Links = [i + "1" for i in links]
 
 
 def drivetable(soup, number):
@@ -44,7 +44,7 @@ def drivetable(soup, number):
     return df
 
 
-def gen_balance_sheet(link):
+def gen_sheet(link):
     driver.get(link)
     name = driver.find_element_by_id("ctl00_txbSymbol").text
     period = driver.find_element_by_id("ctl00_lblPeriod").text
@@ -55,20 +55,16 @@ def gen_balance_sheet(link):
 
 
 #%%
-Balance_Sheets = pd.DataFrame()
-path = "E:\RA_Aghajanzadeh\Data\BalanceSheet\\"
+path = "E:\RA_Aghajanzadeh\Data\ProfitandLost\\"
 error = []
-print(len(Balance_Links))
-
-name, period, date, df = gen_balance_sheet(Balance_Links[0])
-
-
-
+print(len(Links))
+name, period, date, df = gen_sheet(Links[0])
+df
 #%%
-for number, link in enumerate(Balance_Links):
+for number, link in enumerate(Links):
     print(number)
     try:
-        name, period, date, df = gen_balance_sheet(link)
+        name, period, date, df = gen_sheet(link)
         df.to_excel(path + "{}+{}+{}.xlsx".format(period, name, date))
     except:
         error.append(link)

@@ -1,14 +1,6 @@
 #%%
-from os import error
 import pandas as pd
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-import time
-import pandas as pd
-from bs4 import BeautifulSoup
-import requests
-
+import  pickle
 from selenium import webdriver
 
 path = r"C:\Program Files (x86)\chromedriver.exe"
@@ -18,7 +10,6 @@ chrome_options = Options()
 chrome_options.add_argument("--disable-extensions")
 chrome_options.add_argument("--disable-gpu")
 chrome_options.add_argument("--headless")
-# chrome_options.headless = True # also works
 driver = webdriver.Chrome(path, options=chrome_options)
 #%%
 
@@ -42,7 +33,6 @@ def get_all_links():
             .find_element_by_class_name("grid-txt")
             .find_elements_by_xpath(f"//*[@id='template-container']/tr[{i}]/td[4]/a")
         )
-        print(len(reports))
         for report in reports:
             url = report.get_attribute("href")
             links.append(url)
@@ -58,3 +48,11 @@ for page in range(1, 166):
     links = get_all_links()
     for link in links:
         all_links.append(link)
+
+path = r"E:\RA_Aghajanzadeh\Data\\"
+pickle.dump(
+    all_links,
+    open(path + "Codal_reports_14000725.p", "wb")
+)
+
+# %%
