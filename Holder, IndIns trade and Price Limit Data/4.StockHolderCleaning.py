@@ -76,6 +76,9 @@ pdf["name"] = pdf["name"].apply(lambda x: convert_ar_characters(x))
 df1["name"] = df1["name"].apply(lambda x: convert_ar_characters(x))
 df1[(df1.name == 'کماسه')&
     (df1.date >= 20170325)].sort_values(by='date').head()
+
+
+
 #%%
 gdata = pdf[["group_name", "name"]].drop_duplicates().dropna()
 mapingdict = dict(zip(gdata.name, gdata.group_name))
@@ -152,6 +155,7 @@ df1["Holder"] = df1["Holder"].map(mapingdict)
 
 df1[(df1.name == 'کماسه')&
     (df1.date >= 20170325)].sort_values(by='date').head()
+
 
 #%%
 
@@ -450,6 +454,9 @@ df1[(df1.name == 'کماسه')&
     (df1.date >= 20170325)].sort_values(by='date').head()
 # data = grouped_data.parallel_apply(Cleaning, ff=ff, a=a, g_keys=g_keys)
 # %%
+
+#%%
+df1[df1.name == 'فولاد']
 # %%
 
 data = (
@@ -524,28 +531,28 @@ mapingdict = dict(zip(fkey, pdf.close_price))
 tmt["close_price"] = tmt.set_index(["name", "date"]).index.map(mapingdict)
 #%%
 
-df = tmt.sort_values(by=["symbol", "date", "Percent"])
+df = tmt.sort_values(by=["name", "date", "Percent"])
 df.head()
 
 
 df = df.reset_index(drop=True)
 
-df = df.sort_values(by=["symbol", "date", "Percent"])
+df = df.sort_values(by=["name", "date", "Percent"])
 df = df.rename(columns={"Number": "nshares", "Total": "shrout"})
-df.loc[(df.jalaliDate == 13970502) & (df.symbol == "دانا"), "shrout"] = 1.500000e09
+df.loc[(df.jalaliDate == 13970502) & (df.name == "دانا"), "shrout"] = 1.500000e09
 
-df["symbol"] = df["symbol"].replace("دتهران\u200c", "دتهران")
-df["symbol"] = df["symbol"].replace("تفیرو\u200c", "تفیرو")
+df["name"] = df["name"].replace("دتهران\u200c", "دتهران")
+df["name"] = df["name"].replace("تفیرو\u200c", "تفیرو")
 df["Holder"] = df["Holder"].replace("دتهران\u200c", "دتهران")
 df["Holder"] = df["Holder"].replace("تفیرو\u200c", "تفیرو")
 df[["date", "jalaliDate"]] = df[["date", "jalaliDate"]].astype(int)
 df.isnull().sum()
 df.loc[df.Number_Change == "0.0", "Percent_Change"] = "0"
-df[(df.symbol == 'آ س پ')&(df.date == 20140511.0)]
+df[(df.name == 'آ س پ')&(df.date == 20140511.0)]
 
 #%%
 def sumPercent2(df):
-    gg = df.groupby(["date", "symbol"])
+    gg = df.groupby(["date", "name"])
     return gg.Percent.sum()
 
 
@@ -554,7 +561,7 @@ GHunder = (
     a[a > 100]
     .to_frame()
     .reset_index()
-    .sort_values(by=["symbol", "date"], ascending=False)
+    .sort_values(by=["name", "date"], ascending=False)
 )
 
 GHunder
@@ -569,7 +576,7 @@ def change(gg):
     return gg
 
 
-gg = df.groupby(["symbol", "Holder"])
+gg = df.groupby(["name", "Holder"])
 tmt = gg.apply(change)
 
 #%%
@@ -577,4 +584,7 @@ tmt = gg.apply(change)
 df.to_csv(path + "Cleaned_Stocks_Holders_1400_06_28.csv", index=False)
 
 # %%
+import pandas as pd
 a = pd.read_csv(r"E:\RA_Aghajanzadeh\Data\\" +"Cleaned_Stocks_Holders_1400_06_28.csv" )
+# %%
+a[a.name == 'فولاد']
