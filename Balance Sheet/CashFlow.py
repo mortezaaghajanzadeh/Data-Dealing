@@ -70,9 +70,7 @@ def sec_type(link):
     name = driver.find_element_by_id("ctl00_txbSymbol").text
     period = driver.find_element_by_id("ctl00_lblPeriod").text
     date = driver.find_element_by_id("ctl00_lblPeriodEndToDate").text[:4]
-    table = driver.find_element_by_id(
-        "ctl00_cphBody_ucSFinancialPosition_grdSFinancialPosition"
-    )
+    table = driver.find_element_by_id("ctl00_cphBody_UpdatePanel1")
     dfbase = pd.DataFrame()
     table = (
         WebDriverWait(driver, 10)
@@ -80,13 +78,13 @@ def sec_type(link):
             EC.visibility_of_element_located(
                 (
                     By.CSS_SELECTOR,
-                    "#ctl00_cphBody_ucSFinancialPosition_grdSFinancialPosition",
+                    "#ctl00_cphBody_UpdatePanel1",
                 )
             )
         )
         .get_attribute("outerHTML")
     )
-    df = pd.read_html(str(table))[0]
+    df = pd.read_html(str(table))[1]
     dfbase = dfbase.append(df, ignore_index=True)
     return dfbase, name, period, date
 
@@ -103,7 +101,8 @@ def gen_file(link):
     return df, name, period, date
 
 
-df, name, period, date = gen_file(Links[1])
+l = r"https://my.codal.ir/fa/statement/279580/1"
+df, name, period, date = gen_file(l)
 df
 
 #%%

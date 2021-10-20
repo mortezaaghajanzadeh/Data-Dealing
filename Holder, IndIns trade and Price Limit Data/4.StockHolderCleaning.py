@@ -455,8 +455,6 @@ df1[(df1.name == 'کماسه')&
 # data = grouped_data.parallel_apply(Cleaning, ff=ff, a=a, g_keys=g_keys)
 # %%
 
-#%%
-df1[df1.name == 'فولاد']
 # %%
 
 data = (
@@ -471,6 +469,29 @@ df1[(df1.name == 'کماسه')&
 #%%
 data.to_csv(path + "cleaned_data.csv")
 #%%
+import pandas as pd
+path = r"E:\RA_Aghajanzadeh\Data\Stock_holder_new\\"
+data = pd.read_csv(path + "cleaned_data.csv").drop(columns = ['Unnamed: 0'])
+#%%
+#20171106
+t = data[data.date == 20171107.0]
+t0 = data[data.date == 20171106.0]
+t['jalaliDate'] = t0.jalaliDate.iloc[0]
+t['date'] = t0.date.iloc[0]
+mapingdict = dict(zip(
+    t0.name,t0.close_price
+))
+t['close_price'] = t.name.map(mapingdict)
+data =  data[data.date != 20171106.0].append(t).sort_values(
+    by = ['name','date']).reset_index(drop=True)
+
+#%%
+def sumPercent(df):
+    gg = df.groupby(["date", "name"])
+    return gg.Percent.sum()
+
+
+
 a = sumPercent(data)
 GHunder = list(a[a > 100].index)
 tmt = data.set_index(["date", "name"])
@@ -500,13 +521,13 @@ ChangeList = [
     "close_price",
 ]
 
-tmt = tmt.sort_values(by=["name", "date", "Percent"])
-tmt[tmt.name == "فارس"].head()
-
-#%%
+tmt = tmt.sort_values(by=["name", "date", "Percent"]).reset_index(drop = True)
+print(len(multiIndex))
+tmt[tmt.name == "فولاد"]
 
 #%%
 print(len(multiIndex))
+err = []
 for counter, i in enumerate(multiIndex):
     print(counter, i)
     try:
@@ -516,13 +537,14 @@ for counter, i in enumerate(multiIndex):
         ndata = pd.DataFrame()
         ndata = ndata.append(tmt[(tmt["name"] == name) & (tmt["date"] == nday)])
         print(len (ndata))
-        JalaliDate = tmt[tmt.date == date].jalaliDate.iloc[0]
+        JalaliDate = tmt[tmt["date"] == date].jalaliDate.iloc[0]
         ndata["date"] = date
         ndata["jalaliDate"] = JalaliDate
-        tmt = tmt[(tmt["name"] != name) & (tmt["date"] != date)]
+        tmt = tmt[~((tmt["name"] == name) & (tmt["date"] == date))]
         tmt = tmt.append(ndata)
     except:
-        print("Erorre")
+        print("error")
+        err.append(i)
         continue
 tmt[(tmt.name == 'آ س پ')&(tmt.date == 20140511.0)]
 #%%
