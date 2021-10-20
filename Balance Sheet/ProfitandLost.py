@@ -1,6 +1,9 @@
 import pandas as pd
 from bs4 import BeautifulSoup
 from selenium import webdriver
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By
 
 path = r"C:\Program Files (x86)\chromedriver.exe"
 from selenium.webdriver.chrome.options import Options
@@ -11,7 +14,7 @@ chrome_options.add_argument("--disable-gpu")
 chrome_options.add_argument("--headless")
 driver = webdriver.Chrome(path, options=chrome_options)
 
-path = r"E:\RA_Aghajanzadeh\Data\\"
+path = r"E:\RA_Aghajanzadeh\Data\Financial Statements\\"
 links = pd.read_pickle(path + "Codal_reports_14000725.p")
 
 #%%
@@ -44,29 +47,75 @@ def drivetable(soup, number):
     return df
 
 
-def gen_sheet(link):
+#%%
+Balance_Sheets = pd.DataFrame()
+path = "E:\RA_Aghajanzadeh\Data\Financial Statements\ProfitandLost\\"
+error = []
+print(len(Links))
+
+
+def first_type(link):
     driver.get(link)
     name = driver.find_element_by_id("ctl00_txbSymbol").text
     period = driver.find_element_by_id("ctl00_lblPeriod").text
     date = driver.find_element_by_id("ctl00_lblPeriodEndToDate").text[:4]
     r = driver.page_source
     soup = BeautifulSoup(r, "html.parser")
-    return name, period, date, drivetable(soup, 0).T
+    st_df = drivetable(soup, 0).T
+    return st_df, name, period, date
 
 
-#%%
-path = "E:\RA_Aghajanzadeh\Data\ProfitandLost\\"
-error = []
-print(len(Links))
-name, period, date, df = gen_sheet(Links[0])
+def sec_type(link):
+    driver.get(link)
+    name = driver.find_element_by_id("ctl00_txbSymbol").text
+    period = driver.find_element_by_id("ctl00_lblPeriod").text
+    date = driver.find_element_by_id("ctl00_lblPeriodEndToDate").text[:4]
+    table = driver.find_element_by_id(
+        "ctl00_cphBody_ucSFinancialPosition_grdSFinancialPosition"
+    )
+    dfbase = pd.DataFrame()
+    table = (
+        WebDriverWait(driver, 10)
+        .until(
+            EC.visibility_of_element_located(
+                (
+                    By.CSS_SELECTOR,
+                    "#ctl00_cphBody_ucSFinancialPosition_grdSFinancialPosition",
+                )
+            )
+        )
+        .get_attribute("outerHTML")
+    )
+    df = pd.read_html(str(table))[0]
+    dfbase = dfbase.append(df, ignore_index=True)
+    return dfbase, name, period, date
+
+
+def gen_file(link):
+    driver.get(link)
+    r = driver.page_source
+    soup = BeautifulSoup(r, "html.parser")
+    st_df = drivetable(soup, 0).T
+    if len(st_df) < 13:
+        df, name, period, date = sec_type(link)
+    else:
+        df, name, period, date = first_type(link)
+    return df, name, period, date
+
+
+df, name, period, date = gen_file(Links[-30])
 df
+
 #%%
 for number, link in enumerate(Links):
     print(number)
     try:
-        name, period, date, df = gen_sheet(link)
-        df.to_excel(path + "{}+{}+{}.xlsx".format(period, name, date))
+        df, name, period, date = gen_file(link)
+        df.to_excel(path + "{}_{}_{}.xlsx".format(period, name, date))
     except:
         error.append(link)
 
 # %%
+import pickle
+
+pickle.dump(error, open(path + "errors.p", "wb"))
