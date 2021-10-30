@@ -5,7 +5,7 @@ path = r"E:\RA_Aghajanzadeh\Data\\"
 df = pd.read_csv(path + "Cleaned_Stocks_Holders_1400_06_28.csv")
 df = df[
     [
-        "symbol",
+        "name",
         "jalaliDate",
         "date",
         "shrout",
@@ -15,5 +15,5 @@ df = df[
 df["MarketCap"] = df.close_price * df.shrout
 df.to_csv(path + "SymbolShrout_1400_06_28.csv", index=False)
 #%%
-df[df.symbol == 'گکیش']
+df[df.name == 'گکیش']
 # %%
