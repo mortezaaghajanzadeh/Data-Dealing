@@ -17,12 +17,13 @@ import logging
 # from PriceHistoryCrawler import get_stock_price_history
 
 pathd = r"C:\Users\RA\Desktop\RA_Aghajanzadeh\Data\\"
-pathd = ""
+pathd = r"E:\RA_Aghajanzadeh\Data\\"
 
 
 
 object = pd.read_pickle(r'ids.p')
 # %%
+
 def get_stock_detail(stock_id):
     try:
         # If you replace {} with a stock ID in this URL, you can access that stocks page in tsetmc.com.
@@ -109,17 +110,16 @@ def get_stock_price_history(stock_id):
 
 #%%
 stock_id = object[0]
-stock_id = '13314496985006128'
+stock_id = '2400322364771558'
 get_stock_detail(stock_id)
-# get_stock_price_history(stock_id)
-
+get_stock_price_history(stock_id)
 
 # %%
 Id = object
 print("Getting New ids done", len(Id))
 all_stock_data = []
 erore = []
-for i, id in enumerate(Id):
+for i, id in enumerate(Id[:5]):
     print(
         "Parsed stock count ", i
     )  
@@ -132,7 +132,7 @@ for i, id in enumerate(Id):
         all_stock_data.append(stock)
     except:
         erore.append(id)
-
+#%%
 DATES = []
 JALALI = []
 NAMES = []
@@ -194,8 +194,8 @@ stocks = stocks.drop_duplicates()
 
 
 # %%
-path = r"C:\Users\RA\Desktop\RA_Aghajanzadeh\Data\\"
-path = r"H:\Economics\Finance(Prof.Heidari-Aghajanzadeh)\Data\\"
+path = r"E:\RA_Aghajanzadeh\Data\\"
+# path = r"H:\Economics\Finance(Prof.Heidari-Aghajanzadeh)\Data\\"
 
 # %%
 now = datetime.date.today()

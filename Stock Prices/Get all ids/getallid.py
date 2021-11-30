@@ -9,6 +9,7 @@ import json
 from bs4 import BeautifulSoup
 
 path = r"C:\Program Files (x86)\chromedriver.exe"
+path = r"C:\Program Files (x86)\chromedriver.exe"
 from selenium import webdriver
 import requests
 
@@ -90,12 +91,11 @@ soup = BeautifulSoup(r.text, "html.parser")
 decoded_data = r.text.encode().decode("utf-8-sig")
 data = json.loads(decoded_data)
 for i in data["companies"]:
-    print(i["list"])
+    print(i["list"][0]["sy"].split("1")[0])
 
 
 # %%
-
-
+len(data["companies"])
 # All names
 
 #%%
@@ -103,7 +103,7 @@ import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 
-path = r"C:\Program Files (x86)\chromedriver.exe"
+# path = r"C:\Program Files (x86)\chromedriver.exe"
 from selenium import webdriver
 
 driver = webdriver.Chrome(path)
@@ -170,12 +170,12 @@ len(names)
 
 driver.get(r"https://www.ifb.ir/DataReporter/MarketMap.aspx")
 reports = []
-while  len(reports) < 500:
-    reports = driver.find_element_by_id(
-        "datagrid"
-        ).find_element_by_class_name(
-            "tblGrp"
-            ).find_elements_by_xpath("//a[@target ='_blank']")
+while len(reports) < 500:
+    reports = (
+        driver.find_element_by_id("datagrid")
+        .find_element_by_class_name("tblGrp")
+        .find_elements_by_xpath("//a[@target ='_blank']")
+    )
 #%%
 for i in reports:
     print(i.text)
@@ -236,32 +236,35 @@ for i in chars:
     chars2 = chars
     chars2.remove(i)
     for j in chars2:
-        mixchar.append(i+j)
+        mixchar.append(i + j)
 # %%
 char = "پذ"
 ids = []
+
+
 def get_id(char):
     ids = []
     try:
         results = requests.get(
             "http://tsetmc.ir/tsev2/data/search.aspx?skey={}".format(char)
-            ).text.split(";")
+        ).text.split(";")
         if len(results) == 0:
             return get_id(char)
         for i in results:
             try:
-                ids.append(i.split(',')[2])
-            except :
+                ids.append(i.split(",")[2])
+            except:
                 print("Nothing")
         return ids
     except:
-         get_id(char)
-         
-get_id(char)         
+        get_id(char)
 
-for i in mixchar[:50]:
+
+get_id(char)
+
+for i in mixchar[::]:
     print(i)
-    ids.append(get_id(i) )
+    ids.append(get_id(i))
 ids[0]
 
 #%%
@@ -271,3 +274,7 @@ for i in ids:
         id.append(j)
 # %%
 len(set(id))
+# %%
+import pickle
+
+pickle.dump(ids, open("ids.p", "wb"))

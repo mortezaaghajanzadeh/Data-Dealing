@@ -74,9 +74,7 @@ print("Rename")
 
 pdf["name"] = pdf["name"].apply(lambda x: convert_ar_characters(x))
 df1["name"] = df1["name"].apply(lambda x: convert_ar_characters(x))
-df1[(df1.name == 'کماسه')&
-    (df1.date >= 20170325)].sort_values(by='date').head()
-
+df1[(df1.name == "کماسه") & (df1.date >= 20170325)].sort_values(by="date").head()
 
 
 #%%
@@ -87,8 +85,7 @@ gdata = pdf[["group_id", "group_name"]].dropna().drop_duplicates()
 mapingdict = dict(zip(gdata.group_name, gdata.group_id))
 df1["group_id"] = df1["group_name"].map(mapingdict)
 df1 = df1.dropna()
-df1[(df1.name == 'کماسه')&
-    (df1.date >= 20170325)].sort_values(by='date').head()
+df1[(df1.name == "کماسه") & (df1.date >= 20170325)].sort_values(by="date").head()
 #%%
 df2 = df1[["Holder_id", "Holder", "date"]]
 df2 = df2.sort_values(by=["Holder_id"])
@@ -103,8 +100,7 @@ except:
     except:
         print("No")
 
-df1[(df1.name == 'کماسه')&
-    (df1.date >= 20170325)].sort_values(by='date').head()
+df1[(df1.name == "کماسه") & (df1.date >= 20170325)].sort_values(by="date").head()
 # %%
 df3 = pd.read_excel(path + "shareholder_names_cleaned_9901_v6.xlsx")
 for i in ["shareholder_cleaned", "shareholder_raw"]:
@@ -114,8 +110,7 @@ print("Holder")
 df1["Holder"] = df1["Holder"].apply(lambda x: convert_ar_characters(x))
 
 
-df1[(df1.name == 'کماسه')&
-    (df1.date >= 20170325)].sort_values(by='date').head()
+df1[(df1.name == "کماسه") & (df1.date >= 20170325)].sort_values(by="date").head()
 #%%
 df1.loc[df1["Holder_id"] == 53741, "Holder"] = "سرمایه گذاری تدبیر"
 indid = [
@@ -153,8 +148,7 @@ mapingdict = dict(zip(df3["shareholder_raw"], df3["shareholder_cleaned"]))
 df1["Holder"] = df1["Holder"].map(mapingdict)
 
 
-df1[(df1.name == 'کماسه')&
-    (df1.date >= 20170325)].sort_values(by='date').head()
+df1[(df1.name == "کماسه") & (df1.date >= 20170325)].sort_values(by="date").head()
 
 
 #%%
@@ -173,8 +167,7 @@ df1.loc[
 df1.loc[df1["Holder_id"] == 62744, "Holder"] = "پدیده تاپان سرآمد"
 
 
-df1[(df1.name == 'کماسه')&
-    (df1.date >= 20170325)].sort_values(by='date').head()
+df1[(df1.name == "کماسه") & (df1.date >= 20170325)].sort_values(by="date").head()
 
 #%%
 dropholders = [
@@ -205,8 +198,7 @@ for i in dropholders:
     df1 = df1[df1.Holder != i]
 # df1 = df1.drop(df1.loc[df1["Holder"].isin(dropholders)].index)
 
-df1[(df1.name == 'کماسه')&
-    (df1.date >= 20170325)].sort_values(by='date').head()
+df1[(df1.name == "کماسه") & (df1.date >= 20170325)].sort_values(by="date").head()
 
 #%%
 ids = df1[df1["Holder"].isnull()]["Holder_id"].tolist()
@@ -216,12 +208,30 @@ Holders[Holders["Holder_id"].isin(ids)].to_excel(path + "NewHolder.xlsx")
 # %%
 df1 = df1.drop_duplicates(keep="first")
 
-df1[(df1.name == 'کماسه')&
-    (df1.date >= 20170325)].sort_values(by='date').head()
+df1[(df1.name == "کماسه") & (df1.date >= 20170325)].sort_values(by="date").head()
 #%%
 df1 = df1.drop_duplicates(
-    keep="first", subset=["name", "date", "Holder", "Number"]
+    keep="first", subset=["name", "date", "Holder_id", "Number"]
 ).rename(columns={"shrout": "Total"})
+#%%
+tempt = df1[~df1.Holder.isin(["شخص حقیقی", "اشخاص حقیقی",])][
+    ["Holder", "type", "Holder_id"]
+].drop_duplicates(keep="last")
+tempt["Holder_id"] = tempt.Holder_id.astype(int)
+mapingdict = dict(zip(tempt.set_index(["Holder", "type"]).index, tempt["Holder_id"]))
+df1["Holder_id2"] = df1.set_index(["Holder", "type"]).index.map(mapingdict)
+df1.loc[df1.Holder_id2.isnull(), "Holder_id2"] = df1.loc[
+    df1.Holder_id2.isnull()
+].Holder_id
+df1["Holder_id"] = df1.Holder_id2
+df1 = df1.drop(columns=["Holder_id2"])
+
+
+#%%
+df1[df1.Holder == "اخابر"].drop_duplicates(subset=["Holder_id"])[
+    ["Holder_id", "name", "date", "Holder", "type", "Number", "Total"]
+]
+#%%
 df1 = (
     df1.groupby(
         [
@@ -233,6 +243,7 @@ df1 = (
             "jalaliDate",
             "group_name",
             "group_id",
+            "Holder_id",
             "Holder",
             "type",
         ]
@@ -241,8 +252,7 @@ df1 = (
     .reset_index()
 )
 
-df1[(df1.name == 'کماسه')&
-    (df1.date >= 20170325)].sort_values(by='date').head()
+df1[(df1.name == "کماسه") & (df1.date >= 20170325)].sort_values(by="date").head()
 
 #%%
 df1 = df1[
@@ -254,6 +264,7 @@ df1 = df1[
         "group_name",
         "group_id",
         "Holder",
+        "Holder_id",
         "Number",
         "type",
         "Percent",
@@ -262,7 +273,7 @@ df1 = df1[
     ]
 ]
 df1.head()
-df1[(df1.name == 'آ س پ')&(df1.date == 20140511.0)]
+df1[(df1.name == "آ س پ") & (df1.date == 20140511.0)]
 
 # %%
 def sumPercent(df):
@@ -272,8 +283,7 @@ def sumPercent(df):
 
 a = sumPercent(df1)
 a[a > 100]
-#%%
-# There is a problem
+
 #%%%
 def Cleaning(g, ff, a, g_keys):
     i = g.name
@@ -430,7 +440,7 @@ def removeSlash(row):
 
 
 overal_index["jalaliDate"] = overal_index.jalaliDate.apply(removeSlash)
-grouped_data = df1.groupby(["name", "Holder"])  # ,'type'])
+grouped_data = df1.groupby(["name", "Holder_id"])  # ,'type'])
 g_keys = list(grouped_data.groups.keys())
 
 ff = pdf
@@ -450,40 +460,39 @@ print(len((g_keys)))
 i = g_keys[3195]
 g = grouped_data.get_group(i)
 data = grouped_data.apply(Cleaning, ff=ff, a=a, g_keys=g_keys)
-df1[(df1.name == 'کماسه')&
-    (df1.date >= 20170325)].sort_values(by='date').head()
-# data = grouped_data.parallel_apply(Cleaning, ff=ff, a=a, g_keys=g_keys)
+df1[(df1.name == "کماسه") & (df1.date >= 20170325)].sort_values(by="date").head()
 # %%
 
-# %%
+data =  (
+        data.reset_index(drop=True)
+        .dropna()
+        .rename(columns={"jalaliDate_x": "jalaliDate"})
+        .drop(columns=["jalaliDate_y"])
+    ).sort_values(by=["date"]).reset_index(drop=True)
 
-data = (
-    data.reset_index(drop=True)
-    .dropna()
-    .rename(columns={"jalaliDate_x": "jalaliDate"})
-    .drop(columns=["jalaliDate_y"])
-).sort_values(by=["date"]).reset_index(drop = True)
 
-df1[(df1.name == 'کماسه')&
-    (df1.date >= 20170325)].sort_values(by='date').head()
+df1[(df1.name == "کماسه") & (df1.date >= 20170325)].sort_values(by="date").head()
 #%%
 data.to_csv(path + "cleaned_data.csv")
 #%%
 import pandas as pd
+
 path = r"E:\RA_Aghajanzadeh\Data\Stock_holder_new\\"
-data = pd.read_csv(path + "cleaned_data.csv").drop(columns = ['Unnamed: 0'])
+data = pd.read_csv(path + "cleaned_data.csv").drop(columns=["Unnamed: 0"])
 #%%
-#20171106
+# 20171106
 t = data[data.date == 20171107.0]
 t0 = data[data.date == 20171106.0]
-t['jalaliDate'] = t0.jalaliDate.iloc[0]
-t['date'] = t0.date.iloc[0]
-mapingdict = dict(zip(
-    t0.name,t0.close_price
-))
-t['close_price'] = t.name.map(mapingdict)
-data =  data[data.date != 20171106.0].append(t).sort_values(
-    by = ['name','date']).reset_index(drop=True)
+t["jalaliDate"] = t0.jalaliDate.iloc[0]
+t["date"] = t0.date.iloc[0]
+mapingdict = dict(zip(t0.name, t0.close_price))
+t["close_price"] = t.name.map(mapingdict)
+data = (
+    data[data.date != 20171106.0]
+    .append(t)
+    .sort_values(by=["name", "date"])
+    .reset_index(drop=True)
+)
 
 #%%
 def sumPercent(df):
@@ -491,11 +500,11 @@ def sumPercent(df):
     return gg.Percent.sum()
 
 
-
 a = sumPercent(data)
 GHunder = list(a[a > 100].index)
+print(len(GHunder))
 tmt = data.set_index(["date", "name"])
-tmt = tmt[~((tmt.index.isin(GHunder)) & (tmt.Condition == "Filled"))]
+# tmt = tmt[~((tmt.index.isin(GHunder)) & (tmt.Condition == "Filled"))]
 a = sumPercent(tmt)
 GHunder = a[a > 100].to_frame().reset_index().sort_values(by=["name", "date"])
 tmt = tmt.reset_index()
@@ -514,6 +523,7 @@ ChangeList = [
     "group_name",
     "group_id",
     "Holder",
+    "Holder_id",
     "Number",
     "type",
     "Percent",
@@ -521,32 +531,46 @@ ChangeList = [
     "close_price",
 ]
 
-tmt = tmt.sort_values(by=["name", "date", "Percent"]).reset_index(drop = True)
+tmt = tmt.sort_values(by=["name", "date", "Percent"]).reset_index(drop=True)
+
+len(tmt[tmt.name == "فولاد"])
+#%%
+def sumPercent(df):
+    gg = df.groupby(["date", "name"])
+    return gg.Percent.sum()
+
+
+err = []
+tmt = tmt.set_index(["date", "name"]
+                    ).drop(multiIndex).reset_index()
 print(len(multiIndex))
-tmt[tmt.name == "فولاد"]
+a = sumPercent(tmt)
+a[a > 100]
+
 
 #%%
-print(len(multiIndex))
-err = []
+New = pd.DataFrame()
 for counter, i in enumerate(multiIndex):
     print(counter, i)
     try:
         name, date = i[1], i[0]
-        ndata = tmt[(tmt["name"] == name) & (tmt["date"] > date)].head(1)
-        nday = ndata.date.iloc[0]
+        ndata = tmt[(tmt["name"] == name)].date
+        nday = ndata.where(ndata > date).dropna().iloc[0]
         ndata = pd.DataFrame()
-        ndata = ndata.append(tmt[(tmt["name"] == name) & (tmt["date"] == nday)])
-        print(len (ndata))
-        JalaliDate = tmt[tmt["date"] == date].jalaliDate.iloc[0]
+        ndata = ndata.append(
+            tmt[(tmt["name"] == name) & (tmt["date"] == nday)]
+            )
+        ndata
+        JalaliDate = tmt[tmt["date"] == date].jalaliDate.iloc[0]    
         ndata["date"] = date
         ndata["jalaliDate"] = JalaliDate
-        tmt = tmt[~((tmt["name"] == name) & (tmt["date"] == date))]
-        tmt = tmt.append(ndata)
+        New = New.append(ndata)
     except:
         print("error")
         err.append(i)
         continue
-tmt[(tmt.name == 'آ س پ')&(tmt.date == 20140511.0)]
+tmt = tmt.append(New)
+tmt[(tmt.name == "آ س پ") & (tmt.date == 20140511.0)]
 #%%
 fkey = zip(list(pdf.name), list(pdf.date))
 mapingdict = dict(zip(fkey, pdf.close_price))
@@ -570,7 +594,7 @@ df["Holder"] = df["Holder"].replace("تفیرو\u200c", "تفیرو")
 df[["date", "jalaliDate"]] = df[["date", "jalaliDate"]].astype(int)
 df.isnull().sum()
 df.loc[df.Number_Change == "0.0", "Percent_Change"] = "0"
-df[(df.name == 'آ س پ')&(df.date == 20140511.0)]
+df[(df.name == "آ س پ") & (df.date == 20140511.0)]
 
 #%%
 def sumPercent2(df):
@@ -607,6 +631,14 @@ df.to_csv(path + "Cleaned_Stocks_Holders_1400_06_28.csv", index=False)
 
 # %%
 import pandas as pd
-a = pd.read_csv(r"E:\RA_Aghajanzadeh\Data\\" +"Cleaned_Stocks_Holders_1400_06_28.csv" )
+
+a = pd.read_csv(r"E:\RA_Aghajanzadeh\Data\\" + "Cleaned_Stocks_Holders_1400_06_28.csv")
 # %%
-a[a.name == 'فولاد']
+a[a.name == "فولاد"]
+#%%
+a = df.groupby("date").size().to_frame().reset_index()
+a.plot(y=0, use_index=True)
+t = a[a[0] < 1000].date.to_list()
+df = df[~df.date.isin(t)]
+a = df.groupby("date").size().to_frame().reset_index()
+a.plot(y=0, use_index=True)
