@@ -3,14 +3,16 @@ import pandas as pd
 import requests
 from persiantools.jdatetime import JalaliDate
 import re
+import logging
+from threading import Thread
 
 # %%
 def get_stock_detail(stock_id):
     try:
         # If you replace {} with a stock ID in this URL, you can access that stocks page in tsetmc.com.
-
+        logging.captureWarnings(True)
         url = "http://www.tsetmc.com/Loader.aspx?ParTree=151311&i={}".format(stock_id)
-        r = requests.get(url)
+        r = requests.get(url, timeout=1, verify=False)
         #     print(url)
 
         # We get stock details in stock page (text of page) hear:
@@ -101,11 +103,12 @@ def clean_unadjusted_price(r):
 def crawl_prices(id):
     url = r"https://members.tsetmc.com/tsev2/chart/data/Financial.aspx?i={}&t=ph&a={}"
     url1 = url.format(id, 1)  # Adjusted prices
-    r1 = requests.get(url1)
+    r1 = requests.get(url1, timeout=10, verify=False)
     t1 = clean_adjusted_price(r1)
-    url = "https://members.tsetmc.com/tsev2/data/InstTradeHistory.aspx?i={}&Top=999999&A=1"
-    r = requests.get(url.format(id))
-    t0 = clean_unadjusted_price(r)
+    url = r"https://members.tsetmc.com/tsev2/chart/data/Financial.aspx?i={}&t=ph&a={}"
+    url1 = url.format(id, 0)  # UnAdjusted prices
+    r = requests.get(url1.format(id), timeout=10, verify=False)
+    t0 = clean_adjusted_price(r)
 
     if t1 == []:
         df = pd.DataFrame.from_dict(t0)
@@ -129,28 +132,63 @@ def crawl_prices(id):
 
 
 object = pd.read_pickle(r"Get all ids\ids.p")
-id = object[1870]
+Id = []
+for i in object:
+    for j in i:
+        Id.append(j)
+Id = list(set(Id))
+
+id = Id[1]
+id = 2400322364771558
 df = crawl_prices(id)
 df
+
+
 #%%
-# object = pd.read_pickle(r"ids.p")
+def excepthook(args):
+    3 == 1 + 2
+
+import threading
+threading.excepthook = excepthook
 Data = pd.DataFrame()
 counter = 0
-errore = []
-for stock_id in object[1870:]:
+error = []
+threads = {}
+result = [None]* len(Id)
+
+
+def gen_price(result, stock_id, error,i):
     try:
-        counter += 1
-        print(counter, len(object), "stock_id")
-        Data = Data.append(crawl_prices(stock_id))
+        result[i] = crawl_prices(stock_id)
+        return result,error
     except:
-        errore.append(stock_id)
+        error.append(stock_id)
+        return result,error
+
+import time
+for  i,stock_id in enumerate(Id[:]):
+    counter += 1
+    print(counter, len(Id), stock_id,i)
+    threads[i] = Thread(
+        target=gen_price, args=(result, stock_id, error,i)
+        )
+    threads[i].start()
+    time.sleep(0.5)
+for i in threads:
+    threads[i].join()
 #%%
-<<<<<<< Updated upstream
-path = r"E:\RA_Aghajanzadeh\Data\\"
-name = "Stock_Prices_1400_06_29"
-Data.to_parquet(path + name + ".parquet")
-=======
-errore
+
+for i in result:
+    if i  is not  None:
+        Data = Data.append(i)
+        print(len(Data))
+
+
 #%%
-Data.to_parquet(r"E:\RA_Aghajanzadeh\Data\Stock_Prices_1400_06_16.parquet")
->>>>>>> Stashed changes
+# path = r"E:\RA_Aghajanzadeh\Data\\"
+# name = "Stock_Prices_1400_09_10"
+# Data.to_parquet(path + name + ".parquet")
+
+
+# #%%
+# Data.to_parquet(r"E:\RA_Aghajanzadeh\Data\Stock_Prices_1400_06_16.parquet")

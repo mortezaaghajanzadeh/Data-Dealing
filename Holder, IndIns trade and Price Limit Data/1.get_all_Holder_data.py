@@ -35,18 +35,16 @@ stock_id = "17617474823279712"
 dates = date_of_stocks(df, "1")
 path2 = r"D:\Holders\\"
 del df, gg
-#%%
-# t = Main2(
-#     0, stock_id, dates, Excepted_stock, {}, 5000, True, 5000
-#     )
-# %%
 error = []
 counter = 0
 #%%
-for counter, stock_id in enumerate(dates.keys()):
+number, stat, number_days = 10000, False, 500
+
+#%%
+for counter, stock_id in enumerate(list(dates.keys())[::]):
     print("#################{}##################".format(len(dates.keys()) + 1))
     try:
-        t = Main2(counter, stock_id, dates, Excepted_stock, {}, 10000, True, 1000)
+        t = Main2(counter, stock_id, dates, Excepted_stock, {}, 10000, False, 1000)
         pickle.dump(t, open(path2 + "Holders_{}.p".format(stock_id), "wb"))
     except:
         print("Error in stock_id {}".format(stock_id))
@@ -65,7 +63,11 @@ for i in arr:
 # %%
 set(dates.keys()) - set(done_id)
 
+# ids = list(dates.keys())
 
+# j = 0
+# nums = 25
+# tot = int(len(ids)/nums) + 1
 # for i in range(1, tot):
 #     print("It is set of {} from total {}".format(i,tot-1))
 #     k = min(j + nums, len(ids))

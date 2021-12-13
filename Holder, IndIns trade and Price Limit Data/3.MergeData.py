@@ -15,6 +15,7 @@ allstock = []
 arr.remove("Error.p")
 arr.remove("Excepted_stock.p")
 arr.remove("Second_Excepted_stock.p")
+arr.remove("Second2_Excepted_stock.p")
 arr.remove("PriceTradeData")
 arr.remove("HolderData")
 
@@ -128,6 +129,12 @@ path2 = r"E:\RA_Aghajanzadeh\Data\Stock_holder_new\\"
 data[data.Holder != "-"].to_parquet(
     path2 + "mergerdHolderAllData_cleaned.parquet"
 )
+#%%
+a = data.groupby("date").size().to_frame().reset_index()
+a.plot(y=0, use_index=True)
+a[a[0]<100]   
+
+
 #%%
 arr = os.listdir(path + "PriceTradeData")
 data = pd.DataFrame()

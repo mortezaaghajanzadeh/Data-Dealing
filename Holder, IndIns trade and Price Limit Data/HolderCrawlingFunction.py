@@ -670,14 +670,16 @@ def connectSleep():
 
 
 def ColseCheck():
-    url = "http://tsetmc.com/Loader.aspx?ParTree=15"
-    try:
-        r = requests.get(url, timeout=1)
-    except:
-        return ColseCheck()
     close = True
-    # if len(re.findall(r"باز&nbsp", r.text)) > 0:
-    #     close = False
+
+    # url = "http://tsetmc.com/Loader.aspx?ParTree=15"
+    # try:
+    #     r = requests.get(url, timeout=1)
+    # except:
+    #     # return ColseCheck()
+    #     close = True
+    # # if len(re.findall(r"باز&nbsp", r.text)) > 0:
+    # #     close = False
     return close
 
 

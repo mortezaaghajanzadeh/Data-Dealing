@@ -75,6 +75,29 @@ print("Rename")
 pdf["name"] = pdf["name"].apply(lambda x: convert_ar_characters(x))
 df1["name"] = df1["name"].apply(lambda x: convert_ar_characters(x))
 df1[(df1.name == "کماسه") & (df1.date >= 20170325)].sort_values(by="date").head()
+#%%
+len(df1[df1.date == 20190417])
+#%%
+tempt = df1.merge(pdf[['date','name']],on = ['date','name'],how = 'outer')
+#%%
+# tempt.isnull().sum()
+# for i in tempt[tempt.jalaliDate.isnull()].set_index(['name','date']).index:
+name = i[0]
+date = i[1]
+a = tempt[tempt.name == name]
+beforedate = a[a.date < date].date.iloc[-1]
+filldata = a[a.date == beforedate]
+if filldata.holder.iloc[0] == np.nan:
+    a = a[a.date != date]
+else:
+    filldata
+#%%
+df1['date'] = df1['date'].astype(str)
+a = df1.groupby("date").size().to_frame()
+a.plot(y=0, use_index=True)
+a[a[0]<100]   
+
+
 
 
 #%%
@@ -274,6 +297,13 @@ df1 = df1[
 ]
 df1.head()
 df1[(df1.name == "آ س پ") & (df1.date == 20140511.0)]
+#%%
+a = df1.groupby("date").size().to_frame().reset_index()
+a.plot(y=0, use_index=True)
+a[a[0]<100]   
+
+
+
 
 # %%
 def sumPercent(df):
@@ -479,6 +509,12 @@ import pandas as pd
 
 path = r"E:\RA_Aghajanzadeh\Data\Stock_holder_new\\"
 data = pd.read_csv(path + "cleaned_data.csv").drop(columns=["Unnamed: 0"])
+#%%
+a = data.groupby("date").size().to_frame().reset_index()
+a.plot(y=0, use_index=True)
+a[a[0]<100]     
+
+
 #%%
 # 20171106
 t = data[data.date == 20171107.0]

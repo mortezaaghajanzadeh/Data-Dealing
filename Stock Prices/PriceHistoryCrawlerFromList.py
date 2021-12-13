@@ -22,8 +22,15 @@ pathd = r"E:\RA_Aghajanzadeh\Data\\"
 
 
 object = pd.read_pickle(r'ids.p')
-# %%
+#%%
+Id = []
+for i in object:
+    for j in i:
+        Id.append(j)
 
+
+
+# %%
 def get_stock_detail(stock_id):
     try:
         # If you replace {} with a stock ID in this URL, you can access that stocks page in tsetmc.com.
@@ -110,18 +117,18 @@ def get_stock_price_history(stock_id):
 
 #%%
 stock_id = object[0]
-stock_id = '2400322364771558'
+stock_id = '45768538238520265'
 get_stock_detail(stock_id)
 get_stock_price_history(stock_id)
 
 # %%
-Id = object
+
 print("Getting New ids done", len(Id))
 all_stock_data = []
-erore = []
-for i, id in enumerate(Id[:5]):
+error = []
+for i, id in enumerate(Id):
     print(
-        "Parsed stock count ", i
+        "Parsed stock count ", i,id
     )  
     try:
         stock = get_stock_detail(id)  
@@ -131,7 +138,7 @@ for i, id in enumerate(Id[:5]):
 
         all_stock_data.append(stock)
     except:
-        erore.append(id)
+        error.append(id)
 #%%
 DATES = []
 JALALI = []
