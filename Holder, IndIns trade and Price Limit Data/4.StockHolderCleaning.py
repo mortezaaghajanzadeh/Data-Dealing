@@ -78,26 +78,53 @@ df1[(df1.name == "کماسه") & (df1.date >= 20170325)].sort_values(by="date").
 #%%
 len(df1[df1.date == 20190417])
 #%%
-tempt = df1.merge(pdf[['date','name']],on = ['date','name'],how = 'outer')
+tempt = df1.merge(pdf[["date", "name"]], on=["date", "name"], how="outer")
 #%%
 # tempt.isnull().sum()
-# for i in tempt[tempt.jalaliDate.isnull()].set_index(['name','date']).index:
-name = i[0]
-date = i[1]
-a = tempt[tempt.name == name]
-beforedate = a[a.date < date].date.iloc[-1]
-filldata = a[a.date == beforedate]
-if filldata.holder.iloc[0] == np.nan:
-    a = a[a.date != date]
-else:
-    filldata
+indexes = tempt[tempt.jalaliDate.isnull()
+               ].set_index(['name','date']).index
+# i = indexes[114]
+# name = i[0]
+# date = i[1]
+# # print(number,len(indexes),name,date)
+# a = df1[df1.name == name]
+# df1 = df1[df1.name != name]
+# if len(a[a.date < date])<1:
+#     a = a[a.date != date]
+# else:
+#     beforedate = a[a.date < date].date.iloc[-1]
+#     filldata = a[a.date == beforedate]
+#     if filldata.Holder.iloc[0] == np.nan:
+#         a = a[a.date != date]
+#     else:
+#         filldata['date'] = date
+#         a = a.append(filldata)
+# df1 = df1.append(a)
+
 #%%
-df1['date'] = df1['date'].astype(str)
+for number,i in enumerate(indexes):
+    
+    name = i[0]
+    date = i[1]
+    print(number,len(indexes),name,date)
+    a = df1[df1.name == name]
+    df1 = df1[df1.name != name]
+    if len(a[a.date < date])<1:
+        a = a[a.date != date]
+    else:
+        beforedate = a[a.date < date].date.iloc[-1]
+        filldata = a[a.date == beforedate]
+        if filldata.Holder.iloc[0] == np.nan:
+            a = a[a.date != date]
+        else:
+            filldata['date'] = date
+            a = a.append(filldata)
+    df1 = df1.append(a)
+#%%
+df1["date"] = df1["date"].astype(str)
 a = df1.groupby("date").size().to_frame()
 a.plot(y=0, use_index=True)
-a[a[0]<100]   
-
-
+a[a[0] < 100]
 
 
 #%%
@@ -300,9 +327,7 @@ df1[(df1.name == "آ س پ") & (df1.date == 20140511.0)]
 #%%
 a = df1.groupby("date").size().to_frame().reset_index()
 a.plot(y=0, use_index=True)
-a[a[0]<100]   
-
-
+a[a[0] < 100]
 
 
 # %%
@@ -493,12 +518,16 @@ data = grouped_data.apply(Cleaning, ff=ff, a=a, g_keys=g_keys)
 df1[(df1.name == "کماسه") & (df1.date >= 20170325)].sort_values(by="date").head()
 # %%
 
-data =  (
+data = (
+    (
         data.reset_index(drop=True)
         .dropna()
         .rename(columns={"jalaliDate_x": "jalaliDate"})
         .drop(columns=["jalaliDate_y"])
-    ).sort_values(by=["date"]).reset_index(drop=True)
+    )
+    .sort_values(by=["date"])
+    .reset_index(drop=True)
+)
 
 
 df1[(df1.name == "کماسه") & (df1.date >= 20170325)].sort_values(by="date").head()
@@ -512,7 +541,7 @@ data = pd.read_csv(path + "cleaned_data.csv").drop(columns=["Unnamed: 0"])
 #%%
 a = data.groupby("date").size().to_frame().reset_index()
 a.plot(y=0, use_index=True)
-a[a[0]<100]     
+a[a[0] < 100]
 
 
 #%%
@@ -577,8 +606,7 @@ def sumPercent(df):
 
 
 err = []
-tmt = tmt.set_index(["date", "name"]
-                    ).drop(multiIndex).reset_index()
+tmt = tmt.set_index(["date", "name"]).drop(multiIndex).reset_index()
 print(len(multiIndex))
 a = sumPercent(tmt)
 a[a > 100]
@@ -593,11 +621,9 @@ for counter, i in enumerate(multiIndex):
         ndata = tmt[(tmt["name"] == name)].date
         nday = ndata.where(ndata > date).dropna().iloc[0]
         ndata = pd.DataFrame()
-        ndata = ndata.append(
-            tmt[(tmt["name"] == name) & (tmt["date"] == nday)]
-            )
+        ndata = ndata.append(tmt[(tmt["name"] == name) & (tmt["date"] == nday)])
         ndata
-        JalaliDate = tmt[tmt["date"] == date].jalaliDate.iloc[0]    
+        JalaliDate = tmt[tmt["date"] == date].jalaliDate.iloc[0]
         ndata["date"] = date
         ndata["jalaliDate"] = JalaliDate
         New = New.append(ndata)

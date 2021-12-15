@@ -49,7 +49,7 @@ def get_stock_detail(stock_id):
         if stock["name"] == "',DEven='',LSecVal='',CgrValCot='',Flow='',InstrumentID='":
             return False
     except:
-        print("Again stock detail ", stock_id)
+        # print("Again stock detail ", stock_id)
         stock = get_stock_detail(stock_id)
     return stock
 
@@ -173,7 +173,7 @@ for  i,stock_id in enumerate(Id[:]):
         target=gen_price, args=(result, stock_id, error,i)
         )
     threads[i].start()
-    time.sleep(0.5)
+    time.sleep(1)
 for i in threads:
     threads[i].join()
 #%%
@@ -192,3 +192,4 @@ for i in result:
 
 # #%%
 # Data.to_parquet(r"E:\RA_Aghajanzadeh\Data\Stock_Prices_1400_06_16.parquet")
+#%%
