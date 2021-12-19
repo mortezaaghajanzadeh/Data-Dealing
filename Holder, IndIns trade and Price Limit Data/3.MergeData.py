@@ -70,7 +70,7 @@ PriceTradeDataColumns = [
     "ind_sell_count",
 ]
 #%%
-def genFile(i,path,HolderDataColumns,PriceTradeDataColumns):
+def genFile(i, path, HolderDataColumns, PriceTradeDataColumns):
     t = pd.read_pickle(path + i)
     df = cleaning([t])
     pickle.dump(
@@ -82,9 +82,10 @@ def genFile(i,path,HolderDataColumns,PriceTradeDataColumns):
         open(path + "PriceTradeData\PriceTradeData_{}.p".format(i[8:-2]), "wb"),
     )
 
+
 threads = {}
 for counter, i in enumerate(arr):
-    genFile(i,path,HolderDataColumns,PriceTradeDataColumns)
+    genFile(i, path, HolderDataColumns, PriceTradeDataColumns)
     print(counter)
 #     threads[i] = Thread(
 #             target=genFile,
@@ -95,7 +96,7 @@ for counter, i in enumerate(arr):
 #     threads[i].join()
 #     print(i)
 #%%
-def finish(threads,result):
+def finish(threads, result):
     data = pd.DataFrame()
     tempt = pd.DataFrame()
     for i in threads:
@@ -108,54 +109,65 @@ def finish(threads,result):
             tempt = pd.DataFrame()
     data = data.append(tempt).drop_duplicates()
     return data
+
+
 # %%
 arr = os.listdir(path + "HolderData")
 
 print(len(arr))
-def genDate(result,i,counter):
+
+
+def genDate(result, i, counter):
     result[counter] = pd.read_pickle(path + "HolderData\\{}".format(i))
+
+
 result = {}
 threads = {}
 for counter, i in enumerate(arr):
     print(counter)
-    genDate(result,i,counter)
+    genDate(result, i, counter)
     threads[counter] = Thread(
-            target=genDate,
-            args=(result,i,counter),
-        )
+        target=genDate,
+        args=(result, i, counter),
+    )
     threads[counter].start()
-data = finish(threads,result)
+data = finish(threads, result)
 path2 = r"E:\RA_Aghajanzadeh\Data\Stock_holder_new\\"
-data[data.Holder != "-"].to_parquet(
-    path2 + "mergerdHolderAllData_cleaned.parquet"
-)
+
 #%%
+data["stock_id"] = data.stock_id.astype(float)
+data[data.Holder != "-"].to_parquet(path2 + "mergerdHolderAllData_cleaned.parquet")
 a = data.groupby("date").size().to_frame().reset_index()
 a.plot(y=0, use_index=True)
-a[a[0]<100]   
+a[a[0] < 100]
 
 
 #%%
 arr = os.listdir(path + "PriceTradeData")
 data = pd.DataFrame()
 print(len(arr))
-def genDate(result,i,counter):
+
+
+def genDate(result, i, counter):
     result[counter] = pd.read_pickle(path + "PriceTradeData\\{}".format(i))
+
+
 result = {}
 threads = {}
 for counter, i in enumerate(arr):
     print(counter)
-    genDate(result,i,counter)
+    genDate(result, i, counter)
     threads[counter] = Thread(
-            target=genDate,
-            args=(result,i,counter),
-        )
+        target=genDate,
+        args=(result, i, counter),
+    )
     threads[counter].start()
 
 
-data = finish(threads,result)
+data = finish(threads, result)
 data = data.replace("-", np.nan)
 data = data.replace("", np.nan)
 path2 = r"E:\RA_Aghajanzadeh\Data\PriceTradeData\\"
+data["stock_id"] = data.stock_id.astype(float)
 data.to_parquet(path2 + "mergerdPriceAllData_cleaned.parquet")
 # %%

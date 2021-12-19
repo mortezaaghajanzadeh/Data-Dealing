@@ -38,7 +38,7 @@ del df, gg
 error = []
 counter = 0
 #%%
-number, stat, number_days = 10000, False, 500
+number, stat, number_days = 10000, False, 100
 
 #%%
 for counter, stock_id in enumerate(list(dates.keys())[::]):

@@ -171,7 +171,7 @@ symbolGroup.to_excel(path + "SymbolGroup.xlsx", index=False)
 #%%
 ## Add issued shares to data
 shrout = pd.read_csv(path + "SymbolShrout_1400_06_28.csv")
-mapdict = dict(zip(shrout.set_index(["symbol", "date"]).index, shrout.shrout))
+mapdict = dict(zip(shrout.set_index(["name", "date"]).index, shrout.shrout))
 i = "date"
 pdf[i] = pdf[i].astype(int)
 
@@ -303,6 +303,10 @@ for i in ['max_price_Adjusted',
 #%%
 
 # %%
+pdf[pdf.name == 'وقوام']
+
+
+#%%
 pdf[pdf.shrout.isnull()][['name','return','date']].name.unique()
 # %%
 pdf[~pdf.shrout.isnull()].to_parquet(path + "Cleaned_Stock_Prices_1400_06_29" + ".parquet")

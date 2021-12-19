@@ -78,54 +78,12 @@ df1[(df1.name == "کماسه") & (df1.date >= 20170325)].sort_values(by="date").
 #%%
 len(df1[df1.date == 20190417])
 #%%
-tempt = df1.merge(pdf[["date", "name"]], on=["date", "name"], how="outer")
-#%%
-# tempt.isnull().sum()
-indexes = tempt[tempt.jalaliDate.isnull()
-               ].set_index(['name','date']).index
-# i = indexes[114]
-# name = i[0]
-# date = i[1]
-# # print(number,len(indexes),name,date)
-# a = df1[df1.name == name]
-# df1 = df1[df1.name != name]
-# if len(a[a.date < date])<1:
-#     a = a[a.date != date]
-# else:
-#     beforedate = a[a.date < date].date.iloc[-1]
-#     filldata = a[a.date == beforedate]
-#     if filldata.Holder.iloc[0] == np.nan:
-#         a = a[a.date != date]
-#     else:
-#         filldata['date'] = date
-#         a = a.append(filldata)
-# df1 = df1.append(a)
-
-#%%
-for number,i in enumerate(indexes):
-    
-    name = i[0]
-    date = i[1]
-    print(number,len(indexes),name,date)
-    a = df1[df1.name == name]
-    df1 = df1[df1.name != name]
-    if len(a[a.date < date])<1:
-        a = a[a.date != date]
-    else:
-        beforedate = a[a.date < date].date.iloc[-1]
-        filldata = a[a.date == beforedate]
-        if filldata.Holder.iloc[0] == np.nan:
-            a = a[a.date != date]
-        else:
-            filldata['date'] = date
-            a = a.append(filldata)
-    df1 = df1.append(a)
-#%%
 df1["date"] = df1["date"].astype(str)
 a = df1.groupby("date").size().to_frame()
 a.plot(y=0, use_index=True)
 a[a[0] < 100]
-
+df1["date"] = df1["date"].astype(float)
+df1["date"] = df1["date"].astype(int)
 
 #%%
 gdata = pdf[["group_name", "name"]].drop_duplicates().dropna()
@@ -210,6 +168,7 @@ df1.loc[
 ] = "PRXسبد-شرک43268--موس29115-م.صندوق ت.ف نوین"
 df1.loc[df1["Holder_id"] == 63323, "Holder"] = "تجارت و اسکان احیا سپاهان"
 df1.loc[df1["Holder_id"] == 63087, "Holder"] = "مدیریت ثروت پایا"
+df1.loc[df1["Holder_id"] == 21975, "Holder"] = "فولاد"
 
 df1.loc[
     df1["Holder_id"] == 60374, "Holder"
@@ -531,6 +490,7 @@ data = (
 
 
 df1[(df1.name == "کماسه") & (df1.date >= 20170325)].sort_values(by="date").head()
+
 #%%
 data.to_csv(path + "cleaned_data.csv")
 #%%
@@ -541,23 +501,23 @@ data = pd.read_csv(path + "cleaned_data.csv").drop(columns=["Unnamed: 0"])
 #%%
 a = data.groupby("date").size().to_frame().reset_index()
 a.plot(y=0, use_index=True)
-a[a[0] < 100]
-
-
+tempt = a[a[0] < a[0].quantile(0.0085)].append(a[a[0] ==  a[0].max()]).sort_values(by = 'date')
 #%%
-# 20171106
-t = data[data.date == 20171107.0]
-t0 = data[data.date == 20171106.0]
-t["jalaliDate"] = t0.jalaliDate.iloc[0]
-t["date"] = t0.date.iloc[0]
-mapingdict = dict(zip(t0.name, t0.close_price))
-t["close_price"] = t.name.map(mapingdict)
-data = (
-    data[data.date != 20171106.0]
-    .append(t)
-    .sort_values(by=["name", "date"])
-    .reset_index(drop=True)
-)
+for i in tempt.date:
+    print(i)
+    pdate = a[a.date < i].tail(1).date.iloc[0]
+    new = data[data.date == pdate]
+    new['date'] = i
+    new['Condition'] = 'Flatted'
+    data = data.loc[data.date != i].append(new)
+#%%    
+a = data.groupby("date").size().to_frame().reset_index()
+a.plot(y=0, use_index=True)    
+#%%
+tempt = pdf[['jalaliDate', 'date']].drop_duplicates()
+mapingdict = dict(zip(tempt.date, tempt.jalaliDate))
+data['jalaliDate'] = data.date.map(mapingdict)
+
 
 #%%
 def sumPercent(df):
@@ -569,18 +529,8 @@ a = sumPercent(data)
 GHunder = list(a[a > 100].index)
 print(len(GHunder))
 tmt = data.set_index(["date", "name"])
-# tmt = tmt[~((tmt.index.isin(GHunder)) & (tmt.Condition == "Filled"))]
 a = sumPercent(tmt)
 GHunder = a[a > 100].to_frame().reset_index().sort_values(by=["name", "date"])
-tmt = tmt.reset_index()
-a = sumPercent(tmt)
-GHunder = (
-    a[a > 100]
-    .to_frame()
-    .reset_index()
-    .sort_values(by=["name", "date"], ascending=False)
-)
-
 multiIndex = GHunder.set_index(["date", "name"]).index
 ChangeList = [
     "name",
@@ -595,9 +545,7 @@ ChangeList = [
     "Total",
     "close_price",
 ]
-
-tmt = tmt.sort_values(by=["name", "date", "Percent"]).reset_index(drop=True)
-
+tmt = tmt.sort_values(by=["name", "date", "Percent"]).reset_index()
 len(tmt[tmt.name == "فولاد"])
 #%%
 def sumPercent(df):
@@ -704,3 +652,5 @@ t = a[a[0] < 1000].date.to_list()
 df = df[~df.date.isin(t)]
 a = df.groupby("date").size().to_frame().reset_index()
 a.plot(y=0, use_index=True)
+
+# %%
