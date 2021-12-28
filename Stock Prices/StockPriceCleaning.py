@@ -307,8 +307,6 @@ for i in ['max_price_Adjusted',
     print(i)
     pdf[i] = gg[i].fillna(method = 'bfill')
 
-#%%
-
 # %%
 pdf[pdf.name == 'وقوام']
 
