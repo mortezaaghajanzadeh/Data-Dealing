@@ -133,23 +133,21 @@ def crawl_prices(id):
     return df
 
 
-object = pd.read_pickle(r"ids.p")
-Id = []
+Id = pd.read_pickle(r"Get all ids\\ids_Current_added_group.p")
+
+
+object = pd.read_pickle(r"Get all ids\\ids_all.p")
 for i in object:
-    for j in i:
-        Id.append(j)
+    Id.append(i)
 Id = list(set(Id))
 Id.sort()
-# id = Id[1]
-# id = 65018804181564924
-# df = crawl_prices(id)
-# df.tail()
 
+#%%
+'17617474823279712' in Id
 
 #%%
 
 path = r"E:\RA_Aghajanzadeh\Data\Price\\"
-
 
 def gen_price(path, stock_id, error, i):
     try:
@@ -162,25 +160,12 @@ def gen_price(path, stock_id, error, i):
         # print(i, "Error")
 
 
-# counter = 0
-# error = []
-# for  i,stock_id in enumerate(Id[:]):
-#     print(counter, len(Id), stock_id,i,len(error))
-#     # threads[i] = Thread(
-#     #     target=gen_price, args=(result, stock_id, error,i)
-#     #     )
-#     gen_price(path, stock_id, error,i)
-#     counter += 1
-
-
 #%%
 def excepthook(args):
     3 == 1 + 2
 
-
 threading.excepthook = excepthook
 Data = pd.DataFrame()
-
 
 def Crawl_all(path, Id, m):
     counter = 0
@@ -202,10 +187,9 @@ def Crawl_all(path, Id, m):
     print("Done")
     return error
 
-
-error = Crawl_all(path, Id, 100)
+error = Crawl_all(path, Id, 200)
 #%%
-for i in [100, 75, 50, 25, 10, 5,2,2]:
+for i in [200,100, 100, 50, 10, 5,2,2]:
     print("-------------{}---------------".format(len(error)))
     error = Crawl_all(path, error, i)
     print("-------------{}---------------".format(len(error)))
@@ -249,7 +233,7 @@ df.groupby("name").count()
 Data.groupby("name").count()
 
 #%%
-df[df.name == "گوهران"]
-# %%
-Data["volume"] = Data.volume.astype(float)
-Data[Data.volume == 0]
+set(Data.name.unique()) - set(df.name.unique())
+set(df.name.unique()) - set(Data.name.unique())
+#%%
+Data[Data.stock_id == 17617474823279712]

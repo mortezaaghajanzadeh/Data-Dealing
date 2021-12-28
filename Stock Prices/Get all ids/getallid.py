@@ -6,11 +6,13 @@ from selenium.webdriver.support import expected_conditions as EC
 import time
 import pandas as pd
 import json
+import pickle
 from bs4 import BeautifulSoup
 
 path = r"C:\Program Files (x86)\chromedriver.exe"
 from selenium import webdriver
 import requests
+import re
 
 
 #%%
@@ -20,22 +22,15 @@ print(driver.title)
 driver.find_element_by_id("mwp").click()
 driver.find_element_by_id("id1").click()
 #%%
-# Set the setting for crawling firms Id 
+# Set the setting for crawling firms Id
 # %%
-
 elements = driver.find_elements_by_class_name("\{c\}")
 ids = []
 for element in elements:
     ids.append(element.get_attribute("id"))
-#%%
-import pickle
+
 pickle.dump(ids, open("ids_Current.p", "wb"))
-
 # %%
-import re
-import requests
-
-
 def get_stock_groups():
     r = requests.get(
         "http://www.tsetmc.com/Loader.aspx?ParTree=111C1213"
@@ -72,32 +67,9 @@ ids.update(nids)
 ids = list(ids)
 print(len(ids))
 
-#%%
-
-# import pandas as pd
-# df = pd.read_csv("3_clean.csv")
-# nids = df.c.to_list()
-# print(len(ids))
-# ids = set(ids)
-# ids.update(nids)
-# ids = list(ids)
-# print(len(ids))
 
 pickle.dump(ids, open("ids_Current_added_group.p", "wb"))
 #%%
-# import pickle
-
-# pickle.dump(ids, open("ids.p", "wb"))
-
-
-#%%
-import pandas as pd
-import requests
-from bs4 import BeautifulSoup
-
-path = r"C:\Program Files (x86)\chromedriver.exe"
-from selenium import webdriver
-
 driver = webdriver.Chrome(path)
 driver.get("https://tse.ir/listing.html?cat=cash&section=alphabet")
 print(driver.title)
@@ -164,32 +136,36 @@ driver.get(link)
 r = requests.get(link)
 print(driver.title)
 
+
 def ge_names(url):
-    r = url.find_element_by_class_name("tblGrp").get_attribute('innerHTML')
+    r = url.find_element_by_class_name("tblGrp").get_attribute("innerHTML")
     return get_df(BeautifulSoup(r, "html.parser"))
-    
+
+
 def get_df(soup):
     rows = []
     table_rows = soup.find_all("tr")
     th = table_rows[0].find_all("th")
-    columns = [ i.text.replace('\n', '').strip()for i in th]
+    columns = [i.text.replace("\n", "").strip() for i in th]
     for tr in table_rows[1:]:
         td = tr.find_all("td")
-        row = [ i.text.replace('\n', '').strip() for i in td]
+        row = [i.text.replace("\n", "").strip() for i in td]
         rows.append(row)
     return pd.DataFrame(rows, columns=columns)
+
+
 df = pd.DataFrame()
 for url in driver.find_elements_by_class_name("tab-content"):
     df = df.append(ge_names(url))
-for i in df['نماد'].to_list():
+for i in df["نماد"].to_list():
     names.append(i)
 len(names)
 #%%
 names = list(set(names))
 # %%
 char = "پذ"
-ids = []
 mixchar = names
+
 
 def get_id(char):
     ids = []
@@ -212,19 +188,20 @@ def get_id(char):
 get_id(mixchar[1])
 
 
-
 #%%
+ids2 = []
 for i in mixchar[::]:
     print(i)
-    ids.append(get_id(i))
+    ids2.append(get_id(i))
 ids[0]
 
 #%%
 id = []
-for i in ids:
+for i in ids2:
     for j in i:
         id.append(j)
-# %%
+for j in ids:
+    id.append(j)
 len(set(id))
 # %%
 import pickle
@@ -301,8 +278,8 @@ for i in chars:
     for j in chars2:
         mixchar.append(i + j)
 for i in names:
-    mixchar.append(i)  
-    
+    mixchar.append(i)
+ids = []
 for i in mixchar[::]:
     print(i)
     ids.append(get_id(i))
@@ -312,7 +289,16 @@ for i in ids:
         id.append(j)
 len(list(set(id)))
 # %%
-import pickle
+t = pd.read_csv("3_clean.csv")
+for i in list(t.c.unique()):
+    id.append(j)
+len(list(set(id)))
 
-pickle.dump(list(set(id)), open("ids_all2.p", "wb"))
+t = pd.read_pickle("ids-all.p")
+for i in t:
+    for j in i:
+        id.append(j)
+len(list(set(id)))
+pickle.dump(list(set(id)), open("ids_all.p", "wb"))
+# %%
 # %%
