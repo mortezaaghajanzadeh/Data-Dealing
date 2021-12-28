@@ -7,6 +7,9 @@ path = r"E:\RA_Aghajanzadeh\Data\\"
 # path = r"G:\Economics\Finance(Prof.Heidari-Aghajanzadeh)\Data\\"
 
 df = pd.read_parquet(path + "Cleaned_Stock_Prices_1400_06_29.parquet")
+print(len(df.name.unique()))
+df = pd.read_parquet(path + "Cleaned_Stock_Prices_14001006.parquet")
+print(len(df.name.unique()))
 df = df[df.jalaliDate > 13880000]
 #%%
 df = df[~df.title.str.startswith("ح .")]

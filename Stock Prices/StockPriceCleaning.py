@@ -134,10 +134,11 @@ def Overall_index():
 
 # %%
 pdf = pd.read_parquet(path + "Stock_Prices_1400_06_29.parquet")
-df = pd.read_parquet(path + "Stock_Prices_1400_10_07.parquet")
-pdf = pdf.append(df)
 print(len(pdf))
-pdf = pdf.drop_duplicates()
+df = pd.read_parquet(path + "Stock_Prices_1400_10_07.parquet")
+pdf = pdf.append(df).reset_index(drop=True)
+print(len(pdf))
+pdf = pdf.drop_duplicates(subset= ['name','date'], keep='last')
 print(len(pdf))
 col = "group_name"
 pdf[col] = pdf[col].apply(lambda x: convert_ar_characters(x))
@@ -314,5 +315,5 @@ pdf[pdf.name == 'وقوام']
 #%%
 pdf[pdf.shrout.isnull()][['name','return','date']].name.unique()
 # %%
-pdf[~pdf.shrout.isnull()].to_parquet(path + "Cleaned_Stock_Prices_1400_06_29" + ".parquet")
+pdf[~pdf.shrout.isnull()].to_parquet(path + "Cleaned_Stock_Prices_{}".format(pdf[pdf.date == pdf.date.max()].jalaliDate.iloc[0]) + ".parquet")
 # %%
