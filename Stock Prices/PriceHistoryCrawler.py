@@ -216,10 +216,10 @@ Data.to_parquet(path + name + ".parquet")
 len(Data.name.unique())
 
 #%%
-
-
-# #%%
-# Data.to_parquet(r"E:\RA_Aghajanzadeh\Data\Stock_Prices_1400_06_16.parquet")
+path = r"E:\RA_Aghajanzadeh\Data\\"
+name = "Stock_Prices_1400_10_07"
+Data = pd.read_parquet(path + name + ".parquet")
+print(len(Data))
 #%%
 df = pd.read_parquet(path + "Stock_Prices_1400_06_29.parquet")
 Data = Data[Data.date <= df.date.max()]
@@ -233,7 +233,9 @@ df.groupby("name").count()
 Data.groupby("name").count()
 
 #%%
-set(Data.name.unique()) - set(df.name.unique())
-set(df.name.unique()) - set(Data.name.unique())
+list(set(Data.name.unique()) - set(df.name.unique()))
+# set(df.name.unique()) - set(Data.name.unique())
 #%%
 Data[Data.stock_id == 17617474823279712]
+
+# %%
