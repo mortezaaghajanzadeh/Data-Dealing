@@ -9,7 +9,6 @@ import json
 from bs4 import BeautifulSoup
 
 path = r"C:\Program Files (x86)\chromedriver.exe"
-path = r"C:\Program Files (x86)\chromedriver.exe"
 from selenium import webdriver
 import requests
 
@@ -20,12 +19,17 @@ driver.get("http://www.tsetmc.com/Loader.aspx?ParTree=15131Fe")
 print(driver.title)
 driver.find_element_by_id("mwp").click()
 driver.find_element_by_id("id1").click()
+#%%
+# Set the setting for crawling firms Id 
 # %%
 
 elements = driver.find_elements_by_class_name("\{c\}")
 ids = []
 for element in elements:
     ids.append(element.get_attribute("id"))
+#%%
+import pickle
+pickle.dump(ids, open("ids_Current.p", "wb"))
 
 # %%
 import re
@@ -78,32 +82,20 @@ print(len(ids))
 # ids.update(nids)
 # ids = list(ids)
 # print(len(ids))
+
+pickle.dump(ids, open("ids_Current_added_group.p", "wb"))
 #%%
-import pickle
+# import pickle
 
-pickle.dump(ids, open("ids.p", "wb"))
-# %%
-url1 = r"https://tse.ir/json/Listing/ListingByName1.json"
-r = requests.get(url1)
-soup = BeautifulSoup(r.text, "html.parser")
-# len(soup[0]["companies"])
-#### Should clean it
-decoded_data = r.text.encode().decode("utf-8-sig")
-data = json.loads(decoded_data)
-for i in data["companies"]:
-    print(i["list"][0]["sy"].split("1")[0])
+# pickle.dump(ids, open("ids.p", "wb"))
 
-
-# %%
-len(data["companies"])
-# All names
 
 #%%
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 
-# path = r"C:\Program Files (x86)\chromedriver.exe"
+path = r"C:\Program Files (x86)\chromedriver.exe"
 from selenium import webdriver
 
 driver = webdriver.Chrome(path)
@@ -167,7 +159,79 @@ for i in chars:
         continue
 len(names)
 # %%
+link = "https://www.ifb.ir/Issuers.aspx?id=1"
+driver.get(link)
+r = requests.get(link)
+print(driver.title)
 
+def ge_names(url):
+    r = url.find_element_by_class_name("tblGrp").get_attribute('innerHTML')
+    return get_df(BeautifulSoup(r, "html.parser"))
+    
+def get_df(soup):
+    rows = []
+    table_rows = soup.find_all("tr")
+    th = table_rows[0].find_all("th")
+    columns = [ i.text.replace('\n', '').strip()for i in th]
+    for tr in table_rows[1:]:
+        td = tr.find_all("td")
+        row = [ i.text.replace('\n', '').strip() for i in td]
+        rows.append(row)
+    return pd.DataFrame(rows, columns=columns)
+df = pd.DataFrame()
+for url in driver.find_elements_by_class_name("tab-content"):
+    df = df.append(ge_names(url))
+for i in df['نماد'].to_list():
+    names.append(i)
+len(names)
+#%%
+names = list(set(names))
+# %%
+char = "پذ"
+ids = []
+mixchar = names
+
+def get_id(char):
+    ids = []
+    try:
+        results = requests.get(
+            "http://tsetmc.ir/tsev2/data/search.aspx?skey={}".format(char)
+        ).text.split(";")
+        if len(results) == 0:
+            return get_id(char)
+        for i in results:
+            try:
+                ids.append(i.split(",")[2])
+            except:
+                print("Nothing")
+        return ids
+    except:
+        get_id(char)
+
+
+get_id(mixchar[1])
+
+
+
+#%%
+for i in mixchar[::]:
+    print(i)
+    ids.append(get_id(i))
+ids[0]
+
+#%%
+id = []
+for i in ids:
+    for j in i:
+        id.append(j)
+# %%
+len(set(id))
+# %%
+import pickle
+
+pickle.dump(ids, open("ids.p", "wb"))
+
+#%%
 driver.get(r"https://www.ifb.ir/DataReporter/MarketMap.aspx")
 reports = []
 while len(reports) < 500:
@@ -176,17 +240,16 @@ while len(reports) < 500:
         .find_element_by_class_name("tblGrp")
         .find_elements_by_xpath("//a[@target ='_blank']")
     )
-#%%
 for i in reports:
-    print(i.text)
     try:
-        new = i.text.split("1")
-        names.append(new[0])
+        new = i.text[:-1]
+        print(new)
+        names.append(new)
     except:
         continue
-# %%
 
-# %%
+
+#%%
 chars = [
     "ا",
     "ب",
@@ -237,44 +300,19 @@ for i in chars:
     chars2.remove(i)
     for j in chars2:
         mixchar.append(i + j)
-# %%
-char = "پذ"
-ids = []
-
-
-def get_id(char):
-    ids = []
-    try:
-        results = requests.get(
-            "http://tsetmc.ir/tsev2/data/search.aspx?skey={}".format(char)
-        ).text.split(";")
-        if len(results) == 0:
-            return get_id(char)
-        for i in results:
-            try:
-                ids.append(i.split(",")[2])
-            except:
-                print("Nothing")
-        return ids
-    except:
-        get_id(char)
-
-
-get_id(char)
-
+for i in names:
+    mixchar.append(i)  
+    
 for i in mixchar[::]:
     print(i)
     ids.append(get_id(i))
-ids[0]
-
 #%%
-id = []
 for i in ids:
     for j in i:
         id.append(j)
-# %%
-len(set(id))
+len(list(set(id)))
 # %%
 import pickle
 
-pickle.dump(ids, open("ids.p", "wb"))
+pickle.dump(list(set(id)), open("ids_all2.p", "wb"))
+# %%

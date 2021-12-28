@@ -4,7 +4,8 @@ import requests
 from persiantools.jdatetime import JalaliDate
 import re
 import logging
-from threading import Thread
+import threading
+import pickle
 
 # %%
 def get_stock_detail(stock_id):
@@ -102,13 +103,14 @@ def clean_unadjusted_price(r):
 
 def crawl_prices(id):
     url = r"https://members.tsetmc.com/tsev2/chart/data/Financial.aspx?i={}&t=ph&a={}"
-    url1 = url.format(id, 1)  # Adjusted prices
+    url1 = url.format(id, 0)  # Adjusted prices
     r1 = requests.get(url1, timeout=10, verify=False)
     t1 = clean_adjusted_price(r1)
     url = r"https://members.tsetmc.com/tsev2/chart/data/Financial.aspx?i={}&t=ph&a={}"
-    url1 = url.format(id, 0)  # UnAdjusted prices
+    url = "http://members.tsetmc.com/tsev2/data/InstTradeHistory.aspx?i={}&Top=999999&A={}"
+    url1 = url.format(id, 1)  # UnAdjusted prices
     r = requests.get(url1.format(id), timeout=10, verify=False)
-    t0 = clean_adjusted_price(r)
+    t0 = clean_unadjusted_price(r)
 
     if t1 == []:
         df = pd.DataFrame.from_dict(t0)
@@ -131,65 +133,122 @@ def crawl_prices(id):
     return df
 
 
-object = pd.read_pickle(r"Get all ids\ids.p")
+object = pd.read_pickle(r"ids.p")
 Id = []
 for i in object:
     for j in i:
         Id.append(j)
 Id = list(set(Id))
+Id.sort()
+# id = Id[1]
+# id = 65018804181564924
+# df = crawl_prices(id)
+# df.tail()
 
-id = Id[1]
-id = 2400322364771558
-df = crawl_prices(id)
-df
+
+#%%
+
+path = r"E:\RA_Aghajanzadeh\Data\Price\\"
+
+
+def gen_price(path, stock_id, error, i):
+    try:
+        t = crawl_prices(stock_id)
+        pickle.dump(t, open(path + str(stock_id) + ".p", "wb"))
+        # print(i, "Done")
+    except:
+        error.append(stock_id)
+        # print(i, "Error")
+
+
+# counter = 0
+# error = []
+# for  i,stock_id in enumerate(Id[:]):
+#     print(counter, len(Id), stock_id,i,len(error))
+#     # threads[i] = Thread(
+#     #     target=gen_price, args=(result, stock_id, error,i)
+#     #     )
+#     gen_price(path, stock_id, error,i)
+#     counter += 1
 
 
 #%%
 def excepthook(args):
     3 == 1 + 2
 
-import threading
+
 threading.excepthook = excepthook
 Data = pd.DataFrame()
-counter = 0
-error = []
-threads = {}
-result = [None]* len(Id)
 
 
-def gen_price(result, stock_id, error,i):
-    try:
-        result[i] = crawl_prices(stock_id)
-        return result,error
-    except:
-        error.append(stock_id)
-        return result,error
+def Crawl_all(path, Id, m):
+    counter = 0
+    error = []
+    threads = {}
+    # result = [None] * len(Id)
+    for i, stock_id in enumerate(Id):
+        counter += 1
+        print(counter, len(Id), stock_id, i)
+        threads[i] = threading.Thread(target=gen_price, args=(path, stock_id, error, i))
+        threads[i].start()
+        if i == 1:
+            continue
+        if i % m == 1:
+            for j in range(m + 2):
+                threads[i - j].join()
+    for i in threads:
+        threads[i].join()
+    print("Done")
+    return error
 
-import time
-for  i,stock_id in enumerate(Id[:]):
-    counter += 1
-    print(counter, len(Id), stock_id,i)
-    threads[i] = Thread(
-        target=gen_price, args=(result, stock_id, error,i)
-        )
-    threads[i].start()
-    time.sleep(1)
-for i in threads:
-    threads[i].join()
+
+error = Crawl_all(path, Id, 100)
 #%%
+for i in [100,75,50,25,10,5]:
+    print('-------------{}---------------'.format(len(error)))
+    error = Crawl_all(path, error, i)
+    print('-------------{}---------------'.format(len(error)))
 
-for i in result:
-    if i  is not  None:
+#%%
+import os
+
+Data = pd.DataFrame()
+arr = os.listdir(path)
+for i, name in enumerate(arr):
+    print(i, len(Data))
+    i = pd.read_pickle(path + name)
+    if i is not None:
         Data = Data.append(i)
-        print(len(Data))
 
 
 #%%
-# path = r"E:\RA_Aghajanzadeh\Data\\"
-# name = "Stock_Prices_1400_09_10"
-# Data.to_parquet(path + name + ".parquet")
+path = r"E:\RA_Aghajanzadeh\Data\\"
+name = "Stock_Prices_1400_10_04"
+Data = pd.read_parquet(path + name + ".parquet")
+#%%
+len(Data.name.unique())
+
+#%%
+print(len(Data))
+Data.to_parquet(path + name + ".parquet")
 
 
 # #%%
 # Data.to_parquet(r"E:\RA_Aghajanzadeh\Data\Stock_Prices_1400_06_16.parquet")
 #%%
+df = pd.read_parquet(path + "Stock_Prices_1400_06_29.parquet")
+Data = Data[Data.date <= df.date.max()]
+# %%
+len(df), len(Data)
+# %%
+df.groupby("name").count()
+
+
+# %%
+Data.groupby("name").count()
+
+#%%
+df[df.name == "گوهران"]
+# %%
+Data["volume"] = Data.volume.astype(float)
+Data[Data.volume == 0]

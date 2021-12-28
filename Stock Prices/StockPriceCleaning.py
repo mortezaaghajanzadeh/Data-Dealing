@@ -134,7 +134,11 @@ def Overall_index():
 
 # %%
 pdf = pd.read_parquet(path + "Stock_Prices_1400_06_29.parquet")
-
+df = pd.read_parquet(path + "Stock_Prices_1400_10_01.parquet")
+pdf = pdf.append(df)
+print(len(pdf))
+pdf = pdf.drop_duplicates()
+print(len(pdf))
 col = "group_name"
 pdf[col] = pdf[col].apply(lambda x: convert_ar_characters(x))
 groupnameid[col] = groupnameid[col].apply(lambda x: convert_ar_characters(x))

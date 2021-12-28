@@ -38,7 +38,7 @@ del df, gg
 error = []
 counter = 0
 #%%
-number, stat, number_days = 10000, False, 100
+number, stat, number_days = 10000, False, 1000
 
 #%%
 for counter, stock_id in enumerate(list(dates.keys())[::]):
@@ -89,3 +89,5 @@ set(dates.keys()) - set(done_id)
 #         pickle.dump(result[i], open(path2 + "Holders_{}.p".format(stock_id), "wb"))
 #     j = k
 # pickle.dump(Excepted_stock, open(path2 + "Excepted_stock.p", "wb"))
+
+# %%
