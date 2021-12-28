@@ -154,7 +154,8 @@ path = r"E:\RA_Aghajanzadeh\Data\Price\\"
 def gen_price(path, stock_id, error, i):
     try:
         t = crawl_prices(stock_id)
-        pickle.dump(t, open(path + str(stock_id) + ".p", "wb"))
+        if i is not None:
+            pickle.dump(t, open(path + str(stock_id) + ".p", "wb"))
         # print(i, "Done")
     except:
         error.append(stock_id)
@@ -204,10 +205,10 @@ def Crawl_all(path, Id, m):
 
 error = Crawl_all(path, Id, 100)
 #%%
-for i in [100,75,50,25,10,5]:
-    print('-------------{}---------------'.format(len(error)))
+for i in [100, 75, 50, 25, 10, 5,2,2]:
+    print("-------------{}---------------".format(len(error)))
     error = Crawl_all(path, error, i)
-    print('-------------{}---------------'.format(len(error)))
+    print("-------------{}---------------".format(len(error)))
 
 #%%
 import os
@@ -222,15 +223,15 @@ for i, name in enumerate(arr):
 
 
 #%%
+
 path = r"E:\RA_Aghajanzadeh\Data\\"
-name = "Stock_Prices_1400_10_04"
-Data = pd.read_parquet(path + name + ".parquet")
+name = "Stock_Prices_1400_10_07"
+print(len(Data))
+Data.to_parquet(path + name + ".parquet")
 #%%
 len(Data.name.unique())
 
 #%%
-print(len(Data))
-Data.to_parquet(path + name + ".parquet")
 
 
 # #%%
