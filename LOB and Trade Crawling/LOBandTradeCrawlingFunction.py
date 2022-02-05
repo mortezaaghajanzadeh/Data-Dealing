@@ -164,7 +164,7 @@ def aggregateSessions():
     return totalSessions + sessions
 
 
-def get_stock_all_LOB_and_Trade(stock_id, dates, number, stat,number_days):
+def get_stock_all_LOB_and_Trade(stock_id, dates, number, stat, number_days):
     i = 0
     Except = []
     # Excepted_id = 0
@@ -206,8 +206,8 @@ def ColseCheck():
     url = "http://tsetmc.com/Loader.aspx?ParTree=15"
     r = requests.get(url, timeout=15)
     close = True
-    if len(re.findall(r"باز&nbsp", r.text)) > 0:
-        close = False
+    # if len(re.findall(r"باز&nbsp", r.text)) > 0:
+    #     close = False
     return close
 
 
@@ -267,8 +267,8 @@ def clean_Trade_on_Stock(all_Trade):
     return df
 
 
-def gen_LOB_Trade(stock_id, dates, number, path, stat,number_days):
-    LOB, Trade = get_stock_all_LOB_and_Trade(stock_id, dates, number, stat,number_days)
+def gen_LOB_Trade(stock_id, dates, number, path, stat, number_days):
+    LOB, Trade = get_stock_all_LOB_and_Trade(stock_id, dates, number, stat, number_days)
     pickle.dump(LOB, open(path.format("LOB", "LOB_" + str(stock_id)), "wb"))
     pickle.dump(Trade, open(path.format("Trade", "Trade_" + str(stock_id)), "wb"))
 

@@ -5,7 +5,7 @@ path = r"E:\RA_Aghajanzadeh\Data\\"
 
 import threading
 
-df = pd.read_parquet(path + "Cleaned_Stock_Prices_1400_06_16.parquet")
+df = pd.read_parquet(path + "Cleaned_Stock_Prices_14001006.parquet")
 df = df[~df.title.str.startswith("ح .")]
 df = df.drop(df[(df["name"] == "وقوام") & (df["close_price"] == 1000)].index)
 
@@ -43,8 +43,11 @@ path2 = r"D:\{}\{}.p"
 counter = 0
 del df
 del gg 
+#%%
+# stock_id == 35366681030756042
+# gen_LOB_Trade(stock_id, dates[str(stock_id)], 2400, path2,False,250)
 
-
+#%%
 for stock_id in ids:
     counter += 1
     print(
@@ -56,7 +59,7 @@ for stock_id in ids:
         flush=True,
     )
     try:
-        gen_LOB_Trade(stock_id, dates[str(stock_id)], 2400, path2, True,250)
+        gen_LOB_Trade(stock_id, dates[str(stock_id)], 2400, path2, False,500)
     except:
         error.append(stock_id)
 

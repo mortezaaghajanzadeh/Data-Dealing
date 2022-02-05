@@ -5,8 +5,10 @@ import threading
 
 path = r"E:\RA_Aghajanzadeh\Data\\"
 # path = r"G:\Economics\Finance(Prof.Heidari-Aghajanzadeh)\Data\\"
-
 df = pd.read_parquet(path + "Cleaned_Stock_Prices_1400_06_29.parquet")
+print(len(df.name.unique()))
+df = pd.read_parquet(path + "Cleaned_Stock_Prices_14001006.parquet")
+print(len(df.name.unique()))
 df = df[df.jalaliDate > 13880000]
 #%%
 df = df[~df.title.str.startswith("ح .")]
@@ -41,7 +43,7 @@ for i in excepted:
 error = pd.read_pickle(path2 + "Error.p")
 for i in error:
     newdates[i] = dates[i]
-del dates
+# del dates
 
 error = []
 counter = 0
@@ -79,3 +81,4 @@ for counter, stock_id in enumerate(newdates.keys()):
         error.append(stock_id)
 pickle.dump(Excepted_stock, open(path2 + "Second2_Excepted_stock.p", "wb"))
 pickle.dump(error, open(path2 + "Error.p", "wb"))
+# %%

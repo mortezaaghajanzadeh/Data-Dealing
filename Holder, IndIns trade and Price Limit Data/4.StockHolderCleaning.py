@@ -31,7 +31,7 @@ def _multiple_replace(mapping, text):
 
 
 #%%
-pdf = pd.read_parquet(path2 + "Cleaned_Stock_Prices_1400_06_29.parquet")
+pdf = pd.read_parquet(path2 + "Cleaned_Stock_Prices_14001006.parquet")
 print("read Price")
 pdf = pdf.drop(
     columns=[
@@ -169,6 +169,8 @@ df1.loc[
 df1.loc[df1["Holder_id"] == 63323, "Holder"] = "تجارت و اسکان احیا سپاهان"
 df1.loc[df1["Holder_id"] == 63087, "Holder"] = "مدیریت ثروت پایا"
 df1.loc[df1["Holder_id"] == 21975, "Holder"] = "فولاد"
+df1.loc[df1["Holder_id"] == 47706, "Holder"] = "فیروزا"
+df1.loc[df1["Holder_id"] == 8018, "Holder"] = "ایران سهم"
 
 df1.loc[
     df1["Holder_id"] == 60374, "Holder"
@@ -501,22 +503,24 @@ data = pd.read_csv(path + "cleaned_data.csv").drop(columns=["Unnamed: 0"])
 #%%
 a = data.groupby("date").size().to_frame().reset_index()
 a.plot(y=0, use_index=True)
-tempt = a[a[0] < a[0].quantile(0.0085)].append(a[a[0] ==  a[0].max()]).sort_values(by = 'date')
+tempt = (
+    a[a[0] < a[0].quantile(0.0085)].append(a[a[0] == a[0].max()]).sort_values(by="date")
+)
 #%%
 for i in tempt.date:
     print(i)
     pdate = a[a.date < i].tail(1).date.iloc[0]
     new = data[data.date == pdate]
-    new['date'] = i
-    new['Condition'] = 'Flatted'
+    new["date"] = i
+    new["Condition"] = "Flatted"
     data = data.loc[data.date != i].append(new)
-#%%    
-a = data.groupby("date").size().to_frame().reset_index()
-a.plot(y=0, use_index=True)    
 #%%
-tempt = pdf[['jalaliDate', 'date']].drop_duplicates()
+a = data.groupby("date").size().to_frame().reset_index()
+a.plot(y=0, use_index=True)
+#%%
+tempt = pdf[["jalaliDate", "date"]].drop_duplicates()
 mapingdict = dict(zip(tempt.date, tempt.jalaliDate))
-data['jalaliDate'] = data.date.map(mapingdict)
+data["jalaliDate"] = data.date.map(mapingdict)
 
 
 #%%
@@ -622,27 +626,15 @@ GHunder = (
 
 GHunder
 #%%
-def change(gg):
-    d2 = gg["nshares"].diff()
-    d3 = gg["Percent"].diff()
-    d2.iloc[0] = 0
-    d3.iloc[0] = 0
-    gg["Number_Change"] = d2
-    gg["Percent_Change"] = d3
-    return gg
-
-
-gg = df.groupby(["name", "Holder"])
-tmt = gg.apply(change)
 
 #%%
 
-df.to_csv(path + "Cleaned_Stocks_Holders_1400_06_28.csv", index=False)
+df.to_csv(path + "Cleaned_Stocks_Holders_1400_10_06.csv", index=False)
 
 # %%
 import pandas as pd
 
-a = pd.read_csv(r"E:\RA_Aghajanzadeh\Data\\" + "Cleaned_Stocks_Holders_1400_06_28.csv")
+a = pd.read_csv(r"E:\RA_Aghajanzadeh\Data\\" + "Cleaned_Stocks_Holders_1400_10_06.csv")
 # %%
 a[a.name == "فولاد"]
 #%%
