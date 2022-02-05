@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import re
 import statsmodels.api as sm
+
 # import finance_byu.rolling as rolling
 import requests
 import pandas as pd
@@ -114,31 +115,37 @@ def group_id():
 groupnameid = group_id()
 #%%
 def Overall_index():
-    url = r"http://www.tsetmc.com/tsev2/chart/data/Index.aspx?i=32097828799138957&t=value"
-    r = requests.get(
-                url
-            )
+    url = (
+        r"http://www.tsetmc.com/tsev2/chart/data/Index.aspx?i=32097828799138957&t=value"
+    )
+    r = requests.get(url)
     jalaliDate = []
     Value = []
     for i in r.text.split(";"):
-        x = i.split(',')
+        x = i.split(",")
         jalaliDate.append(x[0])
         Value.append(float(x[1]))
-    df = pd.DataFrame({'jalaliDate' :jalaliDate,
-                'Value' : Value,
-                }, 
-                columns=['jalaliDate','Value'])
+    df = pd.DataFrame(
+        {
+            "jalaliDate": jalaliDate,
+            "Value": Value,
+        },
+        columns=["jalaliDate", "Value"],
+    )
     return df
+
 
 # overal_index = Overall_index()
 
 # %%
 pdf = pd.read_parquet(path + "Old\Stock_Prices_1400_06_29.parquet")
 print(len(pdf))
-df = pd.read_parquet(path + "Stock_Prices_1400_10_07.parquet")
+df = pd.read_parquet(path + "Old\Stock_Prices_1400_10_07.parquet")
+pdf = pdf.append(df).reset_index(drop=True)
+df = pd.read_parquet(path + "Stock_Prices_1400_11_16.parquet")
 pdf = pdf.append(df).reset_index(drop=True)
 print(len(pdf))
-pdf = pdf.drop_duplicates(subset= ['name','date'], keep='last')
+pdf = pdf.drop_duplicates(subset=["name", "date"], keep="last")
 print(len(pdf))
 col = "group_name"
 pdf[col] = pdf[col].apply(lambda x: convert_ar_characters(x))
@@ -162,9 +169,21 @@ pdf = pdf[~(pdf.name.str.endswith("پذيره"))]  # delete subscribed symbols
 col = "name"
 pdf[col] = pdf[col].apply(lambda x: convert_ar_characters(x))
 #%%
-
-
-
+pdf[(pdf.name == "فولاد")&(pdf.jalaliDate>13980101)][
+    ["date", 
+     'jalaliDate',
+     "name", 
+      "close_price",
+     "close_price_Adjusted",]
+]
+#%%
+pdf[(pdf.name == "شستا")][
+    ["date", 
+     'jalaliDate',
+     "name", 
+      "close_price",
+     "close_price_Adjusted",]
+]
 #%%
 symbolGroup = pdf[["name", "group_name", "group_id"]].drop_duplicates(
     subset=["name", "group_name", "group_id"]
@@ -172,7 +191,9 @@ symbolGroup = pdf[["name", "group_name", "group_id"]].drop_duplicates(
 
 symbolGroup.to_excel(path + "SymbolGroup.xlsx", index=False)
 #%%
-shrout = pd.read_csv(path + "Cleaned_Stocks_Holders_1400_10_06.csv")[['name','date','shrout']]
+shrout = pd.read_csv(path + "Cleaned_Stocks_Holders_1400_10_06.csv")[
+    ["name", "date", "shrout"]
+]
 shrout = shrout.drop_duplicates(subset=["name", "date"])
 shrout.to_csv(path + "SymbolShrout_1400_10_06.csv")
 mapdict = dict(zip(shrout.set_index(["name", "date"]).index, shrout.shrout))
@@ -285,31 +306,39 @@ for i in [
     "value",
     "volume",
     "quantity",
-    'max_price_Adjusted',
-    'min_price_Adjusted',
-    'open_price_Adjusted',
-    'last_price_Adjusted',
-    'close_price_Adjusted',
+    "max_price_Adjusted",
+    "min_price_Adjusted",
+    "open_price_Adjusted",
+    "last_price_Adjusted",
+    "close_price_Adjusted",
 ]:
     pdf[i] = pdf[i].astype(float)
 
 #%%
 
-gg = pdf.groupby(['name'])
-for i in ['max_price_Adjusted',
- 'min_price_Adjusted',
- 'open_price_Adjusted',
- 'last_price_Adjusted',
- 'close_price_Adjusted',]:
+gg = pdf.groupby(["name"])
+for i in [
+    "max_price_Adjusted",
+    "min_price_Adjusted",
+    "open_price_Adjusted",
+    "last_price_Adjusted",
+    "close_price_Adjusted",
+]:
     print(i)
-    pdf[i] = gg[i].fillna(method = 'bfill')
+    pdf[i] = gg[i].fillna(method="bfill")
 
 # %%
-pdf[pdf.name == 'وقوام']
+pdf[pdf.name == "وقوام"]
 
 
 #%%
-pdf[pdf.shrout.isnull()][['name','return','date']].name.unique()
+pdf[pdf.shrout.isnull()][["name", "return", "date"]].name.unique()
 # %%
-pdf.to_parquet(path + "Cleaned_Stock_Prices_{}".format(pdf[pdf.date == pdf.date.max()].jalaliDate.iloc[0]) + ".parquet")
+pdf.to_parquet(
+    path
+    + "Cleaned_Stock_Prices_{}".format(
+        pdf[pdf.date == pdf.date.max()].jalaliDate.iloc[0]
+    )
+    + ".parquet"
+)
 # %%

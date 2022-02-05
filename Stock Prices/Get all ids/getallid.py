@@ -14,7 +14,6 @@ from selenium import webdriver
 import requests
 import re
 
-
 #%%
 driver = webdriver.Chrome(path)
 driver.get("http://www.tsetmc.com/Loader.aspx?ParTree=15131Fe")
@@ -162,6 +161,19 @@ for i in df["نماد"].to_list():
 len(names)
 #%%
 names = list(set(names))
+#%%
+#%%
+import finpy_tse as fpy
+f_stock_list = fpy.Build_Market_StockList(bourse = True, farabourse = True, payeh = True, detailed_list = True, show_progress = True, 
+                                           save_excel = True, save_csv = False, save_path = 'E:\RA_Aghajanzadeh\Data')
+for i in list(f_stock_list.index.unique() ):
+    names.append(i)
+#%%
+
+names = list(set(names))
+
+
+
 # %%
 char = "پذ"
 mixchar = names
