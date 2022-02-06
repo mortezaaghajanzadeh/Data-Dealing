@@ -138,16 +138,18 @@ def Overall_index():
 # overal_index = Overall_index()
 
 # %%
-pdf = pd.read_parquet(path + "Old\Stock_Prices_1400_06_29.parquet")
+pdf = pd.read_parquet(path + "Stock_Prices_1400_11_16.parquet")
 print(len(pdf))
-df = pd.read_parquet(path + "Old\Stock_Prices_1400_10_07.parquet")
-pdf = pdf.append(df).reset_index(drop=True)
-df = pd.read_parquet(path + "Stock_Prices_1400_11_16.parquet")
-pdf = pdf.append(df).reset_index(drop=True)
-print(len(pdf))
-pdf = pdf.drop_duplicates(subset=["name", "date"], keep="last")
-print(len(pdf))
+# df = pd.read_parquet(path + "Old\Stock_Prices_1400_06_29.parquet")
+# pdf = pdf.append(df).reset_index(drop=True)
+# df = pd.read_parquet(path + "Old\Stock_Prices_1400_10_07.parquet")
+# pdf = pdf.append(df).reset_index(drop=True)
+# print(len(pdf))
+# pdf = pdf.drop_duplicates(subset=["name", "date"], keep="last")
+# print(len(pdf))
+
 col = "group_name"
+pdf[col] = pdf[col].apply(lambda x: x.replace(",CgrValCot='EQ","").replace("'",""))
 pdf[col] = pdf[col].apply(lambda x: convert_ar_characters(x))
 groupnameid[col] = groupnameid[col].apply(lambda x: convert_ar_characters(x))
 mapdict = dict(zip(groupnameid.group_name, groupnameid.group_id))
@@ -169,13 +171,20 @@ pdf = pdf[~(pdf.name.str.endswith("پذيره"))]  # delete subscribed symbols
 col = "name"
 pdf[col] = pdf[col].apply(lambda x: convert_ar_characters(x))
 #%%
-pdf[(pdf.name == "فولاد")&(pdf.jalaliDate>13980101)][
-    ["date", 
-     'jalaliDate',
-     "name", 
-      "close_price",
-     "close_price_Adjusted",]
-]
+for i in [
+    'max_price_Adjusted',
+ 'min_price_Adjusted',
+ 'open_price_Adjusted',
+ 'last_price_Adjusted',
+ 'close_price_Adjusted',
+]:
+    print(i)
+    pdf[i] = pdf[i].fillna(value=np.nan)
+    pdf[i] = pdf.groupby('name')[i].fillna(method = 'ffill')
+    pdf[i] = pdf.groupby('name')[i].fillna(method = 'bfill')
+
+#%%
+pdf[pdf.group_id.isnull()]['group_name'].unique()
 #%%
 pdf[(pdf.name == "شستا")][
     ["date", 
