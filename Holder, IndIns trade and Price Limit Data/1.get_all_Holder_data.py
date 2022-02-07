@@ -6,9 +6,7 @@ import threading
 path = r"E:\RA_Aghajanzadeh\Data\\"
 # path = r"G:\Economics\Finance(Prof.Heidari-Aghajanzadeh)\Data\\"
 
-df = pd.read_parquet(path + "Cleaned_Stock_Prices_1400_06_29.parquet")
-print(len(df.name.unique()))
-df = pd.read_parquet(path + "Cleaned_Stock_Prices_14001006.parquet")
+df = pd.read_parquet(path + "Cleaned_Stock_Prices_14001116.parquet")
 print(len(df.name.unique()))
 df = df[df.jalaliDate > 13880000]
 #%%
@@ -44,16 +42,16 @@ counter = 0
 number, stat, number_days = 10000, False, 1000
 
 #%%
-# for counter, stock_id in enumerate(list(dates.keys())[::]):
-#     print("#################{}##################".format(len(dates.keys()) + 1))
-#     try:
-#         t = Main2(counter, stock_id, dates, Excepted_stock, {}, 10000, False, 1000)
-#         pickle.dump(t, open(path2 + "Holders_{}.p".format(stock_id), "wb"))
-#     except:
-#         print("Error in stock_id {}".format(stock_id))
-#         error.append(stock_id)
-# pickle.dump(Excepted_stock, open(path2 + "Excepted_stock.p", "wb"))
-# pickle.dump(error, open(path2 + "Error.p", "wb"))
+for counter, stock_id in enumerate(list(dates.keys())[::]):
+    print("#################{}##################".format(len(dates.keys()) + 1))
+    try:
+        t = Main2(counter, stock_id, dates, Excepted_stock, {}, 10000, False, 1000)
+        pickle.dump(t, open(path2 + "Holders_{}.p".format(stock_id), "wb"))
+    except:
+        print("Error in stock_id {}".format(stock_id))
+        error.append(stock_id)
+pickle.dump(Excepted_stock, open(path2 + "Excepted_stock.p", "wb"))
+pickle.dump(error, open(path2 + "Error.p", "wb"))
 #%%
 
 # import os
@@ -66,21 +64,21 @@ number, stat, number_days = 10000, False, 1000
 # # %%
 # set(dates.keys()) - set(done_id)
 #%%
-ids = list(dates.keys())
+# ids = list(dates.keys())
 
-threads = {}
-result = {}
-for stock_id in ids:
-    counter = counter + 1
-    # dates[stock_id] = dates[stock_id][::]
-    threads[stock_id] = Thread(
-        target=Main,
-        args=(counter, stock_id, dates, Excepted_stock, result, 1000, False, 5000),
-    )
-    threads[stock_id].start()
-for i in threads:
-    threads[i].join()
-    pickle.dump(result[i], open(path2 + "Holders_{}.p".format(stock_id), "wb"))
-pickle.dump(Excepted_stock, open(path2 + "Excepted_stock.p", "wb"))
+# threads = {}
+# result = {}
+# for stock_id in ids:
+#     counter = counter + 1
+#     # dates[stock_id] = dates[stock_id][::]
+#     threads[stock_id] = Thread(
+#         target=Main,
+#         args=(counter, stock_id, dates, Excepted_stock, result, 1000, False, 5000),
+#     )
+#     threads[stock_id].start()
+# for i in threads:
+#     threads[i].join()
+#     pickle.dump(result[i], open(path2 + "Holders_{}.p".format(stock_id), "wb"))
+# pickle.dump(Excepted_stock, open(path2 + "Excepted_stock.p", "wb"))
 
 # %%
