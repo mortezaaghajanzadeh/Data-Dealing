@@ -5,6 +5,7 @@ import pickle
 import numpy as np
 import pandas as pd
 from persiantools.jdatetime import JalaliDate
+from tqdm import tqdm
 from HolderCrawlingFunction import cleaning
 from threading import Thread
 
@@ -15,9 +16,11 @@ allstock = []
 arr.remove("Error.p")
 arr.remove("Excepted_stock.p")
 arr.remove("Second_Excepted_stock.p")
+arr.remove("Second_econd_Excepted_stock.p")
 arr.remove("Second2_Excepted_stock.p")
 arr.remove("PriceTradeData")
 arr.remove("HolderData")
+
 
 HolderDataColumns = [
     "jalaliDate",
@@ -84,9 +87,9 @@ def genFile(i, path, HolderDataColumns, PriceTradeDataColumns):
 
 
 threads = {}
-for counter, i in enumerate(arr):
+for i in tqdm(arr):
     genFile(i, path, HolderDataColumns, PriceTradeDataColumns)
-    print(counter)
+    # print(counter)
 #     threads[i] = Thread(
 #             target=genFile,
 #             args=(i,path,HolderDataColumns,PriceTradeDataColumns),
@@ -123,8 +126,8 @@ def genDate(result, i, counter):
 
 result = {}
 threads = {}
-for counter, i in enumerate(arr):
-    print(counter)
+for counter, i in tqdm(enumerate(arr)):
+    # print(counter)
     genDate(result, i, counter)
     threads[counter] = Thread(
         target=genDate,
@@ -154,8 +157,8 @@ def genDate(result, i, counter):
 
 result = {}
 threads = {}
-for counter, i in enumerate(arr):
-    print(counter)
+for counter, i in tqdm(enumerate(arr)):
+    # print(counter)
     genDate(result, i, counter)
     threads[counter] = Thread(
         target=genDate,

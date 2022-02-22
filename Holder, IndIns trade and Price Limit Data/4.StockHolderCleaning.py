@@ -31,7 +31,7 @@ def _multiple_replace(mapping, text):
 
 
 #%%
-pdf = pd.read_parquet(path2 + "Cleaned_Stock_Prices_14001006.parquet")
+pdf = pd.read_parquet(path2 + "Cleaned_Stock_Prices_14001127.parquet")
 print("read Price")
 pdf = pdf.drop(
     columns=[

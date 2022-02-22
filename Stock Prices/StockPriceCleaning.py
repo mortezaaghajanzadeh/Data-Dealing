@@ -113,6 +113,7 @@ def group_id():
 
 
 groupnameid = group_id()
+groupnameid['group_id'] = groupnameid.group_id.apply(lambda x: x.strip())
 #%%
 def Overall_index():
     url = (
@@ -138,20 +139,16 @@ def Overall_index():
 # overal_index = Overall_index()
 
 # %%
-pdf = pd.read_parquet(path + "Stock_Prices_1400_11_16.parquet")
+pdf = pd.read_parquet(path + "Stock_Prices_1400_11_28.parquet")
 print(len(pdf))
-# df = pd.read_parquet(path + "Old\Stock_Prices_1400_06_29.parquet")
-# pdf = pdf.append(df).reset_index(drop=True)
-# df = pd.read_parquet(path + "Old\Stock_Prices_1400_10_07.parquet")
-# pdf = pdf.append(df).reset_index(drop=True)
-# print(len(pdf))
-# pdf = pdf.drop_duplicates(subset=["name", "date"], keep="last")
-# print(len(pdf))
+
 
 col = "group_name"
-pdf[col] = pdf[col].apply(lambda x: x.replace(",CgrValCot='EQ","").replace("'",""))
 pdf[col] = pdf[col].apply(lambda x: convert_ar_characters(x))
 groupnameid[col] = groupnameid[col].apply(lambda x: convert_ar_characters(x))
+pdf[col] = pdf.group_name.str.replace("',CgrValCot='ET","",regex =False)
+pdf[col] = pdf.group_name.str.replace("',CgrValCot='QA","",regex =False)
+pdf[col] = pdf.group_name.str.replace("',CgrValCot='EQ","",regex =False)
 mapdict = dict(zip(groupnameid.group_name, groupnameid.group_id))
 pdf["group_id"] = pdf.group_name.map(mapdict)
 #%%
@@ -162,12 +159,11 @@ pdf.loc[pdf.name.str[0] == " ", "name"] = pdf.loc[pdf.name.str[0] == " "].name.s
 pdf["name"] = pdf["name"].apply(lambda x: convert_ar_characters(x))
 pdf.jalaliDate = pdf.jalaliDate.apply(vv)
 pdf = pdf.sort_values(by=["name", "date"])
-pdf = pdf[
-    ~((pdf.title.str.startswith("ح")) & (pdf.name.str.endswith("ح")))
-]  # delete right offers
+#%%
+# pdf = pdf[
+#     ~((pdf.title.str.startswith("ح")) & (pdf.name.str.endswith("ح")))
+# ]  # delete right offers
 pdf = pdf[~(pdf.name.str.endswith("پذيره"))]  # delete subscribed symbols
-# pdf = pdf[~(pdf.group_name == "صندوق سرمايه گذاري قابل معامله")]  # delete ETFs
-
 col = "name"
 pdf[col] = pdf[col].apply(lambda x: convert_ar_characters(x))
 #%%
@@ -183,8 +179,7 @@ for i in [
     pdf[i] = pdf.groupby('name')[i].fillna(method = 'ffill')
     pdf[i] = pdf.groupby('name')[i].fillna(method = 'bfill')
 
-#%%
-pdf[pdf.group_id.isnull()]['group_name'].unique()
+list(pdf[pdf.group_id.isnull()]['group_name'].unique())
 #%%
 pdf[(pdf.name == "شستا")][
     ["date", 
@@ -351,3 +346,4 @@ pdf.to_parquet(
     + ".parquet"
 )
 # %%
+pdf[pdf.name == 'غگز']
