@@ -81,6 +81,7 @@ def removeDash(row):
 
 
 path = r"E:\RA_Aghajanzadeh\Data\\"
+path = r"G:\Economics\Finance(Prof.Heidari-Aghajanzadeh)\Data\\"
 #%%
 def group_id():
     r = requests.get(
