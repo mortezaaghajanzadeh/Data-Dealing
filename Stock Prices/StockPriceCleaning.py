@@ -113,7 +113,7 @@ def group_id():
 
 
 groupnameid = group_id()
-groupnameid['group_id'] = groupnameid.group_id.apply(lambda x: x.strip())
+groupnameid["group_id"] = groupnameid.group_id.apply(lambda x: x.strip())
 #%%
 def Overall_index():
     url = (
@@ -146,9 +146,9 @@ print(len(pdf))
 col = "group_name"
 pdf[col] = pdf[col].apply(lambda x: convert_ar_characters(x))
 groupnameid[col] = groupnameid[col].apply(lambda x: convert_ar_characters(x))
-pdf[col] = pdf.group_name.str.replace("',CgrValCot='ET","",regex =False)
-pdf[col] = pdf.group_name.str.replace("',CgrValCot='QA","",regex =False)
-pdf[col] = pdf.group_name.str.replace("',CgrValCot='EQ","",regex =False)
+pdf[col] = pdf.group_name.str.replace("',CgrValCot='ET", "", regex=False)
+pdf[col] = pdf.group_name.str.replace("',CgrValCot='QA", "", regex=False)
+pdf[col] = pdf.group_name.str.replace("',CgrValCot='EQ", "", regex=False)
 mapdict = dict(zip(groupnameid.group_name, groupnameid.group_id))
 pdf["group_id"] = pdf.group_name.map(mapdict)
 #%%
@@ -168,26 +168,19 @@ col = "name"
 pdf[col] = pdf[col].apply(lambda x: convert_ar_characters(x))
 #%%
 for i in [
-    'max_price_Adjusted',
- 'min_price_Adjusted',
- 'open_price_Adjusted',
- 'last_price_Adjusted',
- 'close_price_Adjusted',
+    "max_price_Adjusted",
+    "min_price_Adjusted",
+    "open_price_Adjusted",
+    "last_price_Adjusted",
+    "close_price_Adjusted",
 ]:
     print(i)
     pdf[i] = pdf[i].fillna(value=np.nan)
-    pdf[i] = pdf.groupby('name')[i].fillna(method = 'ffill')
-    pdf[i] = pdf.groupby('name')[i].fillna(method = 'bfill')
+    pdf[i] = pdf.groupby("name")[i].fillna(method="ffill")
+    pdf[i] = pdf.groupby("name")[i].fillna(method="bfill")
 
-list(pdf[pdf.group_id.isnull()]['group_name'].unique())
-#%%
-pdf[(pdf.name == "شستا")][
-    ["date", 
-     'jalaliDate',
-     "name", 
-      "close_price",
-     "close_price_Adjusted",]
-]
+list(pdf[pdf.group_id.isnull()]["group_name"].unique())
+
 #%%
 symbolGroup = pdf[["name", "group_name", "group_id"]].drop_duplicates(
     subset=["name", "group_name", "group_id"]
@@ -246,8 +239,8 @@ for i in ["last_price", "open_price", "value", "quantity", "volume"]:
     pdf.loc[(pdf["Volume(-4)"] == 0) & (pdf["Volume(2)"] == 0), i] = 0
 
 
-pList = [1.0, 1000.0, 100.0, 10.0]
-pdf = pdf[~((pdf.close_price.isin(pList)) & (pdf.volume == 0))]
+# pList = [1.0, 1000.0, 100.0, 10.0]
+# pdf = pdf[~((pdf.close_price.isin(pList)) & (pdf.volume == 0))]
 
 # pdf["close"] = pdf.close_price / pdf.AdjustFactor
 gg = pdf.groupby(["name"])
@@ -268,8 +261,34 @@ pdf.loc[(pdf["Volume(-1)"] == 0) & (pdf["Volume(4)"] == 0), i] = 0
 pdf.loc[(pdf["Volume(-2)"] == 0) & (pdf["Volume(4)"] == 0), i] = 0
 pdf.loc[(pdf["Volume(-4)"] == 0) & (pdf["Volume(1)"] == 0), i] = 0
 pdf.loc[(pdf["Volume(-4)"] == 0) & (pdf["Volume(2)"] == 0), i] = 0
-pdf.loc[(pdf["Volume(-1)"] == 0) & (pdf["price(-1)"].isin(pList)), i] = 0
+# pdf.loc[(pdf["Volume(-1)"] == 0) & (pdf["price(-1)"].isin(pList)), i] = 0
 
+
+gg = pdf.groupby(["name"])
+for i in [
+    "max_price_Adjusted",
+    "min_price_Adjusted",
+    "open_price_Adjusted",
+    "last_price_Adjusted",
+    "close_price_Adjusted",
+    "close_price",
+    "last_price",
+    "open_price",
+    "yesterday_price",
+]:
+    print(i)
+    pdf.loc[(pdf["Volume(-1)"] == 0) & (pdf["Volume(1)"] == 0), i] = np.nan
+    pdf.loc[(pdf["Volume(-1)"] == 0) & (pdf["Volume(1)"] == 0), i] = np.nan
+    pdf.loc[(pdf["Volume(-2)"] == 0) & (pdf["Volume(1)"] == 0), i] = np.nan
+    pdf.loc[(pdf["Volume(-1)"] == 0) & (pdf["Volume(2)"] == 0), i] = np.nan
+    pdf.loc[(pdf["Volume(-2)"] == 0) & (pdf["Volume(2)"] == 0), i] = np.nan
+    pdf.loc[(pdf["Volume(-3)"] == 0) & (pdf["Volume(1)"] == 0), i] = np.nan
+    pdf.loc[(pdf["Volume(-1)"] == 0) & (pdf["Volume(3)"] == 0), i] = np.nan
+    pdf.loc[(pdf["Volume(-1)"] == 0) & (pdf["Volume(4)"] == 0), i] = np.nan
+    pdf.loc[(pdf["Volume(-2)"] == 0) & (pdf["Volume(4)"] == 0), i] = np.nan
+    pdf.loc[(pdf["Volume(-4)"] == 0) & (pdf["Volume(1)"] == 0), i] = np.nan
+    pdf.loc[(pdf["Volume(-4)"] == 0) & (pdf["Volume(2)"] == 0), i] = np.nan
+    # pdf.loc[(pdf["Volume(-1)"] == 0) & (pdf["price(-1)"].isin(pList)), i] = np.nan
 
 pdf = pdf.drop(
     columns=[
@@ -317,11 +336,19 @@ for i in [
     "close_price_Adjusted",
 ]:
     pdf[i] = pdf[i].astype(float)
+# %%
+pdf[(pdf.name == "ومشان") & (pdf.jalaliDate > 13980104)][
+    ["jalaliDate", "close_price", "close_price_Adjusted"]
+].head(20)
 
 #%%
-
 gg = pdf.groupby(["name"])
 for i in [
+    "max_price",
+    "min_price",
+    "close_price",
+    "last_price",
+    "open_price",
     "max_price_Adjusted",
     "min_price_Adjusted",
     "open_price_Adjusted",
@@ -331,10 +358,17 @@ for i in [
     print(i)
     pdf[i] = gg[i].fillna(method="bfill")
 
-# %%
-pdf[pdf.name == "وقوام"]
-
-
+#%%
+pdf[(pdf.name == "ومشان") & (pdf.jalaliDate > 13980104)][
+    ["jalaliDate", "close_price", "close_price_Adjusted"]
+].head(20)
+#%%
+list(pdf[pdf.close_price.isnull()][["name", "return", "date"]].name.unique())
+#%%
+list(pdf[pdf.close_price_Adjusted.isnull()][["name", "return", "date"]].name.unique())
+#%%
+pdf = pdf[~pdf.close_price.isnull()]
+pdf = pdf[~pdf.close_price_Adjusted.isnull()]
 #%%
 pdf[pdf.shrout.isnull()][["name", "return", "date"]].name.unique()
 # %%
@@ -346,4 +380,4 @@ pdf.to_parquet(
     + ".parquet"
 )
 # %%
-pdf[pdf.name == 'غگز']
+pdf[pdf.name == "غگز"]

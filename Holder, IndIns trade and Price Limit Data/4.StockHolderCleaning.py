@@ -297,7 +297,7 @@ def sumPercent(df):
     return gg.Percent.sum()
 
 
-a = sumPercent(df1)
+a = sumPercent(df)
 a[a > 100]
 
 #%%%
