@@ -73,6 +73,9 @@ PriceTradeDataColumns = [
     "ind_sell_count",
 ]
 #%%
+
+
+#%%
 def genFile(i, path, HolderDataColumns, PriceTradeDataColumns):
     t = pd.read_pickle(path + i)
     df = cleaning([t])
@@ -85,92 +88,91 @@ def genFile(i, path, HolderDataColumns, PriceTradeDataColumns):
         open(path + "PriceTradeData\PriceTradeData_{}.p".format(i[8:-2]), "wb"),
     )
 
-
-threads = {}
-for i in tqdm(arr):
-    genFile(i, path, HolderDataColumns, PriceTradeDataColumns)
-    # print(counter)
-#     threads[i] = Thread(
-#             target=genFile,
-#             args=(i,path,HolderDataColumns,PriceTradeDataColumns),
-#         )
-#     threads[i].start()
-# for i in threads:
-#     threads[i].join()
-#     print(i)
+# for i in tqdm(arr):
+#     genFile(i, path, HolderDataColumns, PriceTradeDataColumns)
 #%%
-def finish(threads, result):
-    data = pd.DataFrame()
-    tempt = pd.DataFrame()
-    for i in threads:
-        threads[i].join()
-        print(i)
-        tempt = tempt.append(result[i])
-        result[i] = []
-        if len(tempt) > 2e6:
-            data = data.append(tempt).drop_duplicates()
-            tempt = pd.DataFrame()
-    data = data.append(tempt).drop_duplicates()
-    return data
-
-
+def append_dict(dictionary,data_dict):
+    for i in dictionary.keys():
+        data_dict[i] += list(dictionary[i].values())
+    return data_dict
 # %%
 arr = os.listdir(path + "HolderData")
 
-print(len(arr))
+arr.remove("Old")
+data_dict = {}
 
-
-def genDate(result, i, counter):
-    result[counter] = pd.read_pickle(path + "HolderData\\{}".format(i))
-
-
-result = {}
-threads = {}
-for counter, i in tqdm(enumerate(arr)):
-    # print(counter)
-    genDate(result, i, counter)
-    threads[counter] = Thread(
-        target=genDate,
-        args=(result, i, counter),
-    )
-    threads[counter].start()
-data = finish(threads, result)
-path2 = r"E:\RA_Aghajanzadeh\Data\Stock_holder_new\\"
+for i in pd.read_pickle(path + "HolderData\\{}".format(arr[0])).to_dict().keys():
+    data_dict[i] = []
+for i in tqdm(arr[::]):
+    tempt = pd.read_pickle(path + "HolderData\\{}".format(i)).to_dict()
+    data_dict = append_dict(tempt,data_dict)
 
 #%%
-data["stock_id"] = data.stock_id.astype(float)
-data[data.Holder != "-"].to_parquet(path2 + "mergerdHolderAllData_cleaned.parquet")
-a = data.groupby("date").size().to_frame().reset_index()
-a.plot(y=0, use_index=True)
-a[a[0] < 100]
+data = pd.DataFrame.from_dict(data_dict)
+# del data_dict
+data[data.name == 'هاي وب']
+#%%
+print(len(data))
+data = data.drop_duplicates()#keep='first')
+print(len(data))
+data[data.name == 'هاي وب']
+#%%
+#% Check
+# id = "43362635835198978"
+# i = 'HolderData_{}.p'.format(id)
+# tempt = pd.read_pickle(path + "HolderData\\{}".format(i))
+# data_dict =  append_dict(tempt,data_dict)
+tempt
+#%%
 
+#%%
+path2 = r"E:\RA_Aghajanzadeh\Data\Stock_holder_new\\"
+data["stock_id"] = data.stock_id.astype(float)
+data["date"] = data.date.astype(int)
+data["jalaliDate"] = data.jalaliDate.apply(
+    lambda x: int(x.split("-")[0] + x.split("-")[1] + x.split("-")[2])
+)
+# data = data[data.Holder != "-"]
+#%%
+old_data_df = pd.read_pickle(path2 + "mergerdHolderAllData_cleaned.p")
+data = data.append(old_data_df).reset_index(drop = True)
+print(len(data))
+data = data.drop_duplicates(keep='first')
+print(len(data))
 
 #%%
 arr = os.listdir(path + "PriceTradeData")
-data = pd.DataFrame()
-print(len(arr))
+
+arr.remove("Old")
+data_dict = {}
+
+for i in pd.read_pickle(path + "PriceTradeData\\{}".format(arr[0])).to_dict().keys():
+    data_dict[i] = []
+    
+for i in tqdm(arr):
+    tempt = pd.read_pickle(path + "PriceTradeData\\{}".format(i)).to_dict()
+    data_dict = append_dict(tempt,data_dict)
 
 
-def genDate(result, i, counter):
-    result[counter] = pd.read_pickle(path + "PriceTradeData\\{}".format(i))
 
-
-result = {}
-threads = {}
-for counter, i in tqdm(enumerate(arr)):
-    # print(counter)
-    genDate(result, i, counter)
-    threads[counter] = Thread(
-        target=genDate,
-        args=(result, i, counter),
-    )
-    threads[counter].start()
-
-
-data = finish(threads, result)
+#%%
+data = pd.DataFrame.from_dict(data_dict)
+del data_dict
+print(len(data))
+data = data.drop_duplicates(keep='first')
+print(len(data))
 data = data.replace("-", np.nan)
 data = data.replace("", np.nan)
+data["jalaliDate"] = data.jalaliDate.apply(
+    lambda x: int(x.split("-")[0] + x.split("-")[1] + x.split("-")[2])
+)
 path2 = r"E:\RA_Aghajanzadeh\Data\PriceTradeData\\"
 data["stock_id"] = data.stock_id.astype(float)
+#%%
+old_data_df = pd.read_parquet(path2 + "mergerdPriceAllData_cleaned.parquet")
+data = data.append(old_data_df).reset_index(drop = True)
+print(len(data))
+data = data.drop_duplicates(keep='first')
+print(len(data))
 data.to_parquet(path2 + "mergerdPriceAllData_cleaned.parquet")
 # %%

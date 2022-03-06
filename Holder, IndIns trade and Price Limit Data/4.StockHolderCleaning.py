@@ -48,7 +48,7 @@ pdf = pdf.drop(
 )
 # pdf = pdf[pdf["date"] >= 20150324]
 
-df1 = pd.read_parquet(path + "mergerdHolderAllData_cleaned" + ".parquet")
+df1 = pd.read_pickle(path + "mergerdHolderAllData_cleaned.p").replace('-',np.nan)
 print("read Mereged Data")
 df1 = df1.drop(df1[df1["name"] == "کرد"].index)
 mlist = [
@@ -74,7 +74,21 @@ print("Rename")
 
 pdf["name"] = pdf["name"].apply(lambda x: convert_ar_characters(x))
 df1["name"] = df1["name"].apply(lambda x: convert_ar_characters(x))
+df1["name"] = df1["name"].apply(lambda x: x.strip())
 df1[(df1.name == "کماسه") & (df1.date >= 20170325)].sort_values(by="date").head()
+#%%
+shrout_df = (
+    df1[["date", "jalaliDate", "name", "shrout"]]
+    .drop_duplicates()
+    .reset_index(drop=True)
+)
+shrout_df["date"] = shrout_df.date.astype(int)
+shrout_df = shrout_df.sort_values(by=["name", "date"])
+shrout_df.to_csv(path2 + "SymbolShrout_1400_11_27.csv", index=False)
+shrout_df
+#%%
+shrout_df[shrout_df.name == 'های وب']
+
 #%%
 len(df1[df1.date == 20190417])
 #%%
@@ -84,7 +98,10 @@ a.plot(y=0, use_index=True)
 a[a[0] < 100]
 df1["date"] = df1["date"].astype(float)
 df1["date"] = df1["date"].astype(int)
-
+#%%
+print(len(df1))
+df1 = df1[~df1.Holder.isnull()]
+print(len(df1))
 #%%
 gdata = pdf[["group_name", "name"]].drop_duplicates().dropna()
 mapingdict = dict(zip(gdata.name, gdata.group_name))

@@ -80,8 +80,8 @@ def removeDash(row):
     return int(X[0] + X[1] + X[2])
 
 
-path = r"E:\RA_Aghajanzadeh\Data\\"
 path = r"G:\Economics\Finance(Prof.Heidari-Aghajanzadeh)\Data\\"
+path = r"E:\RA_Aghajanzadeh\Data\\"
 #%%
 def group_id():
     r = requests.get(
@@ -189,11 +189,9 @@ symbolGroup = pdf[["name", "group_name", "group_id"]].drop_duplicates(
 
 symbolGroup.to_excel(path + "SymbolGroup.xlsx", index=False)
 #%%
-shrout = pd.read_csv(path + "Cleaned_Stocks_Holders_1400_10_06.csv")[
+shrout = pd.read_csv(path + "SymbolShrout_1400_11_27.csv")[
     ["name", "date", "shrout"]
 ]
-shrout = shrout.drop_duplicates(subset=["name", "date"])
-shrout.to_csv(path + "SymbolShrout_1400_10_06.csv")
 mapdict = dict(zip(shrout.set_index(["name", "date"]).index, shrout.shrout))
 i = "date"
 pdf[i] = pdf[i].astype(int)
@@ -276,7 +274,7 @@ for i in [
     "last_price",
     "open_price",
     "yesterday_price",
-]:
+    ]:
     print(i)
     pdf.loc[(pdf["Volume(-1)"] == 0) & (pdf["Volume(1)"] == 0), i] = np.nan
     pdf.loc[(pdf["Volume(-1)"] == 0) & (pdf["Volume(1)"] == 0), i] = np.nan
@@ -381,4 +379,30 @@ pdf.to_parquet(
     + ".parquet"
 )
 # %%
-pdf[pdf.name == "غگز"]
+pdf.isnull().sum()
+list(pdf[(pdf.MarketCap.isnull()
+          )&(
+              ~((pdf.title.str.startswith("ح")) & (pdf.name.str.endswith("ح")))
+        )&(
+            pdf.group_name != 'اوراق حق تقدم استفاده از تسهیلات مسکن'
+        )&(
+            pdf.group_name != 'اوراق تامین مالی'
+            )&(
+                ~pdf.instId.str.startswith("IRK")
+                )&(
+                ~pdf.title.str.startswith("سپرده")
+                )&(
+                ~pdf.title.str.startswith("ح")
+                )&(
+                ~pdf.title.str.contains("اختيارخ")
+                )&(
+                ~pdf.title.str.contains("اختيارف")
+                )&(
+                ~pdf.title.str.contains("اختيار")
+                )&(
+                ~pdf.title.str.contains("آتي")
+                )].name.unique())
+#%%
+pdf[pdf.name == "انرژیح1"].title.unique()
+pdf[pdf.title.str.startswith("ح")].name.unique()
+pdf[pdf.name == "های وب"].MarketCap.unique()
