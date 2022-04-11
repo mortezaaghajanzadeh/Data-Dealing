@@ -371,6 +371,9 @@ pdf = pdf[~pdf.close_price_Adjusted.isnull()]
 #%%
 pdf[pdf.shrout.isnull()][["name", "return", "date"]].name.unique()
 # %%
+pdf[pdf.name == 'کمینا']
+
+#%%
 pdf.to_parquet(
     path
     + "Cleaned_Stock_Prices_{}".format(

@@ -31,12 +31,15 @@ def _multiple_replace(mapping, text):
 
 
 #%%
+
+
+#%%
 pdf = pd.read_parquet(path2 + "Cleaned_Stock_Prices_14001127.parquet")
 print("read Price")
 pdf = pdf.drop(
     columns=[
         "stock_id",
-        "title",
+        # "title",
         "baseVol",
         "max_price",
         "min_price",
@@ -47,10 +50,36 @@ pdf = pdf.drop(
     ]
 )
 # pdf = pdf[pdf["date"] >= 20150324]
+invalid_names = []
+invalid_names = list(
+    pdf[
+        (
+            (((pdf.title.str.startswith("ح")) & (pdf.name.str.endswith("ح"))))
+            | (pdf.group_name == "اوراق حق تقدم استفاده از تسهیلات مسکن")
+            | (pdf.group_name == "اوراق تامین مالی")
+            # | (pdf.group_name == "صندوق سرمایه گذاری قابل معامله")
+            | (pdf.instId.str.startswith("IRK"))
+            | (pdf.title.str.startswith("سپرده"))
+            | (pdf.title.str.startswith("ح"))
+            | (pdf.title.str.contains("اختيارخ"))
+            | (pdf.title.str.contains("اختيارف"))
+            | (pdf.title.str.contains("اختيار"))
+            | (pdf.title.str.contains("آتي"))
+            | (pdf.title.str.contains("بازار اوراق بدهي"))
+            | (pdf.title.str.startswith("سلف"))
+            | (pdf.title.str.contains("بورس کالا"))
+            | (pdf.title.str.contains("اوراق"))
+        )
+    ].name.unique()
+)
+invalid_names.append("سنگ آهن")
+#%%
+invalid_names
 
-df1 = pd.read_pickle(path + "mergerdHolderAllData_cleaned.p").replace('-',np.nan)
+#%%
+df1 = pd.read_pickle(path + "mergerdHolderAllData_cleaned.p").replace("-", np.nan)
 print("read Mereged Data")
-df1 = df1.drop(df1[df1["name"] == "کرد"].index)
+
 mlist = [
     "jalaliDate",
     "date",
@@ -76,6 +105,11 @@ pdf["name"] = pdf["name"].apply(lambda x: convert_ar_characters(x))
 df1["name"] = df1["name"].apply(lambda x: convert_ar_characters(x))
 df1["name"] = df1["name"].apply(lambda x: x.strip())
 df1[(df1.name == "کماسه") & (df1.date >= 20170325)].sort_values(by="date").head()
+df1 = df1.drop(df1[df1["name"] == "کرد"].index)
+#%%
+a = list(df1.Holder_id.unique())
+a.sort()
+a
 #%%
 shrout_df = (
     df1[["date", "jalaliDate", "name", "shrout"]]
@@ -87,11 +121,13 @@ shrout_df = shrout_df.sort_values(by=["name", "date"])
 shrout_df.to_csv(path2 + "SymbolShrout_1400_11_27.csv", index=False)
 shrout_df
 #%%
-shrout_df[shrout_df.name == 'های وب']
+shrout_df[shrout_df.name == "های وب"]
 
 #%%
 len(df1[df1.date == 20190417])
 #%%
+
+df1 = df1[~df1.name.isin(invalid_names)]
 df1["date"] = df1["date"].astype(str)
 a = df1.groupby("date").size().to_frame()
 a.plot(y=0, use_index=True)
@@ -174,6 +210,7 @@ df1["Holder"] = df1["Holder"].map(mapingdict)
 
 
 df1[(df1.name == "کماسه") & (df1.date >= 20170325)].sort_values(by="date").head()
+#%%
 
 
 #%%
@@ -196,7 +233,15 @@ df1.loc[df1["Holder_id"] == 62744, "Holder"] = "پدیده تاپان سرآمد
 
 
 df1[(df1.name == "کماسه") & (df1.date >= 20170325)].sort_values(by="date").head()
-
+df1["Holder"] = df1.groupby(["Holder_id"]).Holder.transform(
+    lambda x: x.fillna(method="bfill").fillna(method="ffill")
+)
+#%%
+# df1.loc[(
+#     df1.Holder.isnull()
+#     )&(
+#         df1.Holder.str.contains("PRX")
+#     ),'Holder'] = 
 #%%
 dropholders = [
     # "سایر سهامدارن",
@@ -234,6 +279,15 @@ Holders[Holders["Holder_id"].isin(ids)]
 # %%
 Holders[Holders["Holder_id"].isin(ids)].to_excel(path + "NewHolder.xlsx")
 # %%
+holder_id = 70338.0
+df1[df1.Holder_id == holder_id].name.unique()
+df1[df1.Holder_id == holder_id].Holder.unique()
+#%%
+
+#
+df1[df1.name == 'سمگا'].drop_duplicates(subset = ['name','Holder'])
+
+#%%
 df1 = df1.drop_duplicates(keep="first")
 
 df1[(df1.name == "کماسه") & (df1.date >= 20170325)].sort_values(by="date").head()
