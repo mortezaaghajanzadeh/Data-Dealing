@@ -7,7 +7,7 @@ path = r"E:\RA_Aghajanzadeh\Data\\"
 # path = r"G:\Economics\Finance(Prof.Heidari-Aghajanzadeh)\Data\\"
 # df = pd.read_parquet(path + "Cleaned_Stock_Prices_1400_06_29.parquet")
 # print(len(df.name.unique()))
-df = pd.read_parquet(path + "Cleaned_Stock_Prices_14001127.parquet")
+df = pd.read_parquet(path + "Cleaned_Stock_Prices_14010122.parquet")
 print(len(df.name.unique()))
 df = df[df.jalaliDate > 13880000]
 #%%
@@ -40,10 +40,10 @@ del df, gg
 error = []
 counter = 0
 #%%
-number, stat, number_days = 1000, False, 1000
-
+number, stat, number_days = 1000, False, 100
+Main2(counter, stock_id, dates, Excepted_stock, {}, number, stat, number_days)
 #%%
-for counter, stock_id in enumerate(list(dates.keys())[700:]):
+for counter, stock_id in enumerate(list(dates.keys())[::]):
     print("#################{}##################".format(len(dates.keys()) + 1))
     try:
         t = Main2(counter, stock_id, dates, Excepted_stock, {}, number, stat, number_days)

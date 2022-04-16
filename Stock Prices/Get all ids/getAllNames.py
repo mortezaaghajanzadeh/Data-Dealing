@@ -1,14 +1,10 @@
 #%%
-from bs4 import BeautifulSoup
-
 path = r"C:\Program Files (x86)\chromedriver.exe"
 from selenium import webdriver
-import requests
-import re
-import pandas as pd
 #%%
 driver = webdriver.Chrome(path)
 driver.get("https://tse.ir/listing.html?cat=cash&section=alphabet")
+#%%
 print(driver.title)
 chars = [
     "ا",
@@ -82,3 +78,5 @@ len(names)
 #%%
 import pickle
 pickle.dump(names, open("names.p", "wb"))
+
+# %%

@@ -208,6 +208,7 @@ def Crawl_all(path, Id, m):
 
 #%%
 Id = []
+Id_name = {}
 names.append("تسه")
 names.append("اخزا")
 names.append("صندوق")
@@ -236,14 +237,18 @@ for i in [
     "نوری",
     "انرژی3",
     "وپویا",
-    ]:
+]:
     names.append(i)
 #%%
 
 for i in tqdm.tqdm(names):
-    for j in get_id(i):
+    ids = get_id(i)
+    Id_name[i] = ids
+    for j in ids:
         Id.append(j)
 Id = list(set(Id))
+
+
 #%%
 path = r"E:\RA_Aghajanzadeh\Data\Price\\"
 error = []
@@ -270,23 +275,24 @@ arr = os.listdir(path)
 Data = pd.read_pickle(path + arr[0])
 tempt = pd.read_pickle(path + arr[0])
 for name in tqdm.tqdm(arr):
-        i = pd.read_pickle(path + name)
-        if i is None:
-            continue
-        if tempt.shape[0]>5e5:
-            Data = pd.concat([Data, tempt])
-            print(len(Data),len(tempt))
-            tempt = i
-        else:
-            tempt = pd.concat([tempt, i])
+    i = pd.read_pickle(path + name)
+    if i is None:
+        continue
+    if tempt.shape[0] > 5e5:
+        Data = pd.concat([Data, tempt])
+        print(len(Data), len(tempt))
+        tempt = i
+    else:
+        tempt = pd.concat([tempt, i])
 Data = pd.concat([Data, tempt])
-print(len(Data),len(tempt))
+print(len(Data), len(tempt))
 # %%
 len(Data.name.unique())
 
 #%%
 path = r"E:\RA_Aghajanzadeh\Data\\"
-name = "Stock_Prices_1400_11_28"
+name = "Stock_Prices_1401_01_22"
 Data.to_parquet(path + name + ".parquet")
 print(len(Data))
 # %%
+Data[Data.date == Data.date.max()]

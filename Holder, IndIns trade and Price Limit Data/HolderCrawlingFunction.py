@@ -66,6 +66,7 @@ def removecomma(m):
     return m
 
 
+# http://cdn.tsetmc.com/api/Shareholder/17617474823279712/20220413
 def getHolder(date, stock_id, result, j):
     url = "http://cdn.tsetmc.com/api/Shareholder/{}/{}".format(stock_id, date)
     r = requests.get(url, timeout=10)
@@ -79,6 +80,7 @@ def getHolder(date, stock_id, result, j):
     result[j] = holder
 
 
+# http://cdn.tsetmc.com/api/MarketData/GetInstrumentState/17617474823279712/20220413
 def getStockDetail(date, stock_id, result, i):
     url = "http://cdn.tsetmc.com/api/Instrument/GetInstrumentHistory/{}/{}".format(
         stock_id, date

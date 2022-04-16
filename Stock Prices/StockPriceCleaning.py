@@ -140,7 +140,7 @@ def Overall_index():
 # overal_index = Overall_index()
 
 # %%
-pdf = pd.read_parquet(path + "Stock_Prices_1400_11_28.parquet")
+pdf = pd.read_parquet(path + "Stock_Prices_1401_01_22.parquet")
 print(len(pdf))
 
 
@@ -189,9 +189,7 @@ symbolGroup = pdf[["name", "group_name", "group_id"]].drop_duplicates(
 
 symbolGroup.to_excel(path + "SymbolGroup.xlsx", index=False)
 #%%
-shrout = pd.read_csv(path + "SymbolShrout_1400_11_27.csv")[
-    ["name", "date", "shrout"]
-]
+shrout = pd.read_csv(path + "SymbolShrout_1400_11_27.csv")[["name", "date", "shrout"]]
 mapdict = dict(zip(shrout.set_index(["name", "date"]).index, shrout.shrout))
 i = "date"
 pdf[i] = pdf[i].astype(int)
@@ -274,7 +272,7 @@ for i in [
     "last_price",
     "open_price",
     "yesterday_price",
-    ]:
+]:
     print(i)
     pdf.loc[(pdf["Volume(-1)"] == 0) & (pdf["Volume(1)"] == 0), i] = np.nan
     pdf.loc[(pdf["Volume(-1)"] == 0) & (pdf["Volume(1)"] == 0), i] = np.nan
@@ -371,7 +369,7 @@ pdf = pdf[~pdf.close_price_Adjusted.isnull()]
 #%%
 pdf[pdf.shrout.isnull()][["name", "return", "date"]].name.unique()
 # %%
-pdf[pdf.name == 'کمینا']
+pdf[pdf.name == "کمینا"]
 
 #%%
 pdf.to_parquet(
@@ -383,28 +381,21 @@ pdf.to_parquet(
 )
 # %%
 pdf.isnull().sum()
-list(pdf[(pdf.MarketCap.isnull()
-          )&(
-              ~((pdf.title.str.startswith("ح")) & (pdf.name.str.endswith("ح")))
-        )&(
-            pdf.group_name != 'اوراق حق تقدم استفاده از تسهیلات مسکن'
-        )&(
-            pdf.group_name != 'اوراق تامین مالی'
-            )&(
-                ~pdf.instId.str.startswith("IRK")
-                )&(
-                ~pdf.title.str.startswith("سپرده")
-                )&(
-                ~pdf.title.str.startswith("ح")
-                )&(
-                ~pdf.title.str.contains("اختيارخ")
-                )&(
-                ~pdf.title.str.contains("اختيارف")
-                )&(
-                ~pdf.title.str.contains("اختيار")
-                )&(
-                ~pdf.title.str.contains("آتي")
-                )].name.unique())
+list(
+    pdf[
+        (pdf.MarketCap.isnull())
+        & (~((pdf.title.str.startswith("ح")) & (pdf.name.str.endswith("ح"))))
+        & (pdf.group_name != "اوراق حق تقدم استفاده از تسهیلات مسکن")
+        & (pdf.group_name != "اوراق تامین مالی")
+        & (~pdf.instId.str.startswith("IRK"))
+        & (~pdf.title.str.startswith("سپرده"))
+        & (~pdf.title.str.startswith("ح"))
+        & (~pdf.title.str.contains("اختيارخ"))
+        & (~pdf.title.str.contains("اختيارف"))
+        & (~pdf.title.str.contains("اختيار"))
+        & (~pdf.title.str.contains("آتي"))
+    ].name.unique()
+)
 #%%
 pdf[pdf.name == "انرژیح1"].title.unique()
 pdf[pdf.title.str.startswith("ح")].name.unique()

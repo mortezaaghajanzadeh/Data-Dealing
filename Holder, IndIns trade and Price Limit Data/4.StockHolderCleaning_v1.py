@@ -126,7 +126,6 @@ shrout_df[shrout_df.name == "های وب"]
 #%%
 len(df1[df1.date == 20190417])
 #%%
-
 df1 = df1[~df1.name.isin(invalid_names)]
 df1["date"] = df1["date"].astype(str)
 a = df1.groupby("date").size().to_frame()
@@ -164,6 +163,7 @@ except:
 df1[(df1.name == "کماسه") & (df1.date >= 20170325)].sort_values(by="date").head()
 # %%
 df3 = pd.read_excel(path + "shareholder_names_cleaned_9901_v6.xlsx")
+df3 = pd.read_excel(path + "shareholder_names_cleaned_140101_v1.xlsx")
 for i in ["shareholder_cleaned", "shareholder_raw"]:
     print(i)
     df3[i] = df3[i].apply(lambda x: convert_ar_characters(x))
