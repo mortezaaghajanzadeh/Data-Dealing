@@ -1,4 +1,5 @@
 #%%
+from tkinter import NW
 from HolderCrawlingFunction import *
 import pickle
 import threading
@@ -40,6 +41,33 @@ del df, gg
 error = []
 counter = 0
 # %%
-number, stat, number_days = 1000, False, 1000
+import time
+
+now = time.time()
+number, stat, number_days = 1000, False, 10
 t = Main2(counter, stock_id, dates, Excepted_stock, {}, number, stat, number_days)
+print(time.time() - now)
+#%%
+now = time.time()
+number, stat, number_days = 1000, False, 20
+t = Main2(counter, stock_id, dates, Excepted_stock, {}, number, stat, number_days)
+print(time.time() - now)
+#%%
+now = time.time()
+number, stat, number_days = 1000, False, 40
+t = Main2(counter, stock_id, dates, Excepted_stock, {}, number, stat, number_days)
+print(time.time() - now)
+#%%
+now = time.time()
+number, stat, number_days = 1000, False, 50
+t = Main2(counter, stock_id, dates, Excepted_stock, {}, number, stat, number_days)
+print(time.time() - now)
+#%%
+now = time.time()
+number, stat, number_days = 1000, False, 75
+t = Main2(counter, stock_id, dates, Excepted_stock, {}, number, stat, number_days)
+print(time.time() - now)
+#%%
+df = cleaning([t])
 # %%
+df

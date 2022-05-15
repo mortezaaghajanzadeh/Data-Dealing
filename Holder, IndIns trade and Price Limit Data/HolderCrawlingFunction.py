@@ -69,7 +69,10 @@ def removecomma(m):
 # http://cdn.tsetmc.com/api/Shareholder/17617474823279712/20220413
 def getHolder(date, stock_id, result, j):
     url = "http://cdn.tsetmc.com/api/Shareholder/{}/{}".format(stock_id, date)
-    r = requests.get(url, timeout=10)
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.54 Mobile Safari/537.36 Edg/101.0.1210.39"
+    }
+    r = requests.get(url, timeout=10, headers=headers)
     global sessions
     sessions += 1
     r = json.loads(r.text)
@@ -86,7 +89,10 @@ def getStockDetail(date, stock_id, result, i):
         stock_id, date
     )
     try:
-        r = requests.get(url, timeout=10)
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.54 Mobile Safari/537.36 Edg/101.0.1210.39"
+        }
+        r = requests.get(url, timeout=10, headers=headers)
         global sessions
         sessions += 1
         r = json.loads(r.text)
@@ -100,7 +106,10 @@ def getStockTrade(date, stock_id, result, i):
         stock_id, date
     )
     try:
-        r = requests.get(url, timeout=10)
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.54 Mobile Safari/537.36 Edg/101.0.1210.39"
+        }
+        r = requests.get(url, timeout=10, headers=headers)
         global sessions
         sessions += 1
         r = json.loads(r.text)
@@ -114,7 +123,10 @@ def getMaxMin(date, stock_id, result, i):
         stock_id, date
     )
     try:
-        r = requests.get(url, timeout=10)
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.54 Mobile Safari/537.36 Edg/101.0.1210.39"
+        }
+        r = requests.get(url, timeout=10, headers=headers)
         global sessions
         sessions += 1
         r = json.loads(r.text)
@@ -131,7 +143,10 @@ def getPrice(date, stock_id, result, i):
         stock_id, date
     )
     try:
-        r = requests.get(url, timeout=10)
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.54 Mobile Safari/537.36 Edg/101.0.1210.39"
+        }
+        r = requests.get(url, timeout=10, headers=headers)
         global sessions
         sessions += 1
         r = json.loads(r.text)
