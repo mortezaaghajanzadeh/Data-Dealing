@@ -163,7 +163,7 @@ except:
 df1[(df1.name == "کماسه") & (df1.date >= 20170325)].sort_values(by="date").head()
 # %%
 df3 = pd.read_excel(path + "shareholder_names_cleaned_9901_v6.xlsx")
-df3 = pd.read_excel(path + "shareholder_names_cleaned_140101_v1.xlsx")
+df3 = pd.read_excel(path + "shareholder_names_cleaned_140102_v1.xlsx")
 for i in ["shareholder_cleaned", "shareholder_raw"]:
     print(i)
     df3[i] = df3[i].apply(lambda x: convert_ar_characters(x))
@@ -174,33 +174,33 @@ df1["Holder"] = df1["Holder"].apply(lambda x: convert_ar_characters(x))
 df1[(df1.name == "کماسه") & (df1.date >= 20170325)].sort_values(by="date").head()
 #%%
 df1.loc[df1["Holder_id"] == 53741, "Holder"] = "سرمایه گذاری تدبیر"
-indid = [
-    62690,
-    51770,
-    51817,
-    62446,
-    62465,
-    62608,
-    62640,
-    53836,
-    57041,
-    63264,
-    65212,
-    65212,
-    53508,
-    65197,
-    65197,
-    65030,
-    65030,
-    63264,
-    62671,
-    63117,
-    63308,
-    63110,
-    63316,
-]
-df1.loc[df1["Holder_id"].isin(indid), "Holder"] = "اشخاص حقیقی"
-df1.loc[df1.Holder == "شخص حقيقي", "Holder"] = "اشخاص حقیقی"
+# indid = [
+#     62690,
+#     51770,
+#     51817,
+#     62446,
+#     62465,
+#     62608,
+#     62640,
+#     53836,
+#     57041,
+#     63264,
+#     65212,
+#     65212,
+#     53508,
+#     65197,
+#     65197,
+#     65030,
+#     65030,
+#     63264,
+#     62671,
+#     63117,
+#     63308,
+#     63110,
+#     63316,
+# ]
+# df1.loc[df1["Holder_id"].isin(indid), "Holder"] = "اشخاص حقیقی"
+# df1.loc[df1.Holder == "شخص حقيقي", "Holder"] = "اشخاص حقیقی"
 
 mapingdict = dict(zip(df3["shareholder_raw"], df3["type"]))
 df1["type"] = df1["Holder"].map(mapingdict)
@@ -217,19 +217,19 @@ df1[(df1.name == "کماسه") & (df1.date >= 20170325)].sort_values(by="date").
 
 df1["type"] = df1["type"].fillna("None")
 df1["type"] = df1["type"].replace(" fund", "fund")
-df1.loc[
-    df1["Holder_id"] == 56965, "Holder"
-] = "PRXسبد-شرک43268--موس29115-م.صندوق ت.ف نوین"
-df1.loc[df1["Holder_id"] == 63323, "Holder"] = "تجارت و اسکان احیا سپاهان"
-df1.loc[df1["Holder_id"] == 63087, "Holder"] = "مدیریت ثروت پایا"
-df1.loc[df1["Holder_id"] == 21975, "Holder"] = "فولاد"
-df1.loc[df1["Holder_id"] == 47706, "Holder"] = "فیروزا"
-df1.loc[df1["Holder_id"] == 8018, "Holder"] = "ایران سهم"
+# df1.loc[
+#     df1["Holder_id"] == 56965, "Holder"
+# ] = "PRXسبد-شرک43268--موس29115-م.صندوق ت.ف نوین"
+# df1.loc[df1["Holder_id"] == 63323, "Holder"] = "تجارت و اسکان احیا سپاهان"
+# df1.loc[df1["Holder_id"] == 63087, "Holder"] = "مدیریت ثروت پایا"
+# df1.loc[df1["Holder_id"] == 21975, "Holder"] = "فولاد"
+# df1.loc[df1["Holder_id"] == 47706, "Holder"] = "فیروزا"
+# df1.loc[df1["Holder_id"] == 8018, "Holder"] = "ایران سهم"
 
-df1.loc[
-    df1["Holder_id"] == 60374, "Holder"
-] = "BFMصندوق سرمایه گذاری.ا.ب.پاداش پشتیبان پارس"
-df1.loc[df1["Holder_id"] == 62744, "Holder"] = "پدیده تاپان سرآمد"
+# df1.loc[
+#     df1["Holder_id"] == 60374, "Holder"
+# ] = "BFMصندوق سرمایه گذاری.ا.ب.پاداش پشتیبان پارس"
+# df1.loc[df1["Holder_id"] == 62744, "Holder"] = "پدیده تاپان سرآمد"
 
 
 df1[(df1.name == "کماسه") & (df1.date >= 20170325)].sort_values(by="date").head()
@@ -368,7 +368,7 @@ def sumPercent(df):
     return gg.Percent.sum()
 
 
-a = sumPercent(df)
+a = sumPercent(df1)
 a[a > 100]
 
 #%%%
@@ -376,7 +376,8 @@ def Cleaning(g, ff, a, g_keys):
     i = g.name
     for id, value in enumerate(g_keys):
         if value == i:
-            print("Group " + str(id))
+            # print("Group " + str(id))
+            1+2
 
     tempt = ff[ff["name"] == i[0]]
     notradedays = tempt.loc[tempt["volume"] == 0]["date"].tolist()
@@ -388,7 +389,6 @@ def Cleaning(g, ff, a, g_keys):
 
     ## Filling the Gaps
     if len(g) > 3:
-
         v1 = gg["stock_id"][~gg["stock_id"].isna()].index[-1]
         v2 = gg["stock_id"][~gg["stock_id"].isna()].index[0]
         gg = gg[(gg.index <= v1) & (gg.index >= v2)]
@@ -485,7 +485,7 @@ def removeSlash(row):
     if len(X[2]) < 2:
         X[2] = "0" + X[2]
 
-    return X[0] + "-" + X[1] + "-" + X[2]
+    return int(X[0]  + X[1] + X[2])
 
 
 def Overall_index():
@@ -526,7 +526,7 @@ def removeSlash(row):
     return int(X[0] + X[1] + X[2])
 
 
-overal_index["jalaliDate"] = overal_index.jalaliDate.apply(removeSlash)
+# overal_index["jalaliDate"] = overal_index.jalaliDate.apply(removeSlash)
 grouped_data = df1.groupby(["name", "Holder_id"])  # ,'type'])
 g_keys = list(grouped_data.groups.keys())
 
@@ -542,11 +542,13 @@ a = a.append(new_row, ignore_index=True).sort_values(by=["date"])
 data = pd.DataFrame()
 print(len((g_keys)))
 #%%
+from tqdm import tqdm
+tqdm.pandas()
 # from pandarallel import pandarallel
 # pandarallel.initialize()
 i = g_keys[3195]
 g = grouped_data.get_group(i)
-data = grouped_data.apply(Cleaning, ff=ff, a=a, g_keys=g_keys)
+data = grouped_data.progress_apply(Cleaning, ff=ff, a=a, g_keys=g_keys)
 df1[(df1.name == "کماسه") & (df1.date >= 20170325)].sort_values(by="date").head()
 # %%
 
@@ -697,10 +699,10 @@ GHunder = (
 
 GHunder
 #%%
-
+df[df.date == df.date.max()].jalaliDate.unique()
 #%%
 
-df.to_csv(path + "Cleaned_Stocks_Holders_1400_10_06.csv", index=False)
+df.to_csv(path + "Cleaned_Stocks_Holders_1400_11_27.csv", index=False)
 
 # %%
 import pandas as pd

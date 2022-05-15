@@ -41,12 +41,5 @@ error = []
 counter = 0
 # %%
 number, stat, number_days = 1000, False, 1000
-# %%
-# holder, excepted_again = get_stock_all_history(
-#         stock_id, dates[stock_id], number, stat, number_days
-#     )
-#%%
-i,j = -110,-100
-holder_history, Excepted = get_stock_holder_history(stock_id, dates[stock_id][i:j])
-holder_history
+t = Main2(counter, stock_id, dates, Excepted_stock, {}, number, stat, number_days)
 # %%

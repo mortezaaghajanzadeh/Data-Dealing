@@ -11,9 +11,6 @@ df = pd.read_parquet(path + "Cleaned_Stock_Prices_14010122.parquet")
 print(len(df.name.unique()))
 df = df[df.jalaliDate > 13880000]
 #%%
-# df = df[~df.title.str.startswith("ح .")]
-df = df.drop(df[(df["name"] == "وقوام") & (df["close_price"] == 1000)].index)
-
 df["volume"] = df.volume.astype(float)
 gg = df.groupby("name")
 print(len(df.name.unique()))
@@ -41,8 +38,13 @@ error = []
 counter = 0
 #%%
 number, stat, number_days = 1000, False, 100
-Main2(counter, stock_id, dates, Excepted_stock, {}, number, stat, number_days)
+t = Main2(counter, stock_id, dates, Excepted_stock, {}, number, stat, number_days)
 #%%
+
+
+
+
+
 for counter, stock_id in enumerate(list(dates.keys())[::]):
     print("#################{}##################".format(len(dates.keys()) + 1))
     try:

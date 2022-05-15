@@ -53,7 +53,7 @@ invalid_names = list(
             (((pdf.title.str.startswith("ح")) & (pdf.name.str.endswith("ح"))))
             | (pdf.group_name == "اوراق حق تقدم استفاده از تسهیلات مسکن")
             | (pdf.group_name == "اوراق تامین مالی")
-            # | (pdf.group_name == "صندوق سرمایه گذاری قابل معامله")
+            | (pdf.group_name == "صندوق سرمایه گذاری قابل معامله")
             | (pdf.instId.str.startswith("IRK"))
             | (pdf.title.str.startswith("سپرده"))
             | (pdf.title.str.startswith("ح"))
@@ -61,15 +61,20 @@ invalid_names = list(
             | (pdf.title.str.contains("اختيارف"))
             | (pdf.title.str.contains("اختيار"))
             | (pdf.title.str.contains("آتي"))
-            | (pdf.title.str.contains("بازار اوراق بدهي"))
-            | (pdf.title.str.startswith("سلف"))
-            | (pdf.title.str.contains("بورس کالا"))
-            | (pdf.title.str.contains("اوراق"))
+            | (pdf.title.str.contains("عدالت"))
+            | (pdf.title.str.contains("صكوك"))
+            | (pdf.title.str.contains("مشاركت"))
+            | (pdf.title.str.contains("اجاره"))
+            | (pdf.title.str.contains("مرابحه"))
+            | (pdf.title.str.contains("سلف"))
+            | (pdf.name.str.contains("پذیره"))
+            | (pdf.name.str.contains("حذف"))
+            | (pdf.title.str.contains("حذف"))
+            | (pdf.title.str.contains("شركت س استان"))
         )
     ].name.unique()
 )
-invalid_names.append("سنگ آهن")
-invalid_names.append("کرد")
+
 #%%
 df1 = pd.read_pickle(path + "mergerdHolderAllData_cleaned.p").replace("-", np.nan)
 print("read Mereged Data")
@@ -105,7 +110,7 @@ df1["date"] = df1["date"].astype(int)
 # %%
 print(len(df1))
 df1 = df1[~df1.Holder.isnull()]
-df1 = df1[df1.Holder != 'nan']
+df1 = df1[df1.Holder != "nan"]
 print(len(df1))
 #%%
 df2 = df1[["Holder_id", "Holder", "date"]]
@@ -123,7 +128,7 @@ except:
 
 # %%
 # df3 = pd.read_excel(path + "shareholder_names_cleaned_9901_v6.xlsx")
-df3 = pd.read_excel(path + "shareholder_names_cleaned_140101_v1.xlsx")
+df3 = pd.read_excel(path + "shareholder_names_cleaned_140102_v1.xlsx")
 for i in ["shareholder_cleaned", "shareholder_raw"]:
     print(i)
     df3[i] = df3[i].apply(lambda x: convert_ar_characters(x))
