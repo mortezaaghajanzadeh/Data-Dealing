@@ -37,11 +37,13 @@ del df, gg
 error = []
 counter = 0
 #%%
-number, stat, number_days = 1000, False, 100
+number, stat, number_days = 1000, False, 10
 t = Main2(counter, stock_id, dates, Excepted_stock, {}, number, stat, number_days)
 #%%
-
-
+df = cleaning([t])
+#%%
+df
+#%%
 
 
 
