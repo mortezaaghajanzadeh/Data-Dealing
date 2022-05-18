@@ -140,7 +140,7 @@ def Overall_index():
 # overal_index = Overall_index()
 
 # %%
-pdf = pd.read_parquet(path + "Stock_Prices_1401_01_22.parquet")
+pdf = pd.read_parquet(path + "Stock_Prices_1401_02_25.parquet")
 print(len(pdf))
 
 
@@ -150,23 +150,130 @@ groupnameid[col] = groupnameid[col].apply(lambda x: convert_ar_characters(x))
 pdf[col] = pdf.group_name.str.replace("',CgrValCot='ET", "", regex=False)
 pdf[col] = pdf.group_name.str.replace("',CgrValCot='QA", "", regex=False)
 pdf[col] = pdf.group_name.str.replace("',CgrValCot='EQ", "", regex=False)
+pdf[col] = pdf.group_name.str.replace("',CgrValCot='QT", "", regex=False)
 mapdict = dict(zip(groupnameid.group_name, groupnameid.group_id))
 pdf["group_id"] = pdf.group_name.map(mapdict)
+list(pdf[pdf.group_id.isnull()]["group_name"].unique())
 #%%
-pdf.loc[pdf.name.str[-1] == " ", "name"] = pdf.loc[pdf.name.str[-1] == " "].name.str[
-    :-1
-]
-pdf.loc[pdf.name.str[0] == " ", "name"] = pdf.loc[pdf.name.str[0] == " "].name.str[1:]
+
+pdf["name"] = pdf.name.apply(lambda x: x.strip())
 pdf["name"] = pdf["name"].apply(lambda x: convert_ar_characters(x))
+pdf["title"] = pdf.title.apply(lambda x: x.strip())
+pdf["title"] = pdf.title.apply(lambda x: convert_ar_characters(x))
 pdf.jalaliDate = pdf.jalaliDate.apply(vv)
 pdf = pdf.sort_values(by=["name", "date"])
+pdf["title"] = pdf.title.str.replace(",FaraDesc ='", "")
+pdf["title"] = pdf.title.str.replace("\u200c", "")
+pdf["name"] = pdf.name.str.replace("\u200c", "")
+
+
 #%%
-# pdf = pdf[
-#     ~((pdf.title.str.startswith("ح")) & (pdf.name.str.endswith("ح")))
-# ]  # delete right offers
-pdf = pdf[~(pdf.name.str.endswith("پذيره"))]  # delete subscribed symbols
-col = "name"
-pdf[col] = pdf[col].apply(lambda x: convert_ar_characters(x))
+
+pdf = pdf[~(pdf.name.str.endswith("پذيره"))]
+pdf = pdf[~((pdf.group_name.str.contains("غیرفعال")))]
+pdf = pdf[
+    ~(
+        (pdf.title.str.contains("سپرده"))
+        | (pdf.title.str.contains("غیرفعال"))
+        | (pdf.title.str.contains("نماد تستی"))
+        | (pdf.title.str.contains("پذیره"))
+        | (pdf.title.str.contains("حذف"))
+        | (pdf.title.str.contains("پرداخت شده"))
+        | ((pdf.title.str.contains("50%")) & (pdf.title.str.contains("تادیه")))
+        | ((pdf.title.str.contains("70%")) & (pdf.title.str.contains("تادیه")))
+        | ((pdf.title.str.contains("35%")) & (pdf.title.str.contains("تادیه")))
+        | ((pdf.title.str.contains("20%")) & (pdf.title.str.contains("تادیه")))
+        | ((pdf.title.str.contains("40%")) & (pdf.title.str.contains("تادیه")))
+    )
+]
+
+#%%
+pdf["market"] = pdf.title.apply(lambda x: x.split("-")[-1].replace("'", "").strip())
+#%%
+Options = [
+    "اختیارف",
+    "اختیار",
+]
+for i in Options:
+    pdf.loc[(pdf.title.str.contains(i)), "market"] = "بازار ابزارهای مشتقه"
+pdf.loc[
+    (pdf.name.str.contains("اخزا"))
+    & (pdf.group_name == "اوراق تامین مالی")
+    & (pdf.market != "بازار ابزارهای مشتقه"),
+    "market",
+] = "بازار ابزارهای نوین مالی فرابورس"
+
+pdf.loc[((pdf.title.str.contains("صکوک"))), "market"] = "بازار اوراق بدهی"
+
+pdf.loc[
+    (pdf.title.str.contains("اجاره")) & (pdf.group_name == "اوراق تامین مالی"), "market"
+] = "بازار ابزارهای نوین مالی فرابورس"
+
+pdf.loc[
+    pdf.group_name == "صندوق سرمایه گذاری قابل معامله", "market"
+] = "صندوق سرمایه گذاری قابل معامله"
+pdf.loc[
+    (pdf.title.str.contains("منفعت")) & (pdf.market == ""), "market"
+] = "بازار اوراق بدهی"
+pdf.loc[
+    (pdf.title.str.contains("مرابحه")) & (pdf.market == ""), "market"
+] = "بازار اوراق بدهی"
+
+
+pdf.loc[
+    pdf.group_name == "اوراق حق تقدم استفاده از تسهیلات مسکن", "market"
+] = "بازار ابزارهای نوین مالی فرابورس"
+pdf.loc[
+    (pdf.title.str.contains("مشارکت")) & (pdf.market == ""), "market"
+] = "بازار اوراق بدهی"
+pdf.loc[
+    (pdf.title.str.contains("سلف"))
+    & (pdf.title.str.contains("بنزین"))
+    & (pdf.market == ""),
+    "market",
+] = "بورس کالا"
+pdf.loc[
+    (pdf.title.str.contains("سلف"))
+    & (pdf.title.str.contains("متانول"))
+    & (pdf.market == ""),
+    "market",
+] = "بورس کالا"
+pdf.loc[
+    (pdf.title.str.contains("سلف"))
+    & (pdf.title.str.contains("برق"))
+    & (pdf.market == ""),
+    "market",
+] = "بورس انرژی"
+pdf.loc[
+    (pdf.title.str.contains("گواهی"))
+    & (pdf.title.str.contains("سیمان"))
+    & (pdf.market == ""),
+    "market",
+] = "بورس کالا"
+pdf.loc[
+    (pdf.title.str.contains("گواهی"))
+    & (pdf.title.str.contains("شیشه"))
+    & (pdf.market == ""),
+    "market",
+] = "بورس کالا"
+pdf.loc[(pdf.name.str[-1] == "2"), "market"] = "بازار خرده فروشی بورس"
+pdf.loc[(pdf.name.str[-1] == "3"), "market"] = "بازار جبرانی بورس"
+pdf.loc[(pdf.name.str[-1] == "4"), "market"] = "بازار معاملات عمده بورس"
+#%%
+#%%
+# pd.set_option("display.max_rows",None)
+pdf[pdf.market == ""][["name", "market", "title", "group_name"]].drop_duplicates()
+
+#%%
+pdf = pdf[pdf.market != ""]
+print(len(pdf))
+#%%
+pdf.loc[(pdf.date >= '20220410')&(pdf.name == 'فولاد')][
+    [
+        'name','date','close_price','close_price_Adjusted'
+    ]
+].head(25)
+
 #%%
 for i in [
     "max_price_Adjusted",
@@ -177,10 +284,14 @@ for i in [
 ]:
     print(i)
     pdf[i] = pdf[i].fillna(value=np.nan)
-    pdf[i] = pdf.groupby("name")[i].fillna(method="ffill")
-    pdf[i] = pdf.groupby("name")[i].fillna(method="bfill")
-
-list(pdf[pdf.group_id.isnull()]["group_name"].unique())
+    pdf[i] = pdf.groupby("name")[i].transform(lambda x: x.fillna(method="ffill"))
+    pdf[i] = pdf.groupby("name")[i].transform(lambda x: x.fillna(method="bfill"))
+#%%
+pdf.loc[(pdf.date >= '20220410')&(pdf.name == 'فولاد')][
+    [
+        'name','date','close_price','close_price_Adjusted'
+    ]
+].head(25)
 
 #%%
 symbolGroup = pdf[["name", "group_name", "group_id"]].drop_duplicates(
@@ -199,9 +310,8 @@ i = "volume"
 pdf[i] = pdf[i].astype(float)
 d = pd.DataFrame()
 d = d.append(pdf)
-gg = d.groupby("name")
-d["shrout"] = gg["shrout"].fillna(method="bfill")
-d["shrout"] = gg["shrout"].fillna(method="ffill")
+d["shrout"] = d.groupby("name")["shrout"].transform(lambda x: x.fillna(method="bfill"))
+d["shrout"] = d.groupby("name")["shrout"].transform(lambda x: x.fillna(method="ffill"))
 #%%
 pdf = pd.DataFrame()
 pdf = pdf.append(d)
@@ -353,7 +463,7 @@ for i in [
     "close_price_Adjusted",
 ]:
     print(i)
-    pdf[i] = gg[i].fillna(method="bfill")
+    pdf[i] = gg[i].transform(lambda x: x.fillna(method="bfill"))
 
 #%%
 pdf[(pdf.name == "ومشان") & (pdf.jalaliDate > 13980104)][
@@ -365,11 +475,55 @@ list(pdf[pdf.close_price.isnull()][["name", "return", "date"]].name.unique())
 list(pdf[pdf.close_price_Adjusted.isnull()][["name", "return", "date"]].name.unique())
 #%%
 pdf = pdf[~pdf.close_price.isnull()]
-pdf = pdf[~pdf.close_price_Adjusted.isnull()]
 #%%
 pdf[pdf.shrout.isnull()][["name", "return", "date"]].name.unique()
-# %%
-pdf[pdf.name == "کمینا"]
+#%%
+list(pdf)
+#%%
+pdf = pdf[
+    ~(
+        (
+        (pdf.close_price == 1000.0)
+        & ((pdf.yesterday_price == 1000.0) | (pdf.yesterday_price.isnull()))
+    )
+    | (
+        (pdf.close_price == 100.0)
+        & ((pdf.yesterday_price == 100.0) | (pdf.yesterday_price.isnull()))
+    )
+    | (
+        (pdf.close_price == 10.0)
+        & ((pdf.yesterday_price == 10.0) | (pdf.yesterday_price.isnull()))
+    )
+    | (
+        (pdf.close_price == 1.0)
+        & ((pdf.yesterday_price == 1.0) | (pdf.yesterday_price.isnull()))
+    )| (
+        (pdf.volume == 0.0)
+        & (pdf.yesterday_price.isnull())
+    )| (
+        (pdf.volume == 0.0)
+        & (pdf.close_price  == 1000.0)
+    )| (
+        (pdf.volume == 0.0)
+        & (pdf.close_price  == 100.0)
+    )| (
+        (pdf.volume == 0.0)
+        & (pdf.close_price  == 10.0)
+    )| (
+        (pdf.volume == 0.0)
+        & (pdf.close_price  == 10.0)
+    )| (
+        (pdf.volume == 0.0)
+        & (pdf.close_price  == 1)
+    )
+    )
+]
+#%%
+pdf[ (
+         ~(pdf.yesterday_price.isnull())#(pdf.close_price == 5.0)
+        # & ((pdf.yesterday_price == 100.0) | (pdf.yesterday_price.isnull()))
+    )][['name','date','close_price','yesterday_price','volume']]
+
 
 #%%
 pdf.to_parquet(
@@ -400,3 +554,17 @@ list(
 pdf[pdf.name == "انرژیح1"].title.unique()
 pdf[pdf.title.str.startswith("ح")].name.unique()
 pdf[pdf.name == "های وب"].MarketCap.unique()
+
+# %%
+
+path = r"E:\RA_Aghajanzadeh\Data\\"
+# path = r"G:\Economics\Finance(Prof.Heidari-Aghajanzadeh)\Data\\"
+# df = pd.read_parquet(path + "Cleaned_Stock_Prices_1400_06_29.parquet")
+# print(len(df.name.unique()))
+df = pd.read_parquet(path + "Cleaned_Stock_Prices_14010225.parquet")
+print(len(df))
+#%%
+sub_df = df.groupby(['name']).filter(lambda x: x.shape[0] <60)
+df = df.groupby(['name']).filter(lambda x: x.shape[0] >60)
+#%%
+len(df.name.unique())

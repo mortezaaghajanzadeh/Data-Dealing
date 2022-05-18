@@ -290,7 +290,7 @@ for name in tqdm.tqdm(arr):
     i = pd.read_pickle(path + name)
     if i is None:
         continue
-    if tempt.shape[0] > 5e5:
+    if tempt.shape[0] > 1e6:
         Data = pd.concat([Data, tempt])
         print(len(Data), len(tempt))
         tempt = i
@@ -300,11 +300,12 @@ Data = pd.concat([Data, tempt])
 print(len(Data), len(tempt))
 # %%
 len(Data.name.unique())
-
-#%%
-path = r"E:\RA_Aghajanzadeh\Data\\"
-name = "Stock_Prices_1401_01_22"
-Data.to_parquet(path + name + ".parquet")
-print(len(Data))
 # %%
 Data[Data.date == Data.date.max()]
+#%%
+path = r"E:\RA_Aghajanzadeh\Data\\"
+name = "Stock_Prices_1401_02_25"
+Data.to_parquet(path + name + ".parquet")
+print(len(Data))
+
+# %%
