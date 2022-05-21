@@ -30,7 +30,7 @@ def _multiple_replace(mapping, text):
 
 
 #%%
-pdf = pd.read_parquet(path2 + "Cleaned_Stock_Prices_14001127.parquet")
+pdf = pd.read_parquet(path2 + "Cleaned_Stock_Prices_14010225.parquet")
 print("read Price")
 pdf = pdf.drop(
     columns=[
@@ -148,3 +148,33 @@ ids = tempt_df[tempt_df["Holder"].isnull()]["Holder_id"].tolist()
 Holders[Holders["Holder_id"].isin(ids)]
 #%%
 Holders[Holders["Holder_id"].isin(ids)].to_excel(path + "NewHolder.xlsx")
+
+# %%
+df1 = pd.DataFrame().append(tempt_df)
+df1.head()
+
+#%%
+df1 = df1.drop_duplicates(keep="first")
+df1.head()
+#%%
+df1 = df1.drop_duplicates(
+    keep="first", subset=["name", "date", "Holder_id", "Number"]
+).rename(columns={"shrout": "Total"})
+#%%
+tempt = df1[~df1.Holder.isin(["شخص حقیقی", "اشخاص حقیقی",])][
+    ["Holder", "type", "Holder_id"]
+].drop_duplicates(keep="last", subset=["Holder", "type"])
+tempt["Holder_id"] = tempt.Holder_id.astype(int)
+
+mapingdict = dict(zip(tempt.set_index(["Holder", "type"]).index, tempt["Holder_id"]))
+df1["Holder_id2"] = df1.set_index(["Holder", "type"]).index.map(mapingdict)
+df1.loc[df1.Holder_id2.isnull(), "Holder_id2"] = df1.loc[
+    df1.Holder_id2.isnull()
+].Holder_id
+df1["Holder_id"] = df1.Holder_id2
+df1 = df1.drop(columns=["Holder_id2"])
+#%%
+df1[df1.Holder == "اخابر"].drop_duplicates(subset=["Holder_id"])[
+    ["Holder_id", "name", "date", "Holder", "type", "Number", "Total"]
+]
+#%%

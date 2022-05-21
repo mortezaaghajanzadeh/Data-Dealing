@@ -39,8 +39,8 @@ allstock = []
 arr.remove("Error.p")
 arr.remove("Excepted_stock.p")
 arr.remove("Second_Excepted_stock.p")
-arr.remove("Second_econd_Excepted_stock.p")
-arr.remove("Second2_Excepted_stock.p")
+# arr.remove("Second_econd_Excepted_stock.p")
+# arr.remove("Second2_Excepted_stock.p")
 arr.remove("PriceTradeData")
 arr.remove("HolderData")
 
@@ -111,9 +111,9 @@ def genFile(i, path, HolderDataColumns, PriceTradeDataColumns):
         open(path + "PriceTradeData\PriceTradeData_{}.p".format(i[8:-2]), "wb"),
     )
 
-
-# for i in tqdm(arr):
-#     genFile(i, path, HolderDataColumns, PriceTradeDataColumns)
+#%%
+for i in tqdm(arr):
+    genFile(i, path, HolderDataColumns, PriceTradeDataColumns)
 #%%
 def append_dict(dictionary, data_dict):
     for i in dictionary.keys():
@@ -124,7 +124,7 @@ def append_dict(dictionary, data_dict):
 # %%
 arr = os.listdir(path + "HolderData")
 
-arr.remove("Old")
+# arr.remove("Old")
 data_dict = {}
 
 for i in pd.read_pickle(path + "HolderData\\{}".format(arr[0])).to_dict().keys():
@@ -166,7 +166,7 @@ data.to_pickle(path2 + "mergerdHolderAllData_cleaned.p")
 #%%
 arr = os.listdir(path + "PriceTradeData")
 
-arr.remove("Old")
+# arr.remove("Old")
 data_dict = {}
 
 for i in pd.read_pickle(path + "PriceTradeData\\{}".format(arr[0])).to_dict().keys():
@@ -212,3 +212,5 @@ shrout_df.to_csv(
     r"E:\RA_Aghajanzadeh\Data\\" + "SymbolShrout_1400_11_27.csv", index=False
 )
 shrout_df
+
+# %%
