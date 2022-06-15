@@ -221,21 +221,7 @@ df1 = (
     .sort_values(by=["name", "date", "Percent"])
     .reset_index()
 )
-#%%
-df1["percent_2"] = (df1.Number / df1.Total * 100).round(2)
-df1[df1.name == "جم"][df1.jalaliDate == 14000108][
-    [
-        "name",
-        "Holder",
-        "Percent",
-        "jalaliDate",
-        "date",
-        "Holder_id",
-        "percent_2",
-        "Total",
-        "Number",
-    ]
-]
+
 # %%
 df1 = df1[
     [
@@ -263,34 +249,8 @@ a = df1.groupby("date").size().to_frame().reset_index()
 a.plot(y=0, use_index=True)
 #%%
 
-
-def Cleaning(gg):
-
-    gg["percent_2"] = (gg["Number"] / gg["Total"] * 100).round(2)
-    gg.loc[abs(gg.Percent - gg.percent_2) > 0.010000001, "Percent"] = np.nan
-    gg.loc[gg.Percent.isnull(), "Total"] = np.nan
-    gg.loc[gg.Percent.isnull(), "Number"] = np.nan
-    gg["Percent"] = gg.Percent.fillna(method="bfill").fillna(method="ffill")
-    gg["Total"] = gg.Total.fillna(method="bfill").fillna(method="ffill")
-    gg["Number"] = gg.Number.fillna(method="bfill").fillna(method="ffill")
-
-    gg = gg.drop(columns=["percent_2"])
-
-    return gg
-
-
-df = df1.reset_index(drop=True)
-
-grouped_data = df1.groupby(["name", "Holder_id"])
-g_keys = list(grouped_data.groups.keys())
-
 data = pd.DataFrame()
-
-#%%
-from tqdm import tqdm
-
-tqdm.pandas()
-data = grouped_data.progress_apply(Cleaning)
+data = pd.concat([data,df1])
 data = (
     (data.reset_index(drop=True).dropna())
     .sort_values(by=["name", "date", "Percent"])
@@ -299,77 +259,9 @@ data = (
     .reset_index(drop=True)
 )
 #%%
-df1[df1.name == "جم"][df1.jalaliDate == 14000107][
-    ["name", "Holder", "Percent", "jalaliDate", "date", "Holder_id", "percent_2"]
-]
-
-#%%
-
-df1["percent_2"] = (df1["Number"] / df1["Total"] * 100).round(2)
-#%%
 data.loc[data.name == "جم"][data.jalaliDate == 13991226][
     ["name", "Holder", "Percent", "jalaliDate", "date", "Holder_id"]
 ]
-
-#%%
-df1.loc[df1.name == "جم"][df1.jalaliDate == 13991225][
-    ["name", "Holder", "Percent", "jalaliDate", "date", "Holder_id", "percent_2"]
-]
-
-
-#%%
-def dropAboveHunder(data):
-    data["percentSum"] = data.groupby(["name", "date"]).Percent.transform(sum)
-    data.loc[data.percentSum > 100, "Percent"] = np.nan
-    data.loc[data.Percent.isnull(), "Total"] = np.nan
-    data.loc[data.Percent.isnull(), "Number"] = np.nan
-    data["Percent"] = (
-        data.groupby(["name", "Holder_id"])
-        .Percent.fillna(method="bfill")
-        .fillna(method="ffill")
-    )
-    data["Total"] = (
-        data.groupby(["name", "Holder_id"])
-        .Total.fillna(method="bfill")
-        .fillna(method="ffill")
-    )
-    data["Number"] = (
-        data.groupby(["name", "Holder_id"])
-        .Number.fillna(method="bfill")
-        .fillna(method="ffill")
-    )
-
-    ####
-
-    data["percentSum"] = data.groupby(["name", "date"]).Percent.transform(sum)
-    data.loc[data.percentSum > 100, "Percent"] = np.nan
-    data.loc[data.Percent.isnull(), "Total"] = np.nan
-    data.loc[data.Percent.isnull(), "Number"] = np.nan
-    data["Percent"] = (
-        data.groupby(["name", "Holder_id"])
-        .Percent.fillna(method="ffill")
-        .fillna(method="bfill")
-    )
-    data["Total"] = (
-        data.groupby(["name", "Holder_id"])
-        .Total.fillna(method="ffill")
-        .fillna(method="bfill")
-    )
-    data["Number"] = (
-        data.groupby(["name", "Holder_id"])
-        .Number.fillna(method="bfill")
-        .fillna(method="ffill")
-    )
-    data["percentSum"] = data.groupby(["name", "date"]).Percent.transform(sum)
-    return data
-
-
-data = dropAboveHunder(data)
-#%%
-data.loc[data.percentSum > 100][["name", "Holder", "Percent", "jalaliDate", "date"]]
-
-#%%
-data = data.drop(columns=["percentSum"])
 
 
 #%%
@@ -407,6 +299,13 @@ data = clean(tempt, data, a)
 tempt = pdf[["jalaliDate", "date"]].drop_duplicates()
 mapingdict = dict(zip(tempt.date, tempt.jalaliDate))
 data["jalaliDate"] = data.date.map(mapingdict)
+data.loc[data.date == 20090914,'jalaliDate'] = 13880623
+data.loc[data.date == 20090916,'jalaliDate'] = 13880625
 # %%
-data[data.name == "البرز"][data.date == 20110713]
+data[data.jalaliDate.isnull()].date.unique()
 #%%
+data.head()
+#%%
+data.to_csv(path2 + "Cleaned_Stocks_Holders_1401_02_21.csv",index = False) 
+
+# %%

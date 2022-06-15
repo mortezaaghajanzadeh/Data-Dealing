@@ -166,7 +166,6 @@ pdf["title"] = pdf.title.str.replace(",FaraDesc ='", "")
 pdf["title"] = pdf.title.str.replace("\u200c", "")
 pdf["name"] = pdf.name.str.replace("\u200c", "")
 
-
 #%%
 
 pdf = pdf[~(pdf.name.str.endswith("پذيره"))]
@@ -186,7 +185,6 @@ pdf = pdf[
         | ((pdf.title.str.contains("40%")) & (pdf.title.str.contains("تادیه")))
     )
 ]
-
 #%%
 pdf["market"] = pdf.title.apply(lambda x: x.split("-")[-1].replace("'", "").strip())
 #%%
@@ -293,8 +291,6 @@ pdf.loc[(pdf.date >= '20220410')&(pdf.name == 'فولاد')][
     ]
 ].head(25)
 #%%
-
-#%%
 symbolGroup = pdf[["name", "group_name", "group_id"]].drop_duplicates(
     subset=["name", "group_name", "group_id"]
 )
@@ -313,6 +309,7 @@ d = pd.DataFrame()
 d = d.append(pdf)
 d["shrout"] = d.groupby("name")["shrout"].transform(lambda x: x.fillna(method="bfill"))
 d["shrout"] = d.groupby("name")["shrout"].transform(lambda x: x.fillna(method="ffill"))
+
 #%%
 pdf = pd.DataFrame()
 pdf = pdf.append(d)
@@ -332,19 +329,19 @@ for i in range(-5, 6):
     pdf["Volume({})".format(-i)] = gg.volume.shift(i)
     pdf["price({})".format(-i)] = gg.close_price.shift(i)
 
-for i in ["last_price", "open_price", "value", "quantity", "volume"]:
-    print(i)
-    pdf.loc[(pdf["Volume(-1)"] == 0) & (pdf["Volume(1)"] == 0), i] = 0
-    # pdf.loc[(pdf["Volume(-1)"] == 0) & (pdf["Volume(1)"] == 0), i] = 0
-    pdf.loc[(pdf["Volume(-2)"] == 0) & (pdf["Volume(1)"] == 0), i] = 0
-    pdf.loc[(pdf["Volume(-1)"] == 0) & (pdf["Volume(2)"] == 0), i] = 0
-    pdf.loc[(pdf["Volume(-2)"] == 0) & (pdf["Volume(2)"] == 0), i] = 0
-    pdf.loc[(pdf["Volume(-3)"] == 0) & (pdf["Volume(1)"] == 0), i] = 0
-    pdf.loc[(pdf["Volume(-1)"] == 0) & (pdf["Volume(3)"] == 0), i] = 0
-    pdf.loc[(pdf["Volume(-1)"] == 0) & (pdf["Volume(4)"] == 0), i] = 0
-    pdf.loc[(pdf["Volume(-2)"] == 0) & (pdf["Volume(4)"] == 0), i] = 0
-    pdf.loc[(pdf["Volume(-4)"] == 0) & (pdf["Volume(1)"] == 0), i] = 0
-    pdf.loc[(pdf["Volume(-4)"] == 0) & (pdf["Volume(2)"] == 0), i] = 0
+# for i in ["last_price", "open_price", "value", "quantity", "volume"]:
+#     print(i)
+#     pdf.loc[(pdf["Volume(-1)"] == 0) & (pdf["Volume(1)"] == 0), i] = 0
+#     # pdf.loc[(pdf["Volume(-1)"] == 0) & (pdf["Volume(1)"] == 0), i] = 0
+#     pdf.loc[(pdf["Volume(-2)"] == 0) & (pdf["Volume(1)"] == 0), i] = 0
+#     pdf.loc[(pdf["Volume(-1)"] == 0) & (pdf["Volume(2)"] == 0), i] = 0
+#     pdf.loc[(pdf["Volume(-2)"] == 0) & (pdf["Volume(2)"] == 0), i] = 0
+#     pdf.loc[(pdf["Volume(-3)"] == 0) & (pdf["Volume(1)"] == 0), i] = 0
+#     pdf.loc[(pdf["Volume(-1)"] == 0) & (pdf["Volume(3)"] == 0), i] = 0
+#     pdf.loc[(pdf["Volume(-1)"] == 0) & (pdf["Volume(4)"] == 0), i] = 0
+#     pdf.loc[(pdf["Volume(-2)"] == 0) & (pdf["Volume(4)"] == 0), i] = 0
+#     pdf.loc[(pdf["Volume(-4)"] == 0) & (pdf["Volume(1)"] == 0), i] = 0
+#     pdf.loc[(pdf["Volume(-4)"] == 0) & (pdf["Volume(2)"] == 0), i] = 0
 
 
 # pList = [1.0, 1000.0, 100.0, 10.0]
@@ -427,6 +424,9 @@ pdf = pdf.drop(
     ]
 )
 pdf.describe()
+
+#%%
+pdf[pdf.name == 'جم4']
 # %%
 for i in [
     "max_price",
@@ -473,6 +473,7 @@ pdf['firstDate'] = pdf.name.map(mapingdict)
 pdf[(pdf.name == "ومشان") & (pdf.jalaliDate > 13980104)][
     ["jalaliDate", "close_price", "close_price_Adjusted",'return','volume','firstDate']
 ].head(20)
+
 #%%
 print(len(pdf.name.unique()))
 len(pdf[pdf.jalaliDate>= pdf.firstDate].name.unique())
@@ -526,13 +527,15 @@ pdf = pdf[
     )
     )
 ]
+
 #%%
 pdf[ (
          ~(pdf.yesterday_price.isnull())#(pdf.close_price == 5.0)
         # & ((pdf.yesterday_price == 100.0) | (pdf.yesterday_price.isnull()))
     )][['name','date','close_price','yesterday_price','volume']]
 
-
+#%%
+pdf[(pdf.name == 'جم4')&(pdf.jalaliDate>= 13991227)][['volume','jalaliDate']]
 #%%
 pdf.to_parquet(
     path
