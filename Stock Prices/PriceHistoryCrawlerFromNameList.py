@@ -128,7 +128,7 @@ def crawl_prices(id):
     url1 = url.format(id, 1)  # Adjusted prices
     r1 = requests.get(url1, timeout=10, verify=False)
     t1 = clean_adjusted_price(r1)
-    url = r"https://members.tsetmc.com/tsev2/chart/data/Financial.aspx?i={}&t=ph&a={}"
+    # url = r"https://members.tsetmc.com/tsev2/chart/data/Financial.aspx?i={}&t=ph&a={}"
     url = "http://members.tsetmc.com/tsev2/data/InstTradeHistory.aspx?i={}&Top=999999&A={}"
     url1 = url.format(id, 1)  # UnAdjusted prices
     r = requests.get(url1.format(id), timeout=10, verify=False)
